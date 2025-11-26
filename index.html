@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>冒險旅途中的意外插曲 v8.1</title>
+    <title>冒險旅途中的意外插曲 v8.2</title>
     <!-- 引入 QRCode -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <!-- 引入 現代日系 RPG 風格字體 -->
@@ -51,7 +51,7 @@
             position: fixed; top: 0; left: 0; width: 100%; height: 6px;
             background: linear-gradient(90deg, var(--primary), var(--gold), var(--primary));
             z-index: 1000;
-            pointer-events: none; /* 確保裝飾條不擋點擊 */
+            pointer-events: none;
         }
 
         /* --- 按鈕元件 --- */
@@ -72,7 +72,7 @@
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
             overflow: hidden;
             letter-spacing: 1px;
-            pointer-events: auto !important; /* 強制可點擊 */
+            pointer-events: auto !important;
         }
         .btn:hover { transform: translateY(-2px); box-shadow: 0 6px 12px rgba(0,0,0,0.2); }
         .btn:active { transform: scale(0.96); }
@@ -109,9 +109,9 @@
             position: sticky;
             top: 0;
             z-index: 2000;
-            pointer-events: none; /* 讓狀態列背景不擋點擊，內部按鈕自己開啟 pointer-events */
+            pointer-events: none; 
         }
-        #statusBar > * { pointer-events: auto; } /* 恢復子元素點擊 */
+        #statusBar > * { pointer-events: auto; } 
         
         #homeBtnContainer { display: none; }
         #globalHomeBtn {
@@ -137,7 +137,7 @@
             box-shadow: var(--shadow-card);
             border: 1px solid #e0e0e0;
             transition: all 0.5s;
-            pointer-events: auto !important; /* [修正] 強制卡片內容可點擊 */
+            pointer-events: auto !important;
         }
         .card::before {
             content: '';
@@ -147,7 +147,7 @@
             border-radius: 0 0 4px 4px;
         }
 
-        /* --- 通用透明模式 (用於魔龍與抽籤) --- */
+        /* --- 通用透明模式 --- */
         .card.transparent-mode {
             background: transparent !important;
             box-shadow: none !important;
@@ -171,14 +171,12 @@
             transition: all 0.5s;
         }
         
-        /* 惡魔/魔龍模式下的懸浮面板 */
         .demon-theme .glass-panel {
             background: rgba(0, 0, 0, 0.6);
             border: 1px solid rgba(255, 255, 255, 0.1);
             color: #fff;
         }
         
-        /* 抽籤結果大字 */
         .lottery-display-text {
             font-size: 6rem;
             font-weight: 700;
@@ -222,7 +220,7 @@
             width: 100%;
         }
 
-        /* 計時器數字 (魔龍版) */
+        /* 計時器數字 */
         .dragon-timer-display {
             font-family: 'Cinzel', serif;
             font-size: 8rem;
@@ -241,14 +239,12 @@
         }
         @keyframes shake { 10%, 90% { transform: translate3d(-1px, 0, 0); } 20%, 80% { transform: translate3d(2px, 0, 0); } }
 
-        /* 輸入框 (魔龍版) */
         .dragon-input {
             background: rgba(0,0,0,0.7) !important; border: 1px solid #888 !important; color: #ffcc00 !important;
             font-family: 'Cinzel', serif !important; font-size: 1.8rem !important; font-weight: bold !important;
             text-align: center; width: 90px; border-radius: 8px; box-shadow: 0 0 15px rgba(0,0,0,0.5) !important;
         }
 
-        /* 輸入框 (通用) */
         input, select, textarea {
             background: #fff; border: 2px solid #e0e0e0; border-radius: 8px; color: var(--text-dark);
             padding: 12px; font-size: 1.1rem; width: 100%; margin-bottom: 15px; transition: 0.3s; font-family: var(--font-ui);
@@ -256,10 +252,7 @@
         input:focus, select:focus, textarea:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(78, 115, 223, 0.1); }
         label { color: #666; font-size: 1rem; margin-bottom: 6px; display: block; font-weight: 700; font-family: var(--font-header); }
         
-        /* 惡魔模式下的輸入框調色 */
-        .demon-theme input {
-            background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.3); color: #fff;
-        }
+        .demon-theme input { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.3); color: #fff; }
         .demon-theme label { color: #ccc; }
         .demon-theme h3 { color: #ffcc00 !important; }
 
@@ -267,7 +260,6 @@
         .page.active { display: block; }
         @keyframes fadeSlideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* 選單 */
         .menu-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 25px; padding: 10px; }
         .menu-item {
             height: 240px; display: flex; flex-direction: column; justify-content: center; align-items: center;
@@ -287,7 +279,6 @@
         .menu-title { font-size: 1.5rem; font-weight: 900; color: var(--text-dark); margin-bottom: 5px; font-family: var(--font-header); z-index: 1; }
         .menu-sub { font-family: var(--font-eng); font-size: 0.8rem; color: #555; letter-spacing: 2px; text-transform: uppercase; z-index: 1; font-weight: bold;}
 
-        /* 抽籤門 */
         .door-container { display: flex; gap: 30px; justify-content: center; flex-wrap: wrap; margin-top: 40px; }
         .door { width: 45%; min-width: 300px; height: 420px; position: relative; cursor: pointer; transition: 0.4s; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.3); background-size: cover; background-position: center; }
         .door:hover { transform: scale(1.03); box-shadow: 0 15px 40px rgba(0,0,0,0.4); }
@@ -300,7 +291,6 @@
         .door-demon .door-title { color: #e74c3c; font-size: 2rem; font-family: var(--font-header); text-shadow: 0 2px 10px rgba(0,0,0,0.8); }
         .door-desc { font-size: 1.1rem; color: rgba(255,255,255,0.9); margin-top: 8px; font-weight: 500; font-family: var(--font-header); }
 
-        /* Switch */
         .mode-switch-container { display: flex; align-items: center; gap: 10px; margin-bottom: 0; }
         .switch-label { font-weight: bold; color: var(--primary); }
         .demon-theme .switch-label { color: #ffcc00; }
@@ -325,7 +315,7 @@
 </head>
 <body>
 
-    <!-- 頂部狀態列 (左:返回, 右:登入) -->
+    <!-- 頂部狀態列 -->
     <div id="statusBar">
         <div id="homeBtnContainer">
             <button id="globalHomeBtn" class="btn" onclick="navTo('home')">↩ 返回大廳</button>
@@ -336,7 +326,7 @@
     <!-- 首頁選單 -->
     <div id="page-home" class="page active">
         <div class="card" style="margin-top: 8vh; border-top: 5px solid var(--primary);">
-            <h1>冒險旅途中的意外插曲 v8.1</h1>
+            <h1>冒險旅途中的意外插曲</h1>
             <p style="color: #666; margin-bottom: 40px;">請選擇冒險者即將遭遇的事件</p>
             
             <div class="menu-grid">
@@ -382,7 +372,7 @@
         </div>
     </div>
 
-    <!-- 1-2. 抽籤系統：執行畫面 (全透明佈局) -->
+    <!-- 1-2. 抽籤系統：執行畫面 -->
     <div id="page-lottery-run" class="page">
         <div class="card transparent-mode" id="lotteryCard">
             
@@ -424,7 +414,7 @@
         </div>
     </div>
 
-    <!-- 2. 計時器：魔龍挑戰 (全透明 + 史詩文字) -->
+    <!-- 2. 計時器：魔龍挑戰 -->
     <div id="page-timer" class="page">
         <div class="card transparent-mode" id="timerCard">
             <div style="text-align: center; margin-bottom: 30px;">
@@ -534,21 +524,9 @@
         import { getFirestore, doc, setDoc, onSnapshot, updateDoc, increment, getDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
         import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-        // [v8.1 核心修復] 使用 Hash 路由參數解析
-        function getHashParams() {
-            if (window.location.hash) {
-                const hashContent = window.location.hash.substring(1);
-                const params = new URLSearchParams(hashContent);
-                return {
-                    mode: params.get('mode'),
-                    host: params.get('host')
-                };
-            }
-            return { mode: null, host: null };
-        }
-
-        const params = getHashParams();
-
+        // 1. Imports done
+        
+        // 2. Config
         const firebaseConfig = {
             apiKey: "AIzaSyDJFzG3RrCkJBx5B23lBVcoOHmaqZ2dAYA",
             authDomain: "forgemini-7349a.firebaseapp.com",
@@ -570,10 +548,23 @@
             console.log("Firebase Initialized.");
         } catch (e) {
             console.error("Firebase Init Error:", e);
-            alert("Firebase 初始化失敗，請檢查網路或金鑰設定");
+            alert("Firebase 初始化失敗");
         }
 
-        // 頁面導航
+        // 3. Hash Params Logic (Defined only once)
+        function getHashParams() {
+            if (window.location.hash) {
+                const hashContent = window.location.hash.substring(1);
+                const params = new URLSearchParams(hashContent);
+                return {
+                    mode: params.get('mode'),
+                    host: params.get('host')
+                };
+            }
+            return { mode: null, host: null };
+        }
+
+        // 4. Navigation
         window.navTo = (pageId) => {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             document.getElementById(`page-${pageId}`).classList.add('active');
@@ -624,7 +615,7 @@
             }
         };
 
-        // ... Lottery Logic ...
+        // --- Lottery Logic ---
         let currentLotteryMode = 'angel';
         let lotteryDeck = [];
         
@@ -680,6 +671,7 @@
             const isUnique = document.getElementById('uniqueModeCheck').checked;
             
             if(start >= end) return alert("範圍錯誤");
+            
             let pool = [];
             if (isUnique) {
                 if (lotteryDeck.length === 0) window.initDeck();
@@ -721,7 +713,7 @@
             }, 60);
         };
 
-        // ... Timer Logic ...
+        // --- Timer Logic ---
         let timerInterval; let isRunning = false; let totalTimeLeft = 0;
         function playBeep(freq = 440, dur = 0.1, type = 'sine') {
             if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -766,7 +758,7 @@
             document.getElementById('startTimerBtn').innerHTML = "⚔️ 接受挑戰";
         };
 
-        // ... Vote Logic ...
+        // --- Vote Logic ---
         window.toggleVoteLimit = () => {
             const type = document.getElementById('voteType').value;
             document.getElementById('voteLimitContainer').style.display = (type === 'multi') ? 'block' : 'none';
@@ -788,7 +780,6 @@
             document.getElementById('voteSetup').style.display = 'none';
             document.getElementById('voteResult').style.display = 'block';
             
-            // [v8.1 Fix] 強制指定 index.html 並使用 Hash 路由
             let baseUrl = window.location.href.split('#')[0].split('?')[0];
             if (baseUrl.endsWith('/')) { baseUrl = baseUrl.slice(0, -1); }
             if (!baseUrl.endsWith('index.html')) { baseUrl += '/index.html'; }
@@ -835,7 +826,6 @@
              if(confirm("確定結束投票？")) {
                  document.getElementById('voteResult').style.display = 'none';
                  document.getElementById('voteSetup').style.display = 'block';
-                 // [v8.1] 結束時清理 DOM，防止殘留
                  document.getElementById('voteBarsArea').innerHTML = '';
                  document.getElementById('qrCodeArea').innerHTML = '';
                  window.scrollTo(0, 0);
@@ -909,23 +899,15 @@
 
         const authBtn = document.getElementById('authBtn');
         
-        // [v8.1] 路由邏輯不變
+        // Main Execution
         const p = getHashParams();
-        function getHashParams() {
-            if (window.location.hash) {
-                const hashContent = window.location.hash.substring(1);
-                const params = new URLSearchParams(hashContent);
-                return { mode: params.get('mode'), host: params.get('host') };
-            }
-            return { mode: null, host: null };
-        }
 
         if(p.mode === 'student' && p.host) { 
             initStudentMode(p.host); 
         } 
         else {
             authBtn.onclick = () => { 
-                // alert("正在呼叫 Google 登入窗口..."); // Remove debug alert for production feel
+                // Removed debug alert to make it cleaner
                 if(user) { signOut(auth); } 
                 else {
                     const provider = new GoogleAuthProvider();

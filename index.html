@@ -45,10 +45,13 @@
             margin: 0;
             padding: 0;
             background-color: var(--bg-world);
-            /* 魔法背景氛圍 */
+            /* 預設魔法背景氛圍 */
             background-image: 
                 radial-gradient(circle at 10% 20%, rgba(78, 115, 223, 0.2) 0%, transparent 20%),
                 radial-gradient(circle at 90% 80%, rgba(212, 175, 55, 0.1) 0%, transparent 20%);
+            background-size: cover;
+            background-attachment: fixed;
+            background-position: center;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
@@ -65,13 +68,13 @@
             z-index: 1000;
         }
 
-        /* --- 按鈕元件：現代 RPG 風格 --- */
+        /* --- 按鈕元件 --- */
         .btn {
             border: none;
             padding: 12px 24px;
             font-size: 1.1rem;
             font-weight: 700;
-            border-radius: 50px; /* 圓潤現代感 */
+            border-radius: 50px;
             cursor: pointer;
             transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
             position: relative;
@@ -84,7 +87,6 @@
             overflow: hidden;
         }
         
-        /* 光澤效果 */
         .btn::after {
             content: '';
             position: absolute;
@@ -119,7 +121,7 @@
             border: 1px solid #ddd;
         }
 
-        /* --- 卡片容器：魔法卷軸質感 --- */
+        /* --- 卡片容器 --- */
         .card {
             background: var(--bg-paper);
             border-radius: var(--radius-main);
@@ -130,14 +132,45 @@
             position: relative;
             box-shadow: var(--shadow-card);
             border: 1px solid #e0e0e0;
+            transition: background 0.5s, color 0.5s, border-color 0.5s;
         }
-        /* 頂部金色裝飾線 */
         .card::before {
             content: '';
             position: absolute; top: 0; left: 50%; transform: translateX(-50%);
             width: 80%; height: 4px;
             background: linear-gradient(90deg, transparent, var(--gold), transparent);
             border-radius: 0 0 4px 4px;
+        }
+
+        /* --- 惡魔暗黑主題卡片 --- */
+        .card.demon-theme {
+            background: rgba(20, 20, 25, 0.95); /* 深色半透明 */
+            color: #ecf0f1;
+            border-color: #555;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+        }
+        .card.demon-theme h1, 
+        .card.demon-theme h2, 
+        .card.demon-theme h3 {
+            color: #c0392b; /* 惡魔紅標題 */
+        }
+        .card.demon-theme label {
+            color: #bbb;
+        }
+        .card.demon-theme input {
+            background: #2c3e50;
+            color: #fff;
+            border-color: #444;
+        }
+        .card.demon-theme .lottery-result-area {
+            background: #000;
+            border-color: #c0392b;
+            color: #e74c3c;
+            box-shadow: inset 0 0 30px rgba(192, 57, 43, 0.2);
+        }
+        .card.demon-theme .config-panel {
+            background: #222;
+            border-color: #444;
         }
 
         h1, h2, h3 { margin-top: 0; font-family: var(--font-header); color: #1a1c29; }
@@ -179,7 +212,6 @@
             z-index: 900;
         }
         
-        /* --- 頁面切換動畫 --- */
         .page { display: none; animation: fadeSlideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1); }
         .page.active { display: block; }
         @keyframes fadeSlideUp { 
@@ -187,7 +219,7 @@
             to { opacity: 1; transform: translateY(0); } 
         }
 
-        /* --- 首頁選單 (公會看板) --- */
+        /* --- 首頁選單 --- */
         .menu-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
@@ -214,15 +246,12 @@
             box-shadow: 0 12px 24px rgba(78, 115, 223, 0.15); 
             border-color: var(--primary);
         }
-        
-        /* 裝飾背景圖案 */
         .menu-item::before {
             content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
             background: radial-gradient(circle, rgba(78, 115, 223, 0.03) 0%, transparent 70%);
             transition: 0.5s;
         }
         .menu-item:hover::before { transform: scale(1.1); }
-        
         .menu-icon { 
             font-size: 4rem; margin-bottom: 15px; 
             background: linear-gradient(135deg, var(--primary), #2c52b3);
@@ -230,7 +259,6 @@
             -webkit-text-fill-color: transparent;
             filter: drop-shadow(0 4px 6px rgba(78, 115, 223, 0.2));
         }
-        
         .menu-title { font-size: 1.4rem; font-weight: 700; color: var(--text-dark); margin-bottom: 5px; }
         .menu-sub { font-family: var(--font-eng); font-size: 0.8rem; color: #888; letter-spacing: 2px; text-transform: uppercase; }
 
@@ -255,24 +283,12 @@
             text-align: left;
         }
         
-        /* 天使門 - 光明與神聖 */
-        .door-angel { 
-            background-image: url('image_4b8832.png'); /* 更新為 png */
-            border: 4px solid #fff;
-        }
-        .door-angel::after {
-            content: '✧'; position: absolute; top: 20px; right: 20px; color: rgba(255,255,255,0.8); font-size: 3rem;
-        }
+        .door-angel { background-image: url('image_4b8832.png'); border: 4px solid #fff; }
+        .door-angel::after { content: '✧'; position: absolute; top: 20px; right: 20px; color: rgba(255,255,255,0.8); font-size: 3rem; }
         .door-angel .door-title { color: #fff; font-size: 2rem; font-family: var(--font-header); text-shadow: 0 2px 10px rgba(255,255,255,0.5); }
         
-        /* 惡魔門 - 黑暗與深淵 */
-        .door-demon { 
-            background-image: url('image_4b8812.png'); /* 更新為 png */
-            border: 4px solid #c0392b;
-        }
-        .door-demon::after {
-            content: '☠'; position: absolute; top: 20px; right: 20px; color: rgba(192, 57, 43, 0.5); font-size: 3rem;
-        }
+        .door-demon { background-image: url('image_4b8812.png'); border: 4px solid #c0392b; }
+        .door-demon::after { content: '☠'; position: absolute; top: 20px; right: 20px; color: rgba(192, 57, 43, 0.5); font-size: 3rem; }
         .door-demon .door-title { color: #e74c3c; font-size: 2rem; font-family: var(--font-header); text-shadow: 0 2px 10px rgba(0,0,0,0.8); }
         
         .door-desc { font-size: 1rem; color: rgba(255,255,255,0.8); margin-top: 8px; font-weight: 300; }
@@ -289,107 +305,65 @@
             box-shadow: inset 0 0 20px rgba(0,0,0,0.03);
             font-family: var(--font-header);
             color: var(--text-dark);
+            transition: all 0.5s;
+        }
+        
+        .config-panel {
+            background: #f8f9fa; 
+            padding: 20px; 
+            border-radius: 12px; 
+            border: 1px solid #eee; 
+            margin-top: 20px;
+            transition: all 0.5s;
         }
 
         /* --- 計時：魔王降臨 --- */
-        #timerCard {
-            border: none;
-            overflow: hidden;
-            background: #fff;
-        }
-        /* 魔王氛圍背景層 */
+        #timerCard { border: none; overflow: hidden; background: #fff; }
         #timerCard.demon-bg {
             background: linear-gradient(rgba(255,255,255,0.9), rgba(255,255,255,0.9)), 
-                        url('https://placehold.co/800x600/330000/ff0000/png?text=BOSS+AURA'); /* 這裡建議換成真正的魔王底圖 */
+                        url('https://placehold.co/800x600/330000/ff0000/png?text=BOSS+AURA'); 
             background-size: cover;
         }
-        
-        .timer-header-box {
-            text-align: center;
-            margin-bottom: 20px;
-        }
+        .timer-header-box { text-align: center; margin-bottom: 20px; }
         .timer-title-text { 
             font-size: 2.5rem; font-family: var(--font-header); font-weight: 900; 
             background: linear-gradient(to right, #c0392b, #8e44ad);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
-
         .timer-circle {
-            width: 280px; height: 280px;
-            border-radius: 50%;
-            border: 6px solid #f0f0f0;
-            margin: 20px auto;
-            display: flex; align-items: center; justify-content: center;
-            position: relative;
-            background: #fff;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            transition: 0.3s;
+            width: 280px; height: 280px; border-radius: 50%; border: 6px solid #f0f0f0; margin: 20px auto;
+            display: flex; align-items: center; justify-content: center; position: relative;
+            background: #fff; box-shadow: 0 10px 30px rgba(0,0,0,0.1); transition: 0.3s;
         }
-        .timer-display { 
-            font-size: 4.5rem; font-family: 'Cinzel', serif; font-weight: 700; color: var(--text-dark);
-        }
-        
-        /* 緊急狀態 */
+        .timer-display { font-size: 4.5rem; font-family: 'Cinzel', serif; font-weight: 700; color: var(--text-dark); }
         .timer-urgent .timer-circle {
-            border-color: var(--accent-red);
-            box-shadow: 0 0 40px rgba(192, 57, 43, 0.3);
-            animation: pulse-red 1s infinite;
+            border-color: var(--accent-red); box-shadow: 0 0 40px rgba(192, 57, 43, 0.3); animation: pulse-red 1s infinite;
         }
         .timer-urgent .timer-display { color: var(--accent-red); }
-        
-        @keyframes pulse-red { 
-            0% { box-shadow: 0 0 0 0 rgba(192, 57, 43, 0.4); } 
-            70% { box-shadow: 0 0 0 20px rgba(192, 57, 43, 0); } 
-            100% { box-shadow: 0 0 0 0 rgba(192, 57, 43, 0); } 
-        }
+        @keyframes pulse-red { 0% { box-shadow: 0 0 0 0 rgba(192, 57, 43, 0.4); } 70% { box-shadow: 0 0 0 20px rgba(192, 57, 43, 0); } 100% { box-shadow: 0 0 0 0 rgba(192, 57, 43, 0); } }
 
         /* --- 投票系統 --- */
         .vote-bar-row { margin-bottom: 24px; position: relative; }
-        .vote-label-row { 
-            display: flex; justify-content: space-between; margin-bottom: 8px; 
-            font-weight: 700; color: #555;
-        }
-        .vote-track { 
-            height: 16px; background: #f0f0f0; width: 100%; 
-            border-radius: 8px; overflow: hidden;
-        }
+        .vote-label-row { display: flex; justify-content: space-between; margin-bottom: 8px; font-weight: 700; color: #555; }
+        .vote-track { height: 16px; background: #f0f0f0; width: 100%; border-radius: 8px; overflow: hidden; }
         .vote-fill { 
             height: 100%; background: var(--primary); width: 0%; 
-            transition: width 0.8s cubic-bezier(0.22, 1, 0.36, 1);
-            border-radius: 8px;
+            transition: width 0.8s cubic-bezier(0.22, 1, 0.36, 1); border-radius: 8px;
             background-image: linear-gradient(45deg,rgba(255,255,255,.15) 25%,transparent 25%,transparent 50%,rgba(255,255,255,.15) 50%,rgba(255,255,255,.15) 75%,transparent 75%,transparent);
             background-size: 1rem 1rem;
         }
-        
-        /* 學生端選項 */
         .student-option {
-            background: #fff;
-            padding: 20px; margin: 12px 0;
-            border: 2px solid #eee;
-            border-radius: 12px;
-            cursor: pointer;
-            display: flex; align-items: center;
-            font-size: 1.1rem;
-            transition: 0.2s;
-            position: relative;
+            background: #fff; padding: 20px; margin: 12px 0; border: 2px solid #eee; border-radius: 12px; cursor: pointer;
+            display: flex; align-items: center; font-size: 1.1rem; transition: 0.2s; position: relative;
         }
         .student-option:hover { border-color: var(--primary); transform: translateX(5px); }
-        .student-option.selected { 
-            background: #f0f4ff; 
-            border-color: var(--primary);
-            color: var(--primary);
-            font-weight: 700;
-        }
+        .student-option.selected { background: #f0f4ff; border-color: var(--primary); color: var(--primary); font-weight: 700; }
         .student-option input { width: 22px; height: 22px; margin: 0 15px 0 0; accent-color: var(--primary); }
 
-        /* RWD */
         @media (max-width: 600px) {
-            h1 { font-size: 1.8rem; }
-            .card { padding: 1.5rem; width: 95%; }
-            .door { height: 250px; min-width: 100%; }
-            .timer-circle { width: 220px; height: 220px; }
-            .timer-display { font-size: 3.5rem; }
+            h1 { font-size: 1.8rem; } .card { padding: 1.5rem; width: 95%; }
+            .door { height: 250px; min-width: 100%; } .timer-circle { width: 220px; height: 220px; } .timer-display { font-size: 3.5rem; }
         }
     </style>
 </head>
@@ -434,14 +408,12 @@
             <p style="color: rgba(255,255,255,0.8);">請選擇召喚的途徑</p>
             
             <div class="door-container">
-                <!-- 天使 -> 祝福 -->
                 <div class="door door-angel" onclick="enterLottery('angel')">
                     <div class="door-overlay">
                         <div class="door-title">天使的祝福</div>
                         <div class="door-desc">獲得女神的恩典與獎勵</div>
                     </div>
                 </div>
-                <!-- 惡魔 -> 試煉 -->
                 <div class="door door-demon" onclick="enterLottery('demon')">
                     <div class="door-overlay">
                         <div class="door-title">惡魔的試煉</div>
@@ -463,7 +435,7 @@
             </div>
             
             <!-- 設定面板 -->
-            <div style="background: #f8f9fa; padding: 20px; border-radius: 12px; border: 1px solid #eee; margin-top: 20px;">
+            <div class="config-panel">
                 <h3 style="font-size: 1rem; color: #555; margin-bottom: 15px; border:none;">⚙️ 徵召設定</h3>
                 <div style="display: flex; gap: 20px; align-items: flex-end; flex-wrap: wrap;">
                     <div style="flex: 1;">
@@ -634,17 +606,23 @@
             alert("目前為離線模式 (部分功能受限)");
         }
 
+        // 頁面導航
         window.navTo = (pageId) => {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             document.getElementById(`page-${pageId}`).classList.add('active');
             
-            // 背景動態切換
-            if(pageId === 'home') document.body.style.backgroundColor = '#1a1c29';
-            if(pageId.includes('lottery')) document.body.style.backgroundColor = '#2c3e50';
+            // 重置背景 (當回到首頁時)
+            if(pageId === 'home') {
+                document.body.style.backgroundImage = `
+                    radial-gradient(circle at 10% 20%, rgba(78, 115, 223, 0.2) 0%, transparent 20%),
+                    radial-gradient(circle at 90% 80%, rgba(212, 175, 55, 0.1) 0%, transparent 20%)
+                `;
+                document.body.style.backgroundColor = '#1a1c29';
+            }
             if(pageId.includes('timer')) document.body.style.backgroundColor = '#2c2c2c';
         };
 
-        // --- 抽籤邏輯 ---
+        // --- 抽籤邏輯 (修改處：動態背景與主題) ---
         let currentLotteryMode = 'angel';
         
         window.enterLottery = (mode) => {
@@ -652,18 +630,44 @@
             navTo('lottery-run');
             const title = document.getElementById('lotteryTitle');
             const display = document.getElementById('lotteryDisplay');
+            const card = document.getElementById('lotteryCard');
             
+            // 重置卡片樣式
+            card.classList.remove('demon-theme');
+
             if(mode === 'angel') {
+                // 天使模式
                 title.innerText = "✨ 天使的祝福 ✨";
                 title.style.color = "var(--primary)";
                 display.style.color = "var(--primary)";
-                document.body.style.backgroundColor = "#d6eaf8"; // 淺藍背景
+                
+                // 背景：天使圖 + 亮白透明覆蓋
+                document.body.style.backgroundImage = `
+                    linear-gradient(rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.85)),
+                    url('image_4b8832.png')
+                `;
+                document.body.style.backgroundColor = "#d6eaf8"; 
+
             } else {
+                // 惡魔模式 (暗黑主題)
                 title.innerText = "☠️ 惡魔的試煉 ☠️";
-                title.style.color = "#c0392b";
-                display.style.color = "#c0392b";
-                document.body.style.backgroundColor = "#2c2c2c"; // 深色背景
+                title.style.color = "#e74c3c"; // 亮紅
+                display.style.color = "#e74c3c";
+                
+                // 背景：惡魔圖 + 深黑透明覆蓋
+                document.body.style.backgroundImage = `
+                    linear-gradient(rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.9)),
+                    url('image_4b8812.png')
+                `;
+                document.body.style.backgroundColor = "#000";
+                
+                // 卡片切換為暗黑模式
+                card.classList.add('demon-theme');
             }
+            // 確保背景延展
+            document.body.style.backgroundSize = "cover";
+            document.body.style.backgroundPosition = "center";
+            document.body.style.backgroundAttachment = "fixed";
         };
 
         window.drawNumbers = () => {

@@ -3,10 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>冒險旅途中的意外插曲 v7.3</title>
-    <!-- 引入 QRCode -->
+    <title>冒險旅途中的意外插曲 v7.4 (修復版)</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-    <!-- 引入 現代日系 RPG 風格字體 -->
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@600;900&family=Cinzel:wght@700&display=swap" rel="stylesheet">
     
     <style>
@@ -321,7 +319,6 @@
 </head>
 <body>
 
-    <!-- 頂部狀態列 (左:返回, 右:登入) -->
     <div id="statusBar">
         <div id="homeBtnContainer">
             <button id="globalHomeBtn" class="btn" onclick="navTo('home')">↩ 返回大廳</button>
@@ -329,7 +326,6 @@
         <button id="authBtn" class="btn btn-ghost" style="font-size: 0.9rem;">☁️ 雲端登入</button>
     </div>
 
-    <!-- 首頁選單 -->
     <div id="page-home" class="page active">
         <div class="card" style="margin-top: 8vh; border-top: 5px solid var(--primary);">
             <h1>冒險旅途中的意外插曲</h1>
@@ -355,7 +351,6 @@
         </div>
     </div>
 
-    <!-- 1. 抽籤系統：大門選擇 -->
     <div id="page-lottery-gate" class="page">
         <div style="padding: 20px; text-align: center; margin-top: 50px;">
             <h1 style="color: #fff; text-shadow: 0 2px 5px rgba(0,0,0,0.5);">命運的抉擇</h1>
@@ -378,7 +373,6 @@
         </div>
     </div>
 
-    <!-- 1-2. 抽籤系統：執行畫面 (全透明佈局) -->
     <div id="page-lottery-run" class="page">
         <div class="card transparent-mode" id="lotteryCard">
             
@@ -420,7 +414,6 @@
         </div>
     </div>
 
-    <!-- 2. 計時器：魔龍挑戰 (全透明 + 史詩文字) -->
     <div id="page-timer" class="page">
         <div class="card transparent-mode" id="timerCard">
             <div style="text-align: center; margin-bottom: 30px;">
@@ -445,7 +438,6 @@
         </div>
     </div>
 
-    <!-- 3. 投票系統 (教師端) -->
     <div id="page-vote-teacher" class="page">
         <div class="card" id="voteSetup" style="border-top: 5px solid var(--gold); margin-top: 50px;">
             <h2>發布戰略決策</h2>
@@ -495,7 +487,6 @@
         </div>
     </div>
 
-    <!-- 4. 投票系統 (學生端) -->
     <div id="page-vote-student" class="page">
         <div class="card" style="margin-top: 5vh; border-top: 5px solid var(--primary);">
             <div id="studentWaiting">
@@ -524,7 +515,6 @@
         </div>
     </div>
 
-    <!-- Logic -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getFirestore, doc, setDoc, onSnapshot, updateDoc, increment, getDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
@@ -542,6 +532,10 @@
         let app, db, auth, user;
         let isOnline = false;
         let audioCtx = null;
+        let currentStudentHost = null; // 定義全域變數
+
+        // 補上關鍵的 URL 參數讀取
+        const params = new URLSearchParams(window.location.search);
 
         try {
             app = initializeApp(firebaseConfig);
@@ -857,7 +851,7 @@
         };
 
         function initStudentMode(hostUid) {
-            currentStudentHost = hostUid;
+            currentStudentHost = hostUid; // 使用已宣告的變數
             document.getElementById('statusBar').style.display = 'none';
             navTo('vote-student');
             onSnapshot(doc(db, `users/${hostUid}/apps/classroom_adventure_tool`), (snap) => {
@@ -930,8 +924,11 @@
         };
 
         const authBtn = document.getElementById('authBtn');
-        if(params.get('mode') === 'student') { initStudentMode(params.get('host')); } 
-        else {
+        
+        // 使用定義好的 params
+        if(params.get('mode') === 'student') { 
+            initStudentMode(params.get('host')); 
+        } else {
             authBtn.onclick = () => { 
                 if(user) {
                     signOut(auth);

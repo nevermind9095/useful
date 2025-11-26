@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>冒險旅途中的意外插曲 v7.2</title>
+    <title>冒險旅途中的意外插曲 v7.3</title>
     <!-- 引入 QRCode -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <!-- 引入 現代日系 RPG 風格字體 -->
@@ -78,15 +78,8 @@
         .btn-primary { background: linear-gradient(135deg, var(--primary), #2c52b3); color: white; }
         .btn-danger { background: linear-gradient(135deg, var(--accent-red), #962d22); color: white; }
         .btn-success { background: linear-gradient(135deg, #27ae60, #219150); color: white; }
-        
-        /* 幽靈按鈕 (透明底) */
-        .btn-ghost { 
-            background: rgba(255,255,255,0.1); 
-            color: #fff; 
-            border: 1px solid rgba(255,255,255,0.3); 
-            backdrop-filter: blur(4px); 
-        }
-        .btn-ghost:hover { background: rgba(255,255,255,0.2); }
+        .btn-ghost { background: rgba(255,255,255,0.2); color: #fff; border: 1px solid rgba(255,255,255,0.5); backdrop-filter: blur(4px); }
+        .btn-ghost:hover { background: rgba(255,255,255,0.3); }
 
         /* 魔龍挑戰專屬按鈕 */
         .btn-dragon-fight {
@@ -104,20 +97,20 @@
 
         /* --- 頂部狀態列 (整合返回按鈕) --- */
         #statusBar {
-            background: rgba(255,255,255,0.1);
+            background: rgba(255,255,255,0.1); /* 極淡透明底 */
             backdrop-filter: blur(10px);
             border-bottom: 1px solid rgba(255,255,255,0.1);
             padding: 10px 20px;
             display: flex;
-            justify-content: space-between;
+            justify-content: space-between; /* 左右分佈 */
             align-items: center;
             position: sticky;
             top: 0;
             z-index: 2000;
         }
-        
+        #homeBtnContainer { display: none; } /* 預設隱藏，JS控制 */
+
         /* 返回大廳按鈕 (高對比度修正) */
-        #homeBtnContainer { display: none; }
         #globalHomeBtn {
             background: #2c3e50; /* 深色底 */
             color: #ffffff;      /* 白色字 */
@@ -277,13 +270,12 @@
             background: #fff; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);
             cursor: pointer; transition: all 0.3s; position: relative; overflow: hidden; border: 1px solid transparent;
         }
-        /* 確保使用原圖檔名 */
         .menu-item-lottery { background-image: linear-gradient(rgba(255,255,255,0.85), rgba(255,255,255,0.85)), url('image_4aa398.jpg'); background-size: cover; background-position: center; }
-        .menu-item-timer { background-image: linear-gradient(rgba(255,255,255,0.85), rgba(255,255,255,0.85)), url('Gemini_Generated_Image_5gyjko5gyjko5gyj.jpg'); background-size: cover; background-position: center; }
+        .menu-item-timer { background-image: linear-gradient(rgba(255,255,255,0.85), rgba(255,255,255,0.85)), url('image_48dd5d.jpg'); background-size: cover; background-position: center; }
         
         .menu-item:hover { transform: translateY(-8px); box-shadow: 0 12px 24px rgba(78, 115, 223, 0.15); border-color: var(--primary); }
         .menu-item-lottery:hover { background-image: linear-gradient(rgba(255,255,255,0.7), rgba(255,255,255,0.7)), url('image_4aa398.jpg'); }
-        .menu-item-timer:hover { background-image: linear-gradient(rgba(255,255,255,0.7), rgba(255,255,255,0.7)), url('Gemini_Generated_Image_5gyjko5gyjko5gyj.jpg'); }
+        .menu-item-timer:hover { background-image: linear-gradient(rgba(255,255,255,0.7), rgba(255,255,255,0.7)), url('image_48dd5d.jpg'); }
         
         .menu-item::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(78, 115, 223, 0.03) 0%, transparent 70%); transition: 0.5s; }
         .menu-item:hover::before { transform: scale(1.1); }
@@ -596,7 +588,7 @@
             
             // 魔龍模式背景 (調高遮罩濃度)
             if(pageId.includes('timer')) {
-                document.body.style.backgroundImage = `linear-gradient(rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.75)), url('Gemini_Generated_Image_5gyjko5gyjko5gyj.jpg')`;
+                document.body.style.backgroundImage = `linear-gradient(rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.75)), url('image_48dd5d.jpg')`;
                 document.body.style.backgroundSize = 'cover';
                 document.body.style.backgroundPosition = 'center';
                 document.body.style.backgroundAttachment = 'fixed';
@@ -945,15 +937,10 @@
                     signOut(auth);
                 } else {
                     const provider = new GoogleAuthProvider();
-                    // 強制彈出選擇帳戶視窗
-                    provider.setCustomParameters({
-                        prompt: 'select_account'
-                    });
+                    provider.setCustomParameters({ prompt: 'select_account' });
                     signInWithPopup(auth, provider)
-                    .then((result) => {
-                        console.log("Login success:", result.user);
-                        // 按鈕狀態會由 onAuthStateChanged 更新
-                    }).catch((error) => {
+                    .then((result) => { console.log("Login success:", result.user); })
+                    .catch((error) => {
                         console.error("Login error:", error);
                         if (error.code === 'auth/unauthorized-domain') {
                             alert("錯誤：此網域尚未加入 Firebase 授權清單。\n請到 Firebase Console -> Authentication -> Settings -> Authorized Domains 新增此網址。");
@@ -966,12 +953,12 @@
             onAuthStateChanged(auth, u => {
                 user = u;
                 if(user) {
-                    authBtn.innerText = `✅ ${user.displayName}`; // 登入後顯示綠色勾勾與名字
-                    authBtn.classList.replace('btn-ghost', 'btn-success'); // 變綠色
+                    authBtn.innerText = `✅ ${user.displayName}`; 
+                    authBtn.classList.replace('btn-ghost', 'btn-success'); 
                     authBtn.style.border = "none";
                 } else { 
                     authBtn.innerText = "☁️ 雲端登入"; 
-                    authBtn.classList.replace('btn-success', 'btn-ghost'); // 變回透明
+                    authBtn.classList.replace('btn-success', 'btn-ghost'); 
                 }
             });
         }

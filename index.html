@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>冒險旅途中的意外插曲 v7.6</title>
+    <title>冒險旅途中的意外插曲 v7.7</title>
     <!-- 引入 QRCode -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <!-- 引入 現代日系 RPG 風格字體 -->
@@ -271,7 +271,6 @@
             cursor: pointer; transition: all 0.3s; position: relative; overflow: hidden; border: 1px solid transparent;
         }
         .menu-item-lottery { background-image: linear-gradient(rgba(255,255,255,0.85), rgba(255,255,255,0.85)), url('image_4aa398.jpg'); background-size: cover; background-position: center; }
-        /* [修正] 這裡換回魔龍原圖 */
         .menu-item-timer { background-image: linear-gradient(rgba(255,255,255,0.85), rgba(255,255,255,0.85)), url('Gemini_Generated_Image_5gyjko5gyjko5gyj.jpg'); background-size: cover; background-position: center; }
         
         .menu-item:hover { transform: translateY(-8px); box-shadow: 0 12px 24px rgba(78, 115, 223, 0.15); border-color: var(--primary); }
@@ -531,6 +530,9 @@
         import { getFirestore, doc, setDoc, onSnapshot, updateDoc, increment, getDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
         import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
+        // [v7.7] 參數變數提升 (Hoisting) 至最頂層
+        const params = new URLSearchParams(window.location.search);
+
         const firebaseConfig = {
             apiKey: "AIzaSyDJFzG3RrCkJBx5B23lBVcoOHmaqZ2dAYA",
             authDomain: "forgemini-7349a.firebaseapp.com",
@@ -777,10 +779,7 @@
             document.getElementById('startTimerBtn').innerHTML = "⚔️ 接受挑戰";
         };
 
-        // --- Vote Logic ---
-        // [修復] 確保 params 在這裡被定義，避免登入錯誤
-        const params = new URLSearchParams(window.location.search);
-
+        // ... Vote Logic ...
         window.toggleVoteLimit = () => {
             const type = document.getElementById('voteType').value;
             document.getElementById('voteLimitContainer').style.display = (type === 'multi') ? 'block' : 'none';
@@ -805,10 +804,12 @@
             document.getElementById('voteSetup').style.display = 'none';
             document.getElementById('voteResult').style.display = 'block';
             
-            const link = `${window.location.href.split('?')[0]}?mode=student&host=${user.uid}`;
+            // [v7.7] 修復：使用 location.origin + location.pathname，避免 hash 導致的參數解析錯誤
+            const baseUrl = window.location.origin + window.location.pathname;
+            const studentLink = `${baseUrl}?mode=student&host=${user.uid}`;
             const qrDiv = document.getElementById('qrCodeArea');
             qrDiv.innerHTML = "";
-            new QRCode(qrDiv, { text: link, width: 160, height: 160 });
+            new QRCode(qrDiv, { text: studentLink, width: 160, height: 160 });
 
             startTeacherListener(user.uid);
         };
@@ -933,7 +934,20 @@
         };
 
         const authBtn = document.getElementById('authBtn');
-        if(params.get('mode') === 'student') { initStudentMode(params.get('host')); } 
+        
+        // [v7.7] 雙重參數檢查：如果 standard URLParams 為空，嘗試從 hash 讀取 (備援)
+        let mode = params.get('mode');
+        let host = params.get('host');
+        
+        if (!mode && window.location.hash.includes('?')) {
+            const hashParams = new URLSearchParams(window.location.hash.split('?')[1]);
+            mode = hashParams.get('mode');
+            host = hashParams.get('host');
+        }
+
+        if(mode === 'student' && host) { 
+            initStudentMode(host); 
+        } 
         else {
             authBtn.onclick = () => { 
                 // 測試點擊反應
@@ -943,14 +957,12 @@
                     signOut(auth);
                 } else {
                     const provider = new GoogleAuthProvider();
-                    // 強制彈出選擇帳戶視窗
                     provider.setCustomParameters({
                         prompt: 'select_account'
                     });
                     signInWithPopup(auth, provider)
                     .then((result) => {
                         console.log("Login success:", result.user);
-                        // 按鈕狀態會由 onAuthStateChanged 更新
                     }).catch((error) => {
                         console.error("Login error:", error);
                         if (error.code === 'auth/unauthorized-domain') {

@@ -3,448 +3,612 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>課堂冒險工具箱 | Classroom Adventure</title>
-    <!-- 引入 QRCode 生成庫 (用於投票功能) -->
+    <title>冒險者公會任務系統 | Adventurer's Guild</title>
+    <!-- 引入 QRCode -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <!-- 引入 現代日系 RPG 風格字體 -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@600;900&family=Cinzel:wght@700&display=swap" rel="stylesheet">
+    
     <style>
-        /* --- 核心變數設定 --- */
+        /* --- 現代日系 RPG 風格變數 --- */
         :root {
-            --primary: #4361ee;
-            --primary-dark: #3f37c9;
-            --accent: #f72585;
-            --success: #4cc9f0;
-            --warning: #fca311;
-            --bg-angel: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%);
-            --bg-demon: linear-gradient(135deg, #434343 0%, #000000 100%);
-            --font-main: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            --card-bg: rgba(255, 255, 255, 0.95);
-            --shadow: 0 10px 25px rgba(0,0,0,0.1);
+            /* 背景與基底 */
+            --bg-world: #1a1c29; /* 深邃夜空藍 */
+            --bg-paper: #fdfbf7; /* 高級魔法紙張 */
+            --bg-overlay: rgba(20, 24, 40, 0.85);
+            
+            /* 主色調 */
+            --primary: #4e73df; /* 騎士藍 */
+            --gold: #d4af37;    /* 公會金 */
+            --gold-light: #f9e79f;
+            --accent-red: #c0392b; /* 惡魔紅 */
+            --accent-blue: #2980b9; /* 天使藍 */
+            
+            /* 文字 */
+            --text-dark: #2c3e50;
+            --text-light: #ecf0f1;
+            
+            /* 邊框與裝飾 */
+            --border-fancy: 2px solid var(--gold);
+            --shadow-card: 0 8px 16px rgba(0,0,0,0.2);
+            --radius-main: 12px;
+            
+            /* 字體 */
+            --font-ui: 'Noto Sans TC', sans-serif;
+            --font-header: 'Noto Serif TC', serif;
+            --font-eng: 'Cinzel', serif;
         }
 
-        /* --- 全域樣式 --- */
-        * { box-sizing: border-box; font-family: var(--font-main); user-select: none; }
+        * { box-sizing: border-box; font-family: var(--font-ui); user-select: none; }
         
         body {
             margin: 0;
             padding: 0;
-            background: #f0f2f5;
+            background-color: var(--bg-world);
+            /* 魔法背景氛圍 */
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(78, 115, 223, 0.2) 0%, transparent 20%),
+                radial-gradient(circle at 90% 80%, rgba(212, 175, 55, 0.1) 0%, transparent 20%);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
+            color: var(--text-dark);
             overflow-x: hidden;
             transition: background 0.5s ease;
         }
 
-        /* --- 按鈕元件 (大尺寸適合觸控) --- */
+        /* 頂部裝飾條 */
+        body::before {
+            content: "";
+            position: fixed; top: 0; left: 0; width: 100%; height: 6px;
+            background: linear-gradient(90deg, var(--primary), var(--gold), var(--primary));
+            z-index: 1000;
+        }
+
+        /* --- 按鈕元件：現代 RPG 風格 --- */
         .btn {
             border: none;
             padding: 12px 24px;
-            font-size: 1.2rem;
-            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            border-radius: 50px; /* 圓潤現代感 */
             cursor: pointer;
-            transition: all 0.2s;
-            font-weight: bold;
-            margin: 8px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            position: relative;
             display: inline-flex;
             align-items: center;
             justify-content: center;
             gap: 8px;
+            margin: 5px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            overflow: hidden;
         }
-        .btn:active { transform: scale(0.95); }
-        .btn:disabled { opacity: 0.6; cursor: not-allowed; }
-        .btn-primary { background: var(--primary); color: white; }
-        .btn-primary:hover { background: var(--primary-dark); }
-        .btn-danger { background: var(--accent); color: white; }
-        .btn-success { background: #10b981; color: white; }
-        .btn-outline { background: transparent; border: 2px solid #666; color: #666; }
         
-        /* 首頁按鈕 */
+        /* 光澤效果 */
+        .btn::after {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%; width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            transition: 0.5s;
+        }
+        .btn:hover::after { left: 100%; }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 6px 12px rgba(0,0,0,0.2); }
+        .btn:active { transform: scale(0.96); }
+
+        .btn-primary { 
+            background: linear-gradient(135deg, var(--primary), #2c52b3); 
+            color: white; 
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        .btn-danger { 
+            background: linear-gradient(135deg, var(--accent-red), #962d22); 
+            color: white; 
+        }
+        .btn-success { 
+            background: linear-gradient(135deg, #27ae60, #219150); 
+            color: white; 
+        }
+        
         .btn-home { 
-            position: fixed; 
-            top: 10px; 
-            left: 10px; 
-            z-index: 1000; 
-            font-size: 1rem; 
-            padding: 8px 12px;
+            position: fixed; top: 20px; left: 20px; z-index: 1000; 
+            font-size: 0.9rem; padding: 8px 20px;
             background: rgba(255,255,255,0.9);
+            color: var(--text-dark);
             backdrop-filter: blur(5px);
             border: 1px solid #ddd;
         }
 
-        /* --- 卡片容器 --- */
+        /* --- 卡片容器：魔法卷軸質感 --- */
         .card {
-            background: var(--card-bg);
-            border-radius: 24px;
-            padding: 2rem;
+            background: var(--bg-paper);
+            border-radius: var(--radius-main);
+            padding: 2.5rem;
             margin: 20px auto;
             width: 90%;
-            max-width: 800px;
-            box-shadow: var(--shadow);
-            text-align: center;
+            max-width: 900px;
             position: relative;
-            overflow: hidden;
+            box-shadow: var(--shadow-card);
+            border: 1px solid #e0e0e0;
+        }
+        /* 頂部金色裝飾線 */
+        .card::before {
+            content: '';
+            position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+            width: 80%; height: 4px;
+            background: linear-gradient(90deg, transparent, var(--gold), transparent);
+            border-radius: 0 0 4px 4px;
         }
 
-        h1, h2, h3 { margin-top: 0; color: #333; }
-        h1 { font-size: 2.2rem; }
-        h2 { font-size: 1.8rem; margin-bottom: 1rem; }
+        h1, h2, h3 { margin-top: 0; font-family: var(--font-header); color: #1a1c29; }
+        h1 { font-size: 2.2rem; margin-bottom: 0.5rem; text-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        h1 span { color: var(--gold); font-family: var(--font-eng); font-size: 1.8rem; margin-left: 10px; }
+        h2 { font-size: 1.6rem; border-bottom: 2px solid rgba(0,0,0,0.05); padding-bottom: 10px; margin-bottom: 25px; }
         
-        /* --- 表單輸入 --- */
+        /* --- 輸入框 --- */
         input, select, textarea {
-            font-size: 1.2rem;
-            padding: 12px;
-            border-radius: 12px;
+            background: #fff;
             border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            color: var(--text-dark);
+            padding: 12px;
+            font-size: 1.1rem;
             width: 100%;
             margin-bottom: 15px;
-            transition: border-color 0.3s;
+            transition: 0.3s;
+            font-family: var(--font-ui);
         }
-        input:focus, select:focus, textarea:focus {
-            outline: none;
-            border-color: var(--primary);
+        input:focus, select:focus, textarea:focus { 
+            outline: none; 
+            border-color: var(--primary); 
+            box-shadow: 0 0 0 3px rgba(78, 115, 223, 0.1);
         }
+        label { color: #666; font-size: 0.95rem; margin-bottom: 6px; display: block; font-weight: 500; }
 
         /* --- 頂部狀態列 --- */
         #statusBar {
             background: rgba(255,255,255,0.9);
             backdrop-filter: blur(10px);
-            padding: 10px 20px;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+            padding: 10px 30px;
             display: flex;
-            justify-content: space-between;
+            justify-content: flex-end;
             align-items: center;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
             position: sticky;
             top: 0;
             z-index: 900;
         }
-        #appTitle { font-weight: 800; font-size: 1.2rem; color: #333; letter-spacing: 1px; }
-
-        /* --- 頁面切換邏輯 --- */
-        .page { display: none; animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+        
+        /* --- 頁面切換動畫 --- */
+        .page { display: none; animation: fadeSlideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1); }
         .page.active { display: block; }
-        @keyframes slideUp { 
+        @keyframes fadeSlideUp { 
             from { opacity: 0; transform: translateY(20px); } 
             to { opacity: 1; transform: translateY(0); } 
         }
 
-        /* --- 首頁選單網格 --- */
+        /* --- 首頁選單 (公會看板) --- */
         .menu-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 25px;
             padding: 10px;
         }
         .menu-item {
-            height: 180px;
+            height: 240px;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            font-size: 1.8rem;
-            font-weight: bold;
-            color: white;
-            border-radius: 24px;
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
             cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            transition: all 0.3s;
             position: relative;
             overflow: hidden;
+            border: 1px solid transparent;
         }
-        .menu-item:hover { transform: translateY(-5px); box-shadow: 0 15px 30px rgba(0,0,0,0.2); }
-        .menu-item::after { content: ''; position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.1); opacity: 0; transition: opacity 0.3s; }
-        .menu-item:hover::after { opacity: 1; }
+        .menu-item:hover { 
+            transform: translateY(-8px); 
+            box-shadow: 0 12px 24px rgba(78, 115, 223, 0.15); 
+            border-color: var(--primary);
+        }
         
-        .menu-lottery { background: linear-gradient(135deg, #FF9A9E 0%, #FECFEF 100%); }
-        .menu-timer { background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%); }
-        .menu-vote { background: linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%); }
+        /* 裝飾背景圖案 */
+        .menu-item::before {
+            content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+            background: radial-gradient(circle, rgba(78, 115, 223, 0.03) 0%, transparent 70%);
+            transition: 0.5s;
+        }
+        .menu-item:hover::before { transform: scale(1.1); }
+        
+        .menu-icon { 
+            font-size: 4rem; margin-bottom: 15px; 
+            background: linear-gradient(135deg, var(--primary), #2c52b3);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 4px 6px rgba(78, 115, 223, 0.2));
+        }
+        
+        .menu-title { font-size: 1.4rem; font-weight: 700; color: var(--text-dark); margin-bottom: 5px; }
+        .menu-sub { font-family: var(--font-eng); font-size: 0.8rem; color: #888; letter-spacing: 2px; text-transform: uppercase; }
 
-        /* --- 功能 1：抽籤 --- */
-        /* 天使模式與惡魔模式的背景切換 */
-        body.mode-angel { background: var(--bg-angel); }
-        body.mode-demon { background: var(--bg-demon); }
+        /* --- 抽籤：命運之門 --- */
+        .door-container {
+            display: flex; gap: 30px; justify-content: center; flex-wrap: wrap; margin-top: 40px;
+        }
+        .door {
+            width: 45%; min-width: 300px; height: 420px;
+            position: relative; cursor: pointer; transition: 0.4s;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            background-size: cover; background-position: center;
+        }
+        .door:hover { transform: scale(1.03); box-shadow: 0 15px 40px rgba(0,0,0,0.4); }
         
-        .lottery-result-box {
-            background: white;
-            border-radius: 20px;
-            min-height: 150px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        .door-overlay {
+            position: absolute; inset: 0;
+            background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.2) 60%, transparent 100%);
+            display: flex; flex-direction: column; justify-content: flex-end; padding: 40px 30px;
+            text-align: left;
+        }
+        
+        /* 天使門 - 光明與神聖 */
+        .door-angel { 
+            background-image: url('image_4b8832.png'); /* 更新為 png */
+            border: 4px solid #fff;
+        }
+        .door-angel::after {
+            content: '✧'; position: absolute; top: 20px; right: 20px; color: rgba(255,255,255,0.8); font-size: 3rem;
+        }
+        .door-angel .door-title { color: #fff; font-size: 2rem; font-family: var(--font-header); text-shadow: 0 2px 10px rgba(255,255,255,0.5); }
+        
+        /* 惡魔門 - 黑暗與深淵 */
+        .door-demon { 
+            background-image: url('image_4b8812.png'); /* 更新為 png */
+            border: 4px solid #c0392b;
+        }
+        .door-demon::after {
+            content: '☠'; position: absolute; top: 20px; right: 20px; color: rgba(192, 57, 43, 0.5); font-size: 3rem;
+        }
+        .door-demon .door-title { color: #e74c3c; font-size: 2rem; font-family: var(--font-header); text-shadow: 0 2px 10px rgba(0,0,0,0.8); }
+        
+        .door-desc { font-size: 1rem; color: rgba(255,255,255,0.8); margin-top: 8px; font-weight: 300; }
+
+        /* 抽籤結果區 */
+        .lottery-result-area {
+            font-size: 5rem; font-weight: 700;
+            min-height: 200px;
+            display: flex; align-items: center; justify-content: center;
+            background: #fff;
+            border-radius: 12px;
             margin: 20px 0;
-            box-shadow: inset 0 0 20px rgba(0,0,0,0.05);
-        }
-        .lottery-text { font-size: 4rem; font-weight: bold; word-break: break-all; padding: 20px; }
-        .angel-text { color: #6a11cb; }
-        .demon-text { color: #d00000; font-family: 'Courier New', monospace; letter-spacing: -2px; }
-
-        /* --- 功能 2：計時器 --- */
-        .timer-wrapper {
-            position: relative;
-            width: 280px;
-            height: 280px;
-            margin: 0 auto 20px;
-            border-radius: 50%;
-            background: #f8f9fa;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: inset 0 0 30px rgba(0,0,0,0.1);
-            border: 10px solid #eee;
-            transition: all 0.5s;
-        }
-        .timer-display {
-            font-size: 5rem;
-            font-weight: 700;
-            font-family: 'Monaco', monospace;
-            color: #333;
-            z-index: 2;
-        }
-        .timer-urgent .timer-wrapper {
-            border-color: #ff0000;
-            background: #fff0f0;
-            animation: pulse 0.8s infinite;
-        }
-        .timer-urgent .timer-display { color: #ff0000; }
-        
-        @keyframes pulse { 
-            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 0, 0, 0.7); } 
-            70% { transform: scale(1.02); box-shadow: 0 0 0 20px rgba(255, 0, 0, 0); } 
-            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 0, 0, 0); } 
+            border: 1px solid #eee;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.03);
+            font-family: var(--font-header);
+            color: var(--text-dark);
         }
 
-        /* --- 功能 3：投票系統 --- */
-        #qrCodeArea { 
-            margin: 20px auto; 
-            padding: 15px; 
-            background: white; 
-            border-radius: 10px; 
-            display: inline-block; 
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-        }
-        
-        /* 投票條 */
-        .vote-bar-row {
-            margin-bottom: 12px;
-            position: relative;
-        }
-        .vote-label-row {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 5px;
-            font-weight: bold;
-            color: #444;
-        }
-        .vote-track {
-            height: 24px;
-            background: #e9ecef;
-            border-radius: 12px;
+        /* --- 計時：魔王降臨 --- */
+        #timerCard {
+            border: none;
             overflow: hidden;
-            position: relative;
+            background: #fff;
         }
-        .vote-fill {
-            height: 100%;
-            background: var(--success);
-            width: 0%;
-            transition: width 0.6s cubic-bezier(0.22, 1, 0.36, 1);
-            border-radius: 12px;
+        /* 魔王氛圍背景層 */
+        #timerCard.demon-bg {
+            background: linear-gradient(rgba(255,255,255,0.9), rgba(255,255,255,0.9)), 
+                        url('https://placehold.co/800x600/330000/ff0000/png?text=BOSS+AURA'); /* 這裡建議換成真正的魔王底圖 */
+            background-size: cover;
+        }
+        
+        .timer-header-box {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .timer-title-text { 
+            font-size: 2.5rem; font-family: var(--font-header); font-weight: 900; 
+            background: linear-gradient(to right, #c0392b, #8e44ad);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .timer-circle {
+            width: 280px; height: 280px;
+            border-radius: 50%;
+            border: 6px solid #f0f0f0;
+            margin: 20px auto;
+            display: flex; align-items: center; justify-content: center;
+            position: relative;
+            background: #fff;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: 0.3s;
+        }
+        .timer-display { 
+            font-size: 4.5rem; font-family: 'Cinzel', serif; font-weight: 700; color: var(--text-dark);
+        }
+        
+        /* 緊急狀態 */
+        .timer-urgent .timer-circle {
+            border-color: var(--accent-red);
+            box-shadow: 0 0 40px rgba(192, 57, 43, 0.3);
+            animation: pulse-red 1s infinite;
+        }
+        .timer-urgent .timer-display { color: var(--accent-red); }
+        
+        @keyframes pulse-red { 
+            0% { box-shadow: 0 0 0 0 rgba(192, 57, 43, 0.4); } 
+            70% { box-shadow: 0 0 0 20px rgba(192, 57, 43, 0); } 
+            100% { box-shadow: 0 0 0 0 rgba(192, 57, 43, 0); } 
+        }
+
+        /* --- 投票系統 --- */
+        .vote-bar-row { margin-bottom: 24px; position: relative; }
+        .vote-label-row { 
+            display: flex; justify-content: space-between; margin-bottom: 8px; 
+            font-weight: 700; color: #555;
+        }
+        .vote-track { 
+            height: 16px; background: #f0f0f0; width: 100%; 
+            border-radius: 8px; overflow: hidden;
+        }
+        .vote-fill { 
+            height: 100%; background: var(--primary); width: 0%; 
+            transition: width 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+            border-radius: 8px;
             background-image: linear-gradient(45deg,rgba(255,255,255,.15) 25%,transparent 25%,transparent 50%,rgba(255,255,255,.15) 50%,rgba(255,255,255,.15) 75%,transparent 75%,transparent);
             background-size: 1rem 1rem;
         }
-
-        /* 學生端專用樣式 */
-        .student-body { background: #eef2f3; }
+        
+        /* 學生端選項 */
         .student-option {
-            background: white;
-            padding: 16px 20px;
-            margin: 12px 0;
-            border-radius: 16px;
-            border: 2px solid transparent;
+            background: #fff;
+            padding: 20px; margin: 12px 0;
+            border: 2px solid #eee;
+            border-radius: 12px;
             cursor: pointer;
-            display: flex;
-            align-items: center;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-            transition: all 0.2s;
-            text-align: left;
+            display: flex; align-items: center;
+            font-size: 1.1rem;
+            transition: 0.2s;
+            position: relative;
         }
-        .student-option:hover { transform: translateX(5px); }
+        .student-option:hover { border-color: var(--primary); transform: translateX(5px); }
         .student-option.selected { 
-            border-color: var(--primary); 
             background: #f0f4ff; 
+            border-color: var(--primary);
+            color: var(--primary);
+            font-weight: 700;
         }
-        .student-option input { 
-            width: 24px; 
-            height: 24px; 
-            margin: 0 15px 0 0; 
-            accent-color: var(--primary);
-        }
+        .student-option input { width: 22px; height: 22px; margin: 0 15px 0 0; accent-color: var(--primary); }
 
-        /* RWD 調整 */
+        /* RWD */
         @media (max-width: 600px) {
             h1 { font-size: 1.8rem; }
-            .timer-wrapper { width: 220px; height: 220px; }
-            .timer-display { font-size: 4rem; }
-            .card { width: 95%; padding: 1.5rem; }
+            .card { padding: 1.5rem; width: 95%; }
+            .door { height: 250px; min-width: 100%; }
+            .timer-circle { width: 220px; height: 220px; }
+            .timer-display { font-size: 3.5rem; }
         }
     </style>
 </head>
 <body>
 
-    <!-- 頁首導航列 -->
+    <!-- 頂部狀態 -->
     <div id="statusBar">
-        <div id="appTitle">🏫 課堂冒險工具箱</div>
-        <button id="authBtn" class="btn btn-primary" style="font-size: 0.9rem; padding: 8px 16px;">☁️ 登入雲端</button>
+        <button id="authBtn" class="btn btn-primary" style="font-size: 0.8rem; padding: 6px 18px;">☁️ 登入公會網絡</button>
     </div>
 
     <!-- 首頁選單 -->
     <div id="page-home" class="page active">
-        <div class="card" style="margin-top: 10vh;">
-            <h1>選擇你的冒險工具</h1>
-            <p style="color:#666; margin-bottom: 30px;">為今天的課堂增添一點魔法吧！</p>
+        <div class="card" style="margin-top: 8vh; border-top: 5px solid var(--primary);">
+            <h1>冒險者公會 <span>GUILD HALL</span></h1>
+            <p style="color: #666; margin-bottom: 40px;">請選擇您要發布的任務類型</p>
+            
             <div class="menu-grid">
-                <div class="menu-item menu-lottery" onclick="navTo('lottery')">🔮<br>命運抽籤</div>
-                <div class="menu-item menu-timer" onclick="navTo('timer')">⏱️<br>魔王計時</div>
-                <div class="menu-item menu-vote" onclick="navTo('vote-teacher')">📊<br>決策投票</div>
+                <div class="menu-item" onclick="navTo('lottery-gate')">
+                    <div class="menu-icon">⚔️</div>
+                    <div class="menu-title">命運徵召</div>
+                    <div class="menu-sub">Summoning</div>
+                </div>
+                <div class="menu-item" onclick="navTo('timer')">
+                    <div class="menu-icon">⏳</div>
+                    <div class="menu-title">魔王挑戰</div>
+                    <div class="menu-sub">Boss Battle</div>
+                </div>
+                <div class="menu-item" onclick="navTo('vote-teacher')">
+                    <div class="menu-icon">📜</div>
+                    <div class="menu-title">戰略決策</div>
+                    <div class="menu-sub">Strategy</div>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- 1. 抽籤系統 -->
-    <div id="page-lottery" class="page">
-        <button class="btn btn-home" onclick="navTo('home')">🏠 回首頁</button>
-        <div class="card">
-            <h2 id="lotteryTitle">命運的抉擇</h2>
+    <!-- 1. 抽籤系統：大門選擇 -->
+    <div id="page-lottery-gate" class="page">
+        <button class="btn btn-home" onclick="navTo('home')">↩ 返回大廳</button>
+        <div style="padding: 20px; text-align: center;">
+            <h1 style="color: #fff; text-shadow: 0 2px 5px rgba(0,0,0,0.5);">命運的抉擇</h1>
+            <p style="color: rgba(255,255,255,0.8);">請選擇召喚的途徑</p>
             
-            <div class="lottery-result-box">
-                <div id="lotteryDisplay" class="lottery-text">?</div>
+            <div class="door-container">
+                <!-- 天使 -> 祝福 -->
+                <div class="door door-angel" onclick="enterLottery('angel')">
+                    <div class="door-overlay">
+                        <div class="door-title">天使的祝福</div>
+                        <div class="door-desc">獲得女神的恩典與獎勵</div>
+                    </div>
+                </div>
+                <!-- 惡魔 -> 試煉 -->
+                <div class="door door-demon" onclick="enterLottery('demon')">
+                    <div class="door-overlay">
+                        <div class="door-title">惡魔的試煉</div>
+                        <div class="door-desc">面對深淵的艱難挑戰</div>
+                    </div>
+                </div>
             </div>
-            
-            <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-bottom: 20px;">
-                <select id="lotteryMode" onchange="updateLotteryTheme()" style="width: auto; flex-grow: 1;">
-                    <option value="angel">👼 天使的眷顧 (幸運)</option>
-                    <option value="demon">👿 惡魔的降臨 (挑戰)</option>
-                </select>
-                <input type="number" id="lotteryCount" value="1" min="1" max="5" style="width: 80px;" placeholder="人數">
-            </div>
-            
-            <textarea id="lotteryNames" rows="3" placeholder="貼上名單 (例如：小明, 小華, 小美...)">1號, 2號, 3號, 4號, 5號, 6號, 7號, 8號, 9號, 10號</textarea>
-            
-            <button class="btn btn-primary" style="width: 100%;" onclick="drawLottery()">✨ 開始抽籤 ✨</button>
         </div>
     </div>
 
-    <!-- 2. 計時器 -->
+    <!-- 1-2. 抽籤系統：執行畫面 -->
+    <div id="page-lottery-run" class="page">
+        <button class="btn btn-home" onclick="navTo('lottery-gate')">↩ 重選大門</button>
+        <div class="card" id="lotteryCard">
+            <h2 id="lotteryTitle">冒險者徵召</h2>
+            
+            <div class="lottery-result-area">
+                <div id="lotteryDisplay">READY</div>
+            </div>
+            
+            <!-- 設定面板 -->
+            <div style="background: #f8f9fa; padding: 20px; border-radius: 12px; border: 1px solid #eee; margin-top: 20px;">
+                <h3 style="font-size: 1rem; color: #555; margin-bottom: 15px; border:none;">⚙️ 徵召設定</h3>
+                <div style="display: flex; gap: 20px; align-items: flex-end; flex-wrap: wrap;">
+                    <div style="flex: 1;">
+                        <label>號碼起始</label>
+                        <input type="number" id="lotRangeStart" value="1" style="text-align: center;">
+                    </div>
+                    <div style="flex: 1;">
+                        <label>號碼結束</label>
+                        <input type="number" id="lotRangeEnd" value="30" style="text-align: center;">
+                    </div>
+                    <div style="flex: 1;">
+                        <label>抽取人數</label>
+                        <input type="number" id="lotCount" value="1" max="10" style="text-align: center;">
+                    </div>
+                </div>
+            </div>
+            
+            <div style="margin-top: 30px;">
+                <button class="btn btn-primary" style="width: 100%; padding: 18px; font-size: 1.2rem;" onclick="drawNumbers()">✨ 開始召喚 ✨</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. 計時器：BOSS 挑戰 -->
     <div id="page-timer" class="page">
-        <button class="btn btn-home" onclick="navTo('home')">🏠 回首頁</button>
-        <div class="card" id="timerCard">
-            <h2>🔥 魔王出招：倒數計時</h2>
+        <button class="btn btn-home" onclick="navTo('home')">↩ 返回大廳</button>
+        <div class="card demon-bg" id="timerCard">
+            <div class="timer-header-box">
+                <div class="timer-title-text">⚠️ 魔王降臨 ⚠️</div>
+                <div style="color: #666; margin-top: 5px;">請在時限內擊敗魔王！</div>
+            </div>
             
-            <div class="timer-wrapper">
+            <div class="timer-circle">
                 <div id="timerDisplay" class="timer-display">03:00</div>
             </div>
             
-            <!-- 時間調整控制 -->
-            <div style="display: flex; gap: 10px; justify-content: center; align-items: center; margin-bottom: 20px;">
-                <button class="btn btn-outline" onclick="adjustTime(-30)">-30秒</button>
-                <div style="font-weight: bold; font-size: 1.2rem;">
-                    設定 <input type="number" id="setTimeInput" value="3" min="1" style="width: 60px; text-align: center; display: inline-block; margin: 0;"> 分鐘
-                </div>
-                <button class="btn btn-outline" onclick="adjustTime(30)">+30秒</button>
+            <!-- 輸入時間 -->
+            <div style="display: flex; justify-content: center; gap: 10px; align-items: center; margin-bottom: 30px;">
+                <input type="number" id="timerMin" value="3" min="0" style="width: 80px; text-align: center; font-size: 1.5rem; background:transparent; border-color:transparent; border-bottom-color: #ccc;"> 
+                <span style="font-size: 1.5rem; color: #555;">:</span>
+                <input type="number" id="timerSec" value="0" min="0" max="59" style="width: 80px; text-align: center; font-size: 1.5rem; background:transparent; border-color:transparent; border-bottom-color: #ccc;">
             </div>
 
-            <div>
-                <button class="btn btn-primary" id="startTimerBtn" onclick="toggleTimer()">▶️ 開始冒險</button>
-                <button class="btn btn-danger" onclick="resetTimer()">⏹️ 重置</button>
+            <div style="text-align: center;">
+                <button class="btn btn-danger" id="startTimerBtn" onclick="toggleTimer()" style="width: 200px; font-size: 1.3rem;">⚔️ 開戰 ⚔️</button>
+                <button class="btn btn-success" onclick="resetTimer()">重置</button>
             </div>
-            <p style="color: #666; font-size: 0.9rem; margin-top: 15px;">*最後 30 秒背景變紅並發出警報聲</p>
         </div>
     </div>
 
     <!-- 3. 投票系統 (教師端) -->
     <div id="page-vote-teacher" class="page">
-        <button class="btn btn-home" onclick="navTo('home')">🏠 回首頁</button>
+        <button class="btn btn-home" onclick="navTo('home')">↩ 返回大廳</button>
         
         <!-- 設定區 -->
-        <div class="card" id="voteSetup">
-            <h2>📜 發起決策投票</h2>
+        <div class="card" id="voteSetup" style="border-top: 5px solid var(--gold);">
+            <h2>發布戰略決策</h2>
             <div style="text-align: left;">
-                <label>冒險難題 (題目)</label>
-                <input type="text" id="voteQuestion" placeholder="例如：我們要先去森林還是洞穴？">
+                <label>決策目標 (題目)</label>
+                <input type="text" id="voteQuestion" placeholder="例如：我們要先攻略哪一座迷宮？">
                 
-                <label>投票規則</label>
-                <select id="voteType">
-                    <option value="single">單選 (一人一票)</option>
-                    <option value="multi">複選 (一人多票)</option>
-                </select>
+                <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+                    <div style="flex: 1;">
+                        <label>公會人數 (名冊上限)</label>
+                        <input type="number" id="voteClassSize" value="30" min="1">
+                    </div>
+                    <div style="flex: 1;">
+                        <label>投票模式</label>
+                        <select id="voteType" onchange="toggleVoteLimit()">
+                            <option value="single">單選 (一人一票)</option>
+                            <option value="multi">複選 (一人多票)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div id="voteLimitContainer" style="display: none; background: #fff3cd; padding: 10px; border-radius: 8px; margin-bottom: 15px;">
+                    <label style="color: #856404; margin-bottom: 0;">⚠️ 複選限制：每人必須投幾票？</label>
+                    <input type="number" id="voteLimit" value="2" min="2" style="margin-top: 5px; margin-bottom: 0;">
+                </div>
                 
-                <label>選項 (每行一個)</label>
-                <textarea id="voteOptions" rows="5" placeholder="勇闖森林&#10;躲進洞穴&#10;正面迎戰">勇闖森林
-躲進洞穴
-正面迎戰</textarea>
+                <label>戰略選項 (每行一個)</label>
+                <textarea id="voteOptions" rows="5" placeholder="火焰山脈&#10;寒冰洞窟&#10;精靈之森"></textarea>
             </div>
-            <button class="btn btn-primary" style="width: 100%; margin: 10px 0;" onclick="createVote()">🚀 生成 QR Code 並開始</button>
+            <button class="btn btn-primary" style="width: 100%; margin: 20px 0;" onclick="createVote()">📜 生成任務卷軸 (QR Code)</button>
         </div>
 
-        <!-- 結果與監控區 -->
-        <div class="card" id="voteResult" style="display: none;">
-            <h2 id="resultTitle">📊 投票進行中...</h2>
+        <!-- 結果區 -->
+        <div class="card" id="voteResult" style="display: none; border-top: 5px solid var(--primary);">
+            <h2 id="resultTitle">決策進行中...</h2>
             
-            <!-- QR Code 顯示區 -->
-            <div id="qrCodeArea"></div>
-            <p style="color: #666; font-size: 1.1rem; margin-bottom: 20px;">
-                請學生掃描或輸入網址加入：<br>
-                <span id="shortUrlDisplay" style="font-family: monospace; color: var(--primary);"></span>
-            </p>
-
-            <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
-
-            <!-- 動態長條圖區 -->
-            <div id="voteBarsArea" style="text-align: left; min-height: 200px;">
-                <!-- JS 動態生成 -->
+            <div style="display: flex; flex-direction: column; align-items: center; margin-bottom: 30px; background: #f8f9fa; padding: 20px; border-radius: 12px;">
+                <div id="qrCodeArea" style="background: white; padding: 10px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.05);"></div>
+                <div style="margin-top: 15px; color: #555;">
+                    <div style="font-weight: bold;">冒險者請掃描加入</div>
+                    <div style="font-size: 0.9rem; color: #888;">STATUS: ACTIVE</div>
+                </div>
             </div>
-
-            <div style="margin-top: 30px; display: flex; flex-wrap: wrap; justify-content: center;">
-                <button class="btn btn-danger" onclick="stopVote()">⛔ 結束並重設</button>
-                <button class="btn btn-success" onclick="exportToCSV()">📥 下載結果 (CSV)</button>
+            
+            <div id="voteBarsArea" style="text-align: left; min-height: 200px;"></div>
+            
+            <div style="margin-top: 40px; border-top: 1px solid #eee; padding-top: 20px;">
+                <button class="btn btn-danger" onclick="stopVote()">結束決策</button>
+                <button class="btn btn-success" onclick="exportToCSV()">📥 下載紀錄 (CSV)</button>
             </div>
         </div>
     </div>
 
     <!-- 4. 投票系統 (學生端) -->
     <div id="page-vote-student" class="page">
-        <div class="card" style="margin-top: 10vh;">
-            <div id="studentWaiting" style="display: none;">
-                <h2>⏳ 等待老師出題...</h2>
-                <div style="font-size: 3rem; animation: pulse 1s infinite;">📡</div>
+        <div class="card" style="margin-top: 5vh; border-top: 5px solid var(--primary);">
+            <div id="studentWaiting">
+                <h2 style="color: #888;">等待公會長指令...</h2>
+                <div style="font-size: 3rem; margin-top: 20px; animation: bounce 2s infinite;">📩</div>
             </div>
 
-            <div id="studentVotingForm">
-                <h2 id="studentQTitle" style="color: var(--primary);">題目載入中...</h2>
-                <p style="color: #666; margin-bottom: 20px;">請選擇你的決定：</p>
+            <div id="studentVotingForm" style="display: none;">
+                <h2 id="studentQTitle" style="color: var(--primary);">任務目標</h2>
                 
+                <div style="text-align: left; margin-bottom: 25px; padding: 20px; background: #f8f9fa; border-radius: 12px;">
+                    <label>冒險者編號 (座號)</label>
+                    <select id="studentIdSelect" style="margin-bottom: 0;">
+                        <option value="">-- 請選擇您的編號 --</option>
+                    </select>
+                </div>
+
+                <p id="voteRuleText" style="color: #e67e22; font-weight: bold; font-size: 0.95rem;"></p>
                 <div id="studentOptionsArea"></div>
                 
-                <div style="margin-top: 20px; border-top: 1px solid #eee; padding-top: 20px;">
-                    <input type="text" id="studentName" placeholder="輸入你的名字 (選填)" style="text-align: center;">
-                    <button class="btn btn-success" onclick="submitVote()" id="submitVoteBtn" style="width: 100%; font-size: 1.5rem;">🚀 傳送決定</button>
-                </div>
+                <button class="btn btn-primary" onclick="submitVote()" id="submitVoteBtn" style="width: 100%; margin-top: 30px; font-size: 1.2rem;">🚀 提交決策</button>
             </div>
 
-            <div id="studentDone" style="display: none; text-align: center;">
-                <div style="font-size: 5rem; margin-bottom: 20px;">✅</div>
-                <h2>投票成功！</h2>
-                <p>請看老師的大螢幕確認結果。</p>
+            <div id="studentDone" style="display: none; text-align: center; padding: 40px 0;">
+                <div style="font-size: 5rem; color: #27ae60; margin-bottom: 20px;">✓</div>
+                <h2>決策已送達</h2>
+                <p style="color: #888;">請等候公會長的最終指示</p>
             </div>
         </div>
     </div>
 
-    <!-- Firebase SDKs -->
+    <!-- Logic -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, doc, setDoc, onSnapshot, updateDoc, increment, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, onSnapshot, updateDoc, increment, getDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
         import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-        // --- 1. Firebase Config (您的專屬金鑰) ---
         const firebaseConfig = {
             apiKey: "AIzaSyDJFzG3RrCkJBx5B23lBVcoOHmaqZ2dAYA",
             authDomain: "forgemini-7349a.firebaseapp.com",
@@ -454,96 +618,95 @@
             appId: "1:865250968546:web:fc3ded71179b709d422fbb"
         };
 
-        // --- 2. 初始化與變數 ---
         let app, db, auth, user;
         let isOnline = false;
-        let currentStudentHost = null; // 學生模式下，老師的 UID
+        let currentStudentHost = null;
+        let audioCtx = null;
 
-        // 嘗試初始化
         try {
             app = initializeApp(firebaseConfig);
             db = getFirestore(app);
             auth = getAuth(app);
             isOnline = true;
-            console.log("Firebase Connected ✅");
+            console.log("Guild Network Online.");
         } catch (e) {
-            console.error("Firebase Connect Failed ❌", e);
-            alert("⚠️ 雲端連線失敗，將進入離線模式 (投票功能將無法使用)");
+            console.error(e);
+            alert("目前為離線模式 (部分功能受限)");
         }
 
-        // --- 3. 路由與畫面控制 ---
         window.navTo = (pageId) => {
-            // 切換頁面時重置背景
-            document.body.className = '';
-            
-            // 隱藏所有頁面
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-            // 顯示目標頁面
             document.getElementById(`page-${pageId}`).classList.add('active');
-
-            // 特殊頁面背景設定
-            if (pageId === 'lottery') window.updateLotteryTheme();
+            
+            // 背景動態切換
+            if(pageId === 'home') document.body.style.backgroundColor = '#1a1c29';
+            if(pageId.includes('lottery')) document.body.style.backgroundColor = '#2c3e50';
+            if(pageId.includes('timer')) document.body.style.backgroundColor = '#2c2c2c';
         };
 
-        // --- 4. 功能：抽籤系統 (RPG Style) ---
-        window.updateLotteryTheme = () => {
-            const mode = document.getElementById('lotteryMode').value;
-            const display = document.getElementById('lotteryDisplay');
+        // --- 抽籤邏輯 ---
+        let currentLotteryMode = 'angel';
+        
+        window.enterLottery = (mode) => {
+            currentLotteryMode = mode;
+            navTo('lottery-run');
             const title = document.getElementById('lotteryTitle');
+            const display = document.getElementById('lotteryDisplay');
             
             if(mode === 'angel') {
-                document.body.className = 'mode-angel';
-                display.className = 'lottery-text angel-text';
-                title.innerText = '👼 天使的眷顧';
+                title.innerText = "✨ 天使的祝福 ✨";
+                title.style.color = "var(--primary)";
+                display.style.color = "var(--primary)";
+                document.body.style.backgroundColor = "#d6eaf8"; // 淺藍背景
             } else {
-                document.body.className = 'mode-demon';
-                display.className = 'lottery-text demon-text';
-                title.innerText = '👿 惡魔的降臨';
+                title.innerText = "☠️ 惡魔的試煉 ☠️";
+                title.style.color = "#c0392b";
+                display.style.color = "#c0392b";
+                document.body.style.backgroundColor = "#2c2c2c"; // 深色背景
             }
         };
 
-        window.drawLottery = () => {
-            const namesText = document.getElementById('lotteryNames').value;
-            const count = parseInt(document.getElementById('lotteryCount').value);
-            let names = namesText.split(/[,，\n\s]+/).filter(n => n.trim() !== '');
+        window.drawNumbers = () => {
+            const start = parseInt(document.getElementById('lotRangeStart').value);
+            const end = parseInt(document.getElementById('lotRangeEnd').value);
+            const count = parseInt(document.getElementById('lotCount').value);
             
-            if(names.length === 0) return alert("請先輸入名單！");
+            if(start >= end) return alert("範圍設定錯誤：起始必須小於結束");
             
+            let numbers = [];
+            for(let i=start; i<=end; i++) numbers.push(i);
+
+            if(audioCtx) playBeep(800, 0.05, 'sine');
             const display = document.getElementById('lotteryDisplay');
             let counter = 0;
             
-            // 抽籤動畫音效 (簡易)
-            if(window.audioCtx) playBeep(600, 0.05, 'triangle');
-
             const interval = setInterval(() => {
-                display.innerText = names[Math.floor(Math.random() * names.length)];
+                const randomVal = numbers[Math.floor(Math.random() * numbers.length)];
+                display.innerText = randomVal.toString().padStart(2, '0');
                 counter++;
-                if(counter > 20) {
+                if(counter > 25) {
                     clearInterval(interval);
-                    // Fisher-Yates Shuffle
-                    for (let i = names.length - 1; i > 0; i--) {
+                    // Shuffle
+                    for (let i = numbers.length - 1; i > 0; i--) {
                         const j = Math.floor(Math.random() * (i + 1));
-                        [names[i], names[j]] = [names[j], names[i]];
+                        [numbers[i], numbers[j]] = [numbers[j], numbers[i]];
                     }
-                    const winners = names.slice(0, count);
-                    display.innerText = winners.join(' & ');
+                    const winners = numbers.slice(0, count);
+                    display.innerText = winners.map(n => n.toString().padStart(2,'0')).join(' , ');
                     
-                    // 結果音效
-                    const mode = document.getElementById('lotteryMode').value;
-                    if(mode === 'angel') playBeep(880, 0.3, 'sine'); // 高音
-                    else playBeep(150, 0.5, 'sawtooth'); // 低沉音
+                    if(currentLotteryMode === 'angel') playBeep(1200, 0.5, 'sine'); // 清脆
+                    else playBeep(150, 0.8, 'sawtooth'); // 低沉
                 }
-            }, 80);
+            }, 60);
         };
 
-        // --- 5. 功能：魔王計時器 ---
+        // --- 計時器邏輯 ---
         let timerInterval;
-        let timeLeft = 0;
         let isRunning = false;
-        window.audioCtx = null; // Web Audio API
+        let totalTimeLeft = 0;
 
         function playBeep(freq = 440, dur = 0.1, type = 'sine') {
-            if (!window.audioCtx) window.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             const osc = audioCtx.createOscillator();
             const gain = audioCtx.createGain();
             osc.type = type;
@@ -555,35 +718,20 @@
             osc.stop(audioCtx.currentTime + dur);
         }
 
-        function formatTime(s) {
-            const min = Math.floor(s / 60).toString().padStart(2, '0');
-            const sec = (s % 60).toString().padStart(2, '0');
-            return `${min}:${sec}`;
+        function updateTimerDisplay(totalSeconds) {
+            const m = Math.floor(totalSeconds / 60).toString().padStart(2, '0');
+            const s = (totalSeconds % 60).toString().padStart(2, '0');
+            document.getElementById('timerDisplay').innerText = `${m}:${s}`;
         }
 
-        window.adjustTime = (delta) => {
-            const input = document.getElementById('setTimeInput');
-            let val = parseInt(input.value) || 1;
-            
-            // 如果沒在跑，直接改輸入框
-            if(!isRunning && timeLeft <= 0) {
-                if(delta > 0) val++;
-                else if(delta < 0 && val > 1) val--;
-                input.value = val;
-                document.getElementById('timerDisplay').innerText = formatTime(val * 60);
-                return;
-            }
-
-            // 如果正在跑，直接加減剩餘時間
-            if(timeLeft + delta > 0) {
-                timeLeft += delta;
-                document.getElementById('timerDisplay').innerText = formatTime(timeLeft);
-            }
-        };
+        function getSettingSeconds() {
+            const m = parseInt(document.getElementById('timerMin').value) || 0;
+            const s = parseInt(document.getElementById('timerSec').value) || 0;
+            return m * 60 + s;
+        }
 
         window.toggleTimer = () => {
-            const container = document.getElementById('page-timer');
-            const display = document.getElementById('timerDisplay');
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             const btn = document.getElementById('startTimerBtn');
 
             if (isRunning) {
@@ -591,36 +739,30 @@
                 isRunning = false;
                 btn.innerHTML = "▶️ 繼續";
             } else {
-                if (timeLeft <= 0) {
-                    const mins = parseInt(document.getElementById('setTimeInput').value);
-                    timeLeft = mins * 60;
-                }
-                
-                // 啟動 AudioContext (需要使用者互動)
-                if(!window.audioCtx) window.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                if(totalTimeLeft <= 0) totalTimeLeft = getSettingSeconds();
+                if(totalTimeLeft <= 0) return alert("請設定時間");
 
                 isRunning = true;
                 btn.innerHTML = "⏸️ 暫停";
                 
                 timerInterval = setInterval(() => {
-                    timeLeft--;
-                    display.innerText = formatTime(timeLeft);
+                    totalTimeLeft--;
+                    updateTimerDisplay(totalTimeLeft);
 
-                    // 最後 30 秒特效
-                    if (timeLeft <= 30 && timeLeft > 0) {
-                        container.classList.add('timer-urgent');
-                        if(timeLeft % 1 === 0) playBeep(800, 0.1, 'square'); // 警報聲
+                    const card = document.getElementById('timerCard');
+                    if (totalTimeLeft <= 30 && totalTimeLeft > 0) {
+                        card.classList.add('timer-urgent');
+                        if(totalTimeLeft % 1 === 0) playBeep(600, 0.1, 'square');
                     } else {
-                        container.classList.remove('timer-urgent');
+                        card.classList.remove('timer-urgent');
                     }
 
-                    if (timeLeft <= 0) {
+                    if (totalTimeLeft <= 0) {
                         clearInterval(timerInterval);
-                        display.innerText = "TIME UP";
-                        playBeep(200, 1.5, 'sawtooth'); // 結束長音
                         isRunning = false;
-                        btn.innerHTML = "▶️ 開始冒險";
-                        container.classList.remove('timer-urgent');
+                        document.getElementById('timerDisplay').innerText = "FAILED";
+                        playBeep(100, 1.5, 'sawtooth');
+                        btn.innerHTML = "重來";
                     }
                 }, 1000);
             }
@@ -629,185 +771,158 @@
         window.resetTimer = () => {
             clearInterval(timerInterval);
             isRunning = false;
-            timeLeft = 0;
-            const mins = parseInt(document.getElementById('setTimeInput').value);
-            document.getElementById('timerDisplay').innerText = formatTime(mins * 60);
-            document.getElementById('page-timer').classList.remove('timer-urgent');
-            document.getElementById('startTimerBtn').innerHTML = "▶️ 開始冒險";
+            totalTimeLeft = getSettingSeconds();
+            updateTimerDisplay(totalTimeLeft);
+            document.getElementById('timerCard').classList.remove('timer-urgent');
+            document.getElementById('startTimerBtn').innerHTML = "⚔️ 開戰 ⚔️";
         };
 
+        // --- 投票邏輯 ---
+        window.toggleVoteLimit = () => {
+            const type = document.getElementById('voteType').value;
+            document.getElementById('voteLimitContainer').style.display = (type === 'multi') ? 'block' : 'none';
+        };
 
-        // --- 6. 功能：投票系統 (核心與 Firebase 互動) ---
-
-        // A. 老師：創建投票
         window.createVote = async () => {
-            if (!user) return alert("❌ 請先點擊右上角「登入雲端」才能使用投票系統！");
+            if (!user) return alert("請先登入公會網路！");
 
             const question = document.getElementById('voteQuestion').value;
             const type = document.getElementById('voteType').value;
+            const limit = parseInt(document.getElementById('voteLimit').value);
+            const classSize = parseInt(document.getElementById('voteClassSize').value);
             const options = document.getElementById('voteOptions').value.split('\n').filter(o => o.trim());
 
-            if (!question || options.length < 2) return alert("請輸入問題和至少兩個選項");
+            if (!question || options.length < 2) return alert("資料不完整");
 
             const voteData = {
                 active: true,
                 question,
                 type,
+                limit: (type === 'multi' ? limit : 1),
+                classSize,
                 options,
                 timestamp: new Date().toISOString(),
-                votes: {} // 初始化票倉
+                votes: {},
+                logs: []
             };
             options.forEach(opt => voteData.votes[opt] = 0);
 
-            // 寫入 Firestore
             const path = `users/${user.uid}/apps/classroom_adventure_tool`;
             await setDoc(doc(db, path), voteData);
 
-            // 切換畫面
             document.getElementById('voteSetup').style.display = 'none';
             document.getElementById('voteResult').style.display = 'block';
-            document.getElementById('resultTitle').innerText = `📊 ${question}`;
-
-            // 生成 QR Code
-            const hostUrl = `${window.location.protocol}//${window.location.host}${window.location.pathname}`;
-            const studentLink = `${hostUrl}?mode=student&host=${user.uid}`;
             
-            const qrContainer = document.getElementById('qrCodeArea');
-            qrContainer.innerHTML = "";
-            new QRCode(qrContainer, {
-                text: studentLink,
-                width: 256,
-                height: 256,
-                colorDark : "#000000",
-                colorLight : "#ffffff",
-                correctLevel : QRCode.CorrectLevel.H
-            });
-            // 顯示短網址 (視覺模擬，實際還是長網址)
-            // document.getElementById('shortUrlDisplay').innerText = studentLink; 
+            const link = `${window.location.href.split('?')[0]}?mode=student&host=${user.uid}`;
+            const qrDiv = document.getElementById('qrCodeArea');
+            qrDiv.innerHTML = "";
+            new QRCode(qrDiv, { text: link, width: 160, height: 160 });
 
-            // 開始監聽即時結果
             startTeacherListener(user.uid);
         };
 
-        // B. 老師：監聽與渲染長條圖
         function startTeacherListener(uid) {
-            const path = `users/${uid}/apps/classroom_adventure_tool`;
-            onSnapshot(doc(db, path), (docSnap) => {
-                if (docSnap.exists()) {
-                    const data = docSnap.data();
-                    renderVoteBars(data);
-                }
+            onSnapshot(doc(db, `users/${uid}/apps/classroom_adventure_tool`), (snap) => {
+                if(snap.exists()) renderVoteBars(snap.data());
             });
         }
 
         function renderVoteBars(data) {
-            const container = document.getElementById('voteBarsArea');
-            container.innerHTML = "";
-
+            const div = document.getElementById('voteBarsArea');
+            div.innerHTML = "";
             let total = 0;
-            for(let key in data.votes) total += data.votes[key];
+            for(let k in data.votes) total += data.votes[k];
 
             data.options.forEach(opt => {
                 const count = data.votes[opt] || 0;
-                const percent = total === 0 ? 0 : Math.round((count / total) * 100);
-                
-                container.innerHTML += `
+                const pct = total === 0 ? 0 : Math.round((count/total)*100);
+                div.innerHTML += `
                     <div class="vote-bar-row">
                         <div class="vote-label-row">
-                            <span>${opt}</span>
-                            <span>${count} 票 (${percent}%)</span>
+                            <span>${opt}</span><span style="color:var(--primary);">${count} 票 (${pct}%)</span>
                         </div>
-                        <div class="vote-track">
-                            <div class="vote-fill" style="width: ${percent}%"></div>
-                        </div>
-                    </div>
-                `;
+                        <div class="vote-track"><div class="vote-fill" style="width:${pct}%"></div></div>
+                    </div>`;
             });
         }
 
-        // C. 老師：匯出 CSV (新功能)
         window.exportToCSV = async () => {
-            if (!user) return alert("未登入");
-            const docRef = doc(db, `users/${user.uid}/apps/classroom_adventure_tool`);
-            const snap = await getDoc(docRef);
-            if (!snap.exists()) return alert("無數據");
-            
+            const snap = await getDoc(doc(db, `users/${user.uid}/apps/classroom_adventure_tool`));
+            if(!snap.exists()) return;
             const data = snap.data();
-            let csv = "\uFEFF題目,選項,票數\n"; // 加入 BOM 防止 Excel 亂碼
-            
-            data.options.forEach(opt => {
-                csv += `"${data.question}","${opt}",${data.votes[opt] || 0}\n`;
-            });
+            let csv = "\uFEFF[統計] " + data.question + "\n選項,票數\n";
+            data.options.forEach(opt => csv += `${opt},${data.votes[opt]}\n`);
+            csv += `\n[詳細紀錄]\n座號,投下選項\n`;
+            const logs = data.logs || [];
+            logs.sort((a,b) => parseInt(a.sid) - parseInt(b.sid));
+            logs.forEach(log => csv += `${log.sid},"${log.opts.join('&')}"\n`);
 
             const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `投票結果_${new Date().toISOString().slice(0,10)}.csv`;
+            a.download = `VoteRecord_${new Date().toISOString().slice(0,10)}.csv`;
             a.click();
         };
 
         window.stopVote = () => {
-            if(confirm("確定要結束投票並回到設定頁面嗎？")) {
-                document.getElementById('voteResult').style.display = 'none';
-                document.getElementById('voteSetup').style.display = 'block';
-            }
+             if(confirm("確定結束投票？")) {
+                 document.getElementById('voteResult').style.display = 'none';
+                 document.getElementById('voteSetup').style.display = 'block';
+             }
         };
 
-        // D. 學生：進入模式與介面
         function initStudentMode(hostUid) {
             currentStudentHost = hostUid;
-            
-            // 隱藏不必要的 UI，專注於投票
             document.getElementById('statusBar').style.display = 'none';
-            document.body.classList.add('student-body');
             navTo('vote-student');
 
-            const path = `users/${hostUid}/apps/classroom_adventure_tool`;
-
-            // 監聽題目變化
-            onSnapshot(doc(db, path), (docSnap) => {
-                const waitingDiv = document.getElementById('studentWaiting');
-                const formDiv = document.getElementById('studentVotingForm');
-                const doneDiv = document.getElementById('studentDone');
-
-                if (docSnap.exists() && docSnap.data().active) {
-                    const data = docSnap.data();
-                    waitingDiv.style.display = 'none';
-                    formDiv.style.display = 'block';
-                    doneDiv.style.display = 'none';
-                    
-                    document.getElementById('studentQTitle').innerText = data.question;
-                    renderStudentOptions(data);
+            onSnapshot(doc(db, `users/${hostUid}/apps/classroom_adventure_tool`), (snap) => {
+                const data = snap.data();
+                if(snap.exists() && data.active) {
+                    document.getElementById('studentWaiting').style.display = 'none';
+                    document.getElementById('studentVotingForm').style.display = 'block';
+                    renderStudentForm(data);
                 } else {
-                    waitingDiv.style.display = 'block';
-                    formDiv.style.display = 'none';
-                    doneDiv.style.display = 'none';
+                    document.getElementById('studentWaiting').style.display = 'block';
+                    document.getElementById('studentVotingForm').style.display = 'none';
                 }
-            }, (error) => {
-                console.log("Listen error:", error);
-                alert("連線中斷或老師已關閉投票");
             });
         }
 
-        function renderStudentOptions(data) {
+        function renderStudentForm(data) {
+            document.getElementById('studentQTitle').innerText = data.question;
+            const ruleText = data.type === 'single' ? "單選模式" : `複選模式：請選擇 ${data.limit} 項`;
+            document.getElementById('voteRuleText').innerText = ruleText;
+
+            const sel = document.getElementById('studentIdSelect');
+            if(sel.options.length <= 1) {
+                sel.innerHTML = '<option value="">-- 請選擇您的編號 --</option>';
+                for(let i=1; i<=data.classSize; i++) {
+                    const opt = document.createElement('option');
+                    opt.value = i;
+                    opt.innerText = `${i} 號冒險者`;
+                    sel.appendChild(opt);
+                }
+            }
+
             const container = document.getElementById('studentOptionsArea');
             container.innerHTML = "";
             const inputType = data.type === 'single' ? 'radio' : 'checkbox';
 
             data.options.forEach((opt, idx) => {
-                const id = `opt-${idx}`;
                 container.innerHTML += `
-                    <div class="student-option" onclick="selectOption(this, '${inputType}')">
-                        <input type="${inputType}" name="v_opts" value="${opt}" id="${id}">
-                        <label for="${id}" style="width:100%; cursor:pointer;">${opt}</label>
-                    </div>
-                `;
+                    <div class="student-option" onclick="toggleOpt(this, '${inputType}')">
+                        <input type="${inputType}" name="v_opts" value="${opt}">
+                        <span>${opt}</span>
+                    </div>`;
             });
+
+            window.currentVoteLimit = data.limit;
+            window.currentVoteType = data.type;
         }
 
-        window.selectOption = (div, type) => {
-            // 點擊 div 也能觸發 input
+        window.toggleOpt = (div, type) => {
             const input = div.querySelector('input');
             if(type === 'radio') {
                 document.querySelectorAll('.student-option').forEach(d => {
@@ -823,75 +938,61 @@
         };
 
         window.submitVote = async () => {
-            if(!currentStudentHost) return;
-            
+            const sid = document.getElementById('studentIdSelect').value;
+            if(!sid) return alert("請先選擇編號！");
+
             const inputs = document.querySelectorAll('input[name="v_opts"]:checked');
             const selected = Array.from(inputs).map(i => i.value);
             
-            if(selected.length === 0) return alert("請至少選擇一個選項！");
-            
+            if(window.currentVoteType === 'multi') {
+                if(selected.length !== window.currentVoteLimit) return alert(`請務必選擇 ${window.currentVoteLimit} 項`);
+            } else {
+                if(selected.length === 0) return alert("請選擇一項");
+            }
+
             const btn = document.getElementById('submitVoteBtn');
             btn.disabled = true;
             btn.innerText = "傳送中...";
 
-            // 更新計數
-            const updates = {};
+            const updates = {
+                logs: arrayUnion({ sid: sid, opts: selected, ts: Date.now() })
+            };
             selected.forEach(val => {
                 updates[`votes.${val}`] = increment(1);
             });
 
             try {
-                const ref = doc(db, `users/${currentStudentHost}/apps/classroom_adventure_tool`);
-                await updateDoc(ref, updates);
-                
+                await updateDoc(doc(db, `users/${currentStudentHost}/apps/classroom_adventure_tool`), updates);
                 document.getElementById('studentVotingForm').style.display = 'none';
                 document.getElementById('studentDone').style.display = 'block';
-                btn.disabled = false;
-                btn.innerText = "🚀 傳送決定";
             } catch(e) {
-                alert("傳送失敗，請重試");
+                alert("傳送失敗");
                 btn.disabled = false;
-                btn.innerText = "🚀 傳送決定";
             }
         };
 
-        // --- 7. 啟動與 Auth 監聽 ---
         const authBtn = document.getElementById('authBtn');
-        
-        // 檢查網址參數 (判斷是否為學生)
         const params = new URLSearchParams(window.location.search);
-        const mode = params.get('mode');
-        const host = params.get('host');
-
-        if(mode === 'student' && host) {
-            // 學生模式：不需要顯示登入按鈕
-            initStudentMode(host);
+        
+        if(params.get('mode') === 'student') {
+            initStudentMode(params.get('host'));
         } else {
-            // 老師/正常模式
-            if(isOnline) {
-                authBtn.onclick = () => {
-                    if(user) signOut(auth);
-                    else signInWithPopup(auth, new GoogleAuthProvider());
-                };
-
-                onAuthStateChanged(auth, (u) => {
-                    user = u;
-                    if(user) {
-                        authBtn.innerText = `👤 ${user.displayName}`;
-                        authBtn.classList.replace('btn-primary', 'btn-outline');
-                    } else {
-                        authBtn.innerText = "☁️ 登入雲端";
-                        authBtn.classList.replace('btn-outline', 'btn-primary');
-                        // 如果在投票頁面但登出了，踢回首頁
-                        if(document.getElementById('page-vote-teacher').classList.contains('active')) {
-                            navTo('home');
-                        }
-                    }
-                });
-            } else {
-                authBtn.innerText = "⚠️ 離線模式";
-                authBtn.disabled = true;
-            }
+            authBtn.onclick = () => {
+                if(user) signOut(auth);
+                else signInWithPopup(auth, new GoogleAuthProvider());
+            };
+            onAuthStateChanged(auth, u => {
+                user = u;
+                if(user) {
+                    authBtn.innerText = `會長：${user.displayName}`;
+                    authBtn.classList.remove('btn-primary');
+                    authBtn.style.background = "transparent";
+                    authBtn.style.color = "var(--primary)";
+                    authBtn.style.border = "1px solid var(--primary)";
+                } else {
+                    authBtn.innerText = "☁️ 登入公會網絡";
+                }
+            });
         }
     </script>
 </body>

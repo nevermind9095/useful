@@ -12,24 +12,15 @@
     <style>
         /* --- 現代日系 RPG 風格變數 --- */
         :root {
-            /* 背景與基底 */
-            --bg-world: #1a1c29; /* 深邃夜空藍 */
-            --bg-paper: #fdfbf7; /* 高級魔法紙張 */
-            
-            /* 主色調 */
-            --primary: #4e73df; /* 騎士藍 */
-            --gold: #d4af37;    /* 公會金 */
-            --accent-red: #c0392b; /* 惡魔/魔龍紅 */
-            
-            /* 文字 */
+            --bg-world: #1a1c29;
+            --bg-paper: #fdfbf7;
+            --primary: #4e73df;
+            --gold: #d4af37;
+            --accent-red: #c0392b;
             --text-dark: #2c3e50;
             --text-light: #ecf0f1;
-            
-            /* 邊框與裝飾 */
             --shadow-card: 0 8px 16px rgba(0,0,0,0.2);
             --radius-main: 12px;
-            
-            /* 字體設定 */
             --font-ui: 'Noto Sans TC', sans-serif;
             --font-header: 'Noto Serif TC', serif;
             --font-eng: 'Cinzel', serif;
@@ -41,7 +32,6 @@
             margin: 0;
             padding: 0;
             background-color: var(--bg-world);
-            /* 預設魔法背景氛圍 */
             background-image: 
                 radial-gradient(circle at 10% 20%, rgba(78, 115, 223, 0.2) 0%, transparent 20%),
                 radial-gradient(circle at 90% 80%, rgba(212, 175, 55, 0.1) 0%, transparent 20%);
@@ -56,7 +46,6 @@
             transition: background 0.5s ease;
         }
 
-        /* 頂部裝飾條 */
         body::before {
             content: "";
             position: fixed; top: 0; left: 0; width: 100%; height: 6px;
@@ -84,67 +73,38 @@
             overflow: hidden;
             letter-spacing: 1px;
         }
-        
-        .btn::after {
-            content: '';
-            position: absolute;
-            top: 0; left: -100%; width: 100%; height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
-            transition: 0.5s;
-        }
-        .btn:hover::after { left: 100%; }
         .btn:hover { transform: translateY(-2px); box-shadow: 0 6px 12px rgba(0,0,0,0.2); }
         .btn:active { transform: scale(0.96); }
 
-        .btn-primary { 
-            background: linear-gradient(135deg, var(--primary), #2c52b3); 
-            color: white; 
-            border: 1px solid rgba(255,255,255,0.2);
-        }
-        .btn-danger { 
-            background: linear-gradient(135deg, var(--accent-red), #962d22); 
-            color: white; 
-        }
-        .btn-success { 
-            background: linear-gradient(135deg, #27ae60, #219150); 
-            color: white; 
-        }
+        .btn-primary { background: linear-gradient(135deg, var(--primary), #2c52b3); color: white; }
+        .btn-danger { background: linear-gradient(135deg, var(--accent-red), #962d22); color: white; }
+        .btn-success { background: linear-gradient(135deg, #27ae60, #219150); color: white; }
 
-        /* --- 魔龍專屬按鈕樣式 --- */
+        /* 魔龍挑戰專屬按鈕 */
         .btn-dragon-fight {
-            background: linear-gradient(135deg, #800000, #330000); /* 深紅漸層 */
-            color: #ffd700; /* 金色文字 */
-            border: 2px solid #b8860b; /* 暗金邊框 */
-            box-shadow: 0 0 15px rgba(255, 0, 0, 0.4);
-            text-shadow: 0 2px 4px black;
+            background: linear-gradient(180deg, #800000 0%, #330000 100%);
+            color: #ffcc00;
+            border: 1px solid #ff4d4d;
+            box-shadow: 0 0 15px rgba(255, 0, 0, 0.5);
+            text-shadow: 0 2px 2px black;
         }
         .btn-dragon-reset {
-            background: linear-gradient(135deg, #4a4a4a, #2b2b2b); /* 鐵灰漸層 */
-            color: #e0e0e0; /* 銀白文字 */
-            border: 2px solid #777; /* 銀灰邊框 */
-            text-shadow: 0 1px 2px black;
+            background: rgba(0,0,0,0.6);
+            color: #aaa;
+            border: 1px solid #555;
         }
+        .btn-dragon-reset:hover { background: rgba(50,50,50,0.8); color: #fff; }
         
         /* 全域返回按鈕 */
         #globalHomeBtn {
-            position: fixed; 
-            top: 20px; 
-            left: 20px; 
-            z-index: 2000; 
-            font-size: 0.9rem; 
-            padding: 8px 20px;
-            background: rgba(255,255,255,0.95);
-            color: var(--text-dark);
-            backdrop-filter: blur(5px);
-            border: 1px solid #ddd;
-            font-family: var(--font-ui);
-            display: none; 
+            position: fixed; top: 20px; left: 20px; z-index: 2000; 
+            font-size: 0.9rem; padding: 8px 20px;
+            background: rgba(255,255,255,0.95); color: var(--text-dark);
+            backdrop-filter: blur(5px); border: 1px solid #ddd;
+            font-family: var(--font-ui); display: none; 
             box-shadow: 0 4px 10px rgba(0,0,0,0.1);
         }
-        #globalHomeBtn:hover {
-            background: #fff;
-            transform: scale(1.05);
-        }
+        #globalHomeBtn:hover { background: #fff; transform: scale(1.05); }
 
         /* --- 卡片容器 --- */
         .card {
@@ -175,295 +135,158 @@
             box-shadow: 0 10px 30px rgba(0,0,0,0.8);
             backdrop-filter: blur(5px); 
         }
-        .card.demon-theme h1, .card.demon-theme h2, .card.demon-theme h3 {
-            color: #e74c3c; text-shadow: 0 2px 4px rgba(0,0,0,0.8);
-        }
-        .card.demon-theme label { color: #ddd; }
+        .card.demon-theme h1, .card.demon-theme h2 { color: #e74c3c; text-shadow: 0 2px 4px rgba(0,0,0,0.8); }
         .card.demon-theme input { background: rgba(0, 0, 0, 0.6); color: #fff; border-color: #666; }
-        
         .card.demon-theme .lottery-result-area {
             background: rgba(0, 0, 0, 0.7); border-color: #c0392b; color: #e74c3c;
             box-shadow: inset 0 0 30px rgba(192, 57, 43, 0.3);
         }
         .card.demon-theme .config-panel { background: rgba(0, 0, 0, 0.5); border-color: #555; }
 
-        h1, h2, h3 { margin-top: 0; font-family: var(--font-header); color: #1a1c29; font-weight: 900; }
-        h1 { font-size: 2.2rem; margin-bottom: 0.5rem; text-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        h1 { font-size: 2.2rem; margin-bottom: 0.5rem; font-family: var(--font-header); color: #1a1c29; font-weight: 900; }
         h1 span { color: var(--gold); font-family: var(--font-eng); font-size: 1.8rem; margin-left: 10px; }
-        h2 { font-size: 1.8rem; border-bottom: 2px solid rgba(0,0,0,0.05); padding-bottom: 10px; margin-bottom: 25px; }
+        h2 { font-size: 1.8rem; border-bottom: 2px solid rgba(0,0,0,0.05); padding-bottom: 10px; margin-bottom: 25px; font-family: var(--font-header); color: #1a1c29; }
         
-        /* --- 輸入框 (通用) --- */
-        input, select, textarea {
-            background: #fff;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            color: var(--text-dark);
-            padding: 12px;
-            font-size: 1.1rem;
-            width: 100%;
-            margin-bottom: 15px;
-            transition: 0.3s;
-            font-family: var(--font-ui);
+        /* --- 魔龍模式 (極簡透明風格) --- */
+        .card.dragon-mode {
+            background: transparent !important; /* 完全透明 */
+            box-shadow: none !important;
+            border: none !important;
+            backdrop-filter: none !important;
+            padding: 0 !important; /* 縮減留白 */
+            margin-top: 10vh !important; /* 稍微往下移 */
+            max-width: 600px; /* 縮小寬度，集中視覺 */
         }
-        input:focus, select:focus, textarea:focus { 
-            outline: none; border-color: var(--primary); 
-            box-shadow: 0 0 0 3px rgba(78, 115, 223, 0.1);
-        }
-        label { color: #666; font-size: 1rem; margin-bottom: 6px; display: block; font-weight: 700; font-family: var(--font-header); }
+        .card.dragon-mode::before { display: none; } /* 隱藏頂部金線 */
 
-        /* --- 頂部狀態列 --- */
-        #statusBar {
-            background: rgba(255,255,255,0.9);
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid rgba(0,0,0,0.05);
-            padding: 10px 30px;
-            display: flex;
-            justify-content: flex-end;
-            align-items: center;
-            position: sticky;
-            top: 0;
-            z-index: 900;
-        }
-        
-        .page { display: none; animation: fadeSlideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1); }
-        .page.active { display: block; }
-        @keyframes fadeSlideUp { 
-            from { opacity: 0; transform: translateY(20px); } 
-            to { opacity: 1; transform: translateY(0); } 
-        }
-
-        /* --- 首頁選單 --- */
-        .menu-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-            gap: 25px;
-            padding: 10px;
-        }
-        .menu-item {
-            height: 240px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            background: #fff;
-            border-radius: 16px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-            cursor: pointer;
-            transition: all 0.3s;
-            position: relative;
-            overflow: hidden;
-            border: 1px solid transparent;
-        }
-        
-        /* 選單背景圖 */
-        .menu-item-lottery {
-            background-image: linear-gradient(rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.85)), url('image_4aa398.jpg');
-            background-size: cover;
-            background-position: center;
-        }
-        .menu-item-timer {
-            background-image: linear-gradient(rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.85)), url('Gemini_Generated_Image_5gyjko5gyjko5gyj.jpg');
-            background-size: cover;
-            background-position: center;
-        }
-
-        .menu-item:hover { 
-            transform: translateY(-8px); 
-            box-shadow: 0 12px 24px rgba(78, 115, 223, 0.15); 
-            border-color: var(--primary);
-        }
-        .menu-item-lottery:hover {
-            background-image: linear-gradient(rgba(255, 255, 255, 0.7), rgba(255, 255, 255, 0.7)), url('image_4aa398.jpg');
-        }
-        .menu-item-timer:hover {
-            background-image: linear-gradient(rgba(255, 255, 255, 0.7), rgba(255, 255, 255, 0.7)), url('Gemini_Generated_Image_5gyjko5gyjko5gyj.jpg');
-        }
-
-        .menu-item::before {
-            content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
-            background: radial-gradient(circle, rgba(78, 115, 223, 0.03) 0%, transparent 70%);
-            transition: 0.5s;
-        }
-        .menu-item:hover::before { transform: scale(1.1); }
-        .menu-icon { 
-            font-size: 4rem; margin-bottom: 15px; 
-            background: linear-gradient(135deg, var(--primary), #2c52b3);
+        /* 魔龍標題特效 */
+        .dragon-title {
+            font-family: var(--font-header);
+            font-size: 3.5rem;
+            font-weight: 900;
+            /* 金屬與血紅漸層 */
+            background: linear-gradient(to bottom, #ffcc00, #ff3300);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            filter: drop-shadow(0 4px 6px rgba(78, 115, 223, 0.2));
-            z-index: 1;
+            /* 強烈發光與陰影 */
+            filter: drop-shadow(0 0 10px rgba(255, 50, 0, 0.8));
+            letter-spacing: 5px;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+        
+        .dragon-subtitle {
+            font-family: var(--font-ui);
+            color: #fff;
+            font-weight: bold;
+            font-size: 1.1rem;
+            text-shadow: 0 2px 4px #000, 0 0 8px rgba(0,0,0,0.8);
+            background: linear-gradient(90deg, transparent, rgba(0,0,0,0.6), transparent);
+            padding: 5px 20px;
+            display: inline-block;
+        }
+
+        /* 計時器數字本體 */
+        .dragon-timer-display {
+            font-family: 'Cinzel', serif;
+            font-size: 7rem;
+            font-weight: 700;
+            color: #fff;
+            text-shadow: 0 0 20px rgba(255, 200, 0, 0.8), 0 4px 4px #000;
+            margin: 20px 0;
+            /* 移除白色背景，改用淡淡的光暈 */
+            background: radial-gradient(closest-side, rgba(0,0,0,0.5), transparent);
+            padding: 20px;
+            border-radius: 50%;
+        }
+
+        /* 緊張狀態 */
+        .timer-urgent .dragon-timer-display {
+            color: #ff3333;
+            text-shadow: 0 0 30px red, 0 4px 4px black;
+            animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both infinite;
+        }
+        @keyframes shake { 10%, 90% { transform: translate3d(-1px, 0, 0); } 20%, 80% { transform: translate3d(2px, 0, 0); } }
+
+        /* 輸入框優化 */
+        .dragon-input {
+            background: rgba(0,0,0,0.6) !important;
+            border: 1px solid #666 !important;
+            color: #ffcc00 !important;
+            font-family: 'Cinzel', serif !important;
+            font-size: 1.5rem !important;
+            font-weight: bold !important;
+            text-align: center;
+            width: 80px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.5) !important;
+        }
+
+        /* --- 其他通用樣式 --- */
+        input, select, textarea {
+            background: #fff; border: 2px solid #e0e0e0; border-radius: 8px; color: var(--text-dark);
+            padding: 12px; font-size: 1.1rem; width: 100%; margin-bottom: 15px; transition: 0.3s; font-family: var(--font-ui);
+        }
+        input:focus, select:focus, textarea:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(78, 115, 223, 0.1); }
+        label { color: #666; font-size: 1rem; margin-bottom: 6px; display: block; font-weight: 700; font-family: var(--font-header); }
+
+        .page { display: none; animation: fadeSlideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1); }
+        .page.active { display: block; }
+        @keyframes fadeSlideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        .menu-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 25px; padding: 10px; }
+        .menu-item {
+            height: 240px; display: flex; flex-direction: column; justify-content: center; align-items: center;
+            background: #fff; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            cursor: pointer; transition: all 0.3s; position: relative; overflow: hidden; border: 1px solid transparent;
+        }
+        
+        .menu-item-lottery { background-image: linear-gradient(rgba(255,255,255,0.85), rgba(255,255,255,0.85)), url('image_4aa398.jpg'); background-size: cover; background-position: center; }
+        .menu-item-timer { background-image: linear-gradient(rgba(255,255,255,0.85), rgba(255,255,255,0.85)), url('Gemini_Generated_Image_5gyjko5gyjko5gyj.jpg'); background-size: cover; background-position: center; }
+
+        .menu-item:hover { transform: translateY(-8px); box-shadow: 0 12px 24px rgba(78, 115, 223, 0.15); border-color: var(--primary); }
+        .menu-item-lottery:hover { background-image: linear-gradient(rgba(255,255,255,0.7), rgba(255,255,255,0.7)), url('image_4aa398.jpg'); }
+        .menu-item-timer:hover { background-image: linear-gradient(rgba(255,255,255,0.7), rgba(255,255,255,0.7)), url('Gemini_Generated_Image_5gyjko5gyjko5gyj.jpg'); }
+
+        .menu-icon { 
+            font-size: 4rem; margin-bottom: 15px; background: linear-gradient(135deg, var(--primary), #2c52b3);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(0 4px 6px rgba(78, 115, 223, 0.2)); z-index: 1;
         }
         .menu-title { font-size: 1.5rem; font-weight: 900; color: var(--text-dark); margin-bottom: 5px; font-family: var(--font-header); z-index: 1; }
         .menu-sub { font-family: var(--font-eng); font-size: 0.8rem; color: #555; letter-spacing: 2px; text-transform: uppercase; z-index: 1; font-weight: bold;}
 
-        /* --- 抽籤：命運之門 --- */
-        .door-container {
-            display: flex; gap: 30px; justify-content: center; flex-wrap: wrap; margin-top: 40px;
-        }
-        .door {
-            width: 45%; min-width: 300px; height: 420px;
-            position: relative; cursor: pointer; transition: 0.4s;
-            border-radius: 16px;
-            overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-            background-size: cover; background-position: center;
-        }
+        .door-container { display: flex; gap: 30px; justify-content: center; flex-wrap: wrap; margin-top: 40px; }
+        .door { width: 45%; min-width: 300px; height: 420px; position: relative; cursor: pointer; transition: 0.4s; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.3); background-size: cover; background-position: center; }
         .door:hover { transform: scale(1.03); box-shadow: 0 15px 40px rgba(0,0,0,0.4); }
+        .door-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.2) 60%, transparent 100%); display: flex; flex-direction: column; justify-content: flex-end; padding: 40px 30px; text-align: left; }
         
-        .door-overlay {
-            position: absolute; inset: 0;
-            background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.2) 60%, transparent 100%);
-            display: flex; flex-direction: column; justify-content: flex-end; padding: 40px 30px;
-            text-align: left;
-        }
-        
-        /* 確保使用 .jpg */
         .door-angel { background-image: url('image_4b8832.jpg'); border: 4px solid #fff; }
-        .door-angel::after { content: '✧'; position: absolute; top: 20px; right: 20px; color: rgba(255,255,255,0.8); font-size: 3rem; }
         .door-angel .door-title { color: #fff; font-size: 2rem; font-family: var(--font-header); text-shadow: 0 2px 10px rgba(255,255,255,0.5); }
-        
         .door-demon { background-image: url('image_4b8812.jpg'); border: 4px solid #c0392b; }
-        .door-demon::after { content: '☠'; position: absolute; top: 20px; right: 20px; color: rgba(192, 57, 43, 0.5); font-size: 3rem; }
         .door-demon .door-title { color: #e74c3c; font-size: 2rem; font-family: var(--font-header); text-shadow: 0 2px 10px rgba(0,0,0,0.8); }
-        
         .door-desc { font-size: 1.1rem; color: rgba(255,255,255,0.9); margin-top: 8px; font-weight: 500; font-family: var(--font-header); }
 
-        /* 抽籤結果區 */
-        .lottery-result-area {
-            font-size: 5rem; font-weight: 700;
-            min-height: 200px;
-            display: flex; align-items: center; justify-content: center;
-            background: #fff;
-            border-radius: 12px;
-            margin: 20px 0;
-            border: 1px solid #eee;
-            box-shadow: inset 0 0 20px rgba(0,0,0,0.03);
-            font-family: var(--font-header);
-            color: var(--text-dark);
-            transition: all 0.5s;
-        }
-        
-        .config-panel {
-            background: #f8f9fa; 
-            padding: 20px; 
-            border-radius: 12px; 
-            border: 1px solid #eee; 
-            margin-top: 20px;
-            transition: all 0.5s;
-        }
+        .lottery-result-area { font-size: 5rem; font-weight: 700; min-height: 200px; display: flex; align-items: center; justify-content: center; background: #fff; border-radius: 12px; margin: 20px 0; border: 1px solid #eee; box-shadow: inset 0 0 20px rgba(0,0,0,0.03); font-family: var(--font-header); color: var(--text-dark); transition: all 0.5s; }
+        .config-panel { background: #f8f9fa; padding: 20px; border-radius: 12px; border: 1px solid #eee; margin-top: 20px; transition: all 0.5s; }
 
-        /* --- 抽籤模式切換按鈕 --- */
-        .mode-switch-container {
-            display: flex; align-items: center; gap: 10px; margin-bottom: 15px;
-        }
+        .mode-switch-container { display: flex; align-items: center; gap: 10px; margin-bottom: 15px; }
         .switch-label { font-weight: bold; color: var(--primary); }
-        .switch {
-            position: relative; display: inline-block; width: 60px; height: 30px;
-        }
+        .switch { position: relative; display: inline-block; width: 60px; height: 30px; }
         .switch input { opacity: 0; width: 0; height: 0; }
-        .slider {
-            position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
-            background-color: #ccc; transition: .4s; border-radius: 34px;
-        }
-        .slider:before {
-            position: absolute; content: ""; height: 22px; width: 22px; left: 4px; bottom: 4px;
-            background-color: white; transition: .4s; border-radius: 50%;
-        }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 34px; }
+        .slider:before { position: absolute; content: ""; height: 22px; width: 22px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; }
         input:checked + .slider { background-color: var(--primary); }
         input:checked + .slider:before { transform: translateX(30px); }
 
-        /* --- 計時：魔龍降臨 (透明化處理與字體優化) --- */
-        #timerCard { border: none; overflow: hidden; background: #fff; }
-        
-        /* 魔龍模式下，背景全透明，只保留文字與必要元件 */
-        .card.dragon-mode {
-            background-color: transparent; /* 透明底 */
-            border: none;
-            box-shadow: none;
-            backdrop-filter: none;
-        }
-
-        .timer-header-box { text-align: center; margin-bottom: 20px; }
-        .timer-title-text { 
-            font-size: 3rem; font-family: var(--font-header); font-weight: 900; 
-            /* 強烈發光的紅色標題 */
-            color: #ff4d4d;
-            text-shadow: 0 0 10px rgba(255, 0, 0, 0.8), 2px 2px 0px #000;
-            letter-spacing: 2px;
-        }
-        /* 優化後的副標題：金色 + 重陰影 */
-        .timer-subtitle {
-            color: #ffd700 !important;
-            text-shadow: 2px 2px 4px #000, 0 0 10px rgba(0,0,0,0.8);
-            font-size: 1.3rem;
-            font-weight: bold;
-            margin-top: 10px;
-            letter-spacing: 1px;
-            background: rgba(0,0,0,0.3); /* 稍微加一點底色條增加可讀性 */
-            display: inline-block;
-            padding: 5px 15px;
-            border-radius: 20px;
-        }
-
-        .timer-circle {
-            /* 修改：移除白底，改為擴散黑影 */
-            width: 280px; height: 280px; 
-            border-radius: 50%; 
-            /* border: 6px solid rgba(255,255,255,0.1);  可以完全拿掉邊框 */
-            border: none;
-            margin: 20px auto;
-            display: flex; align-items: center; justify-content: center; position: relative;
-            /* 核心修改：透明度處理 */
-            background: radial-gradient(circle, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0) 70%); 
-            box-shadow: none; 
-            transition: 0.3s;
-        }
-        .timer-display { 
-            font-size: 5rem; font-family: 'Cinzel', serif; font-weight: 700; 
-            color: #fff;
-            text-shadow: 0 0 20px rgba(255, 215, 0, 0.8);
-        }
-        
-        /* 魔龍計時輸入框優化 */
-        .timer-input-group input {
-            font-family: 'Cinzel', serif;
-            font-weight: bold;
-            text-shadow: 0 1px 2px rgba(0,0,0,0.8);
-        }
-
-        .timer-urgent .timer-circle {
-            background: radial-gradient(circle, rgba(192, 57, 43, 0.6) 0%, rgba(0,0,0,0) 70%); 
-            animation: pulse-red 1s infinite;
-        }
-        .timer-urgent .timer-display { color: #ff4d4d; text-shadow: 0 0 20px red; }
-        @keyframes pulse-red { 
-            0% { transform: scale(1); } 
-            50% { transform: scale(1.05); } 
-            100% { transform: scale(1); } 
-        }
-
-        /* --- 投票系統 --- */
         .vote-bar-row { margin-bottom: 24px; position: relative; }
         .vote-label-row { display: flex; justify-content: space-between; margin-bottom: 8px; font-weight: 700; color: #555; }
         .vote-track { height: 16px; background: #f0f0f0; width: 100%; border-radius: 8px; overflow: hidden; }
-        .vote-fill { 
-            height: 100%; background: var(--primary); width: 0%; 
-            transition: width 0.8s cubic-bezier(0.22, 1, 0.36, 1); border-radius: 8px;
-            background-image: linear-gradient(45deg,rgba(255,255,255,.15) 25%,transparent 25%,transparent 50%,rgba(255,255,255,.15) 50%,rgba(255,255,255,.15) 75%,transparent 75%,transparent);
-            background-size: 1rem 1rem;
-        }
-        .student-option {
-            background: #fff; padding: 20px; margin: 12px 0; border: 2px solid #eee; border-radius: 12px; cursor: pointer;
-            display: flex; align-items: center; font-size: 1.1rem; transition: 0.2s; position: relative;
-        }
+        .vote-fill { height: 100%; background: var(--primary); width: 0%; transition: width 0.8s cubic-bezier(0.22, 1, 0.36, 1); border-radius: 8px; background-image: linear-gradient(45deg,rgba(255,255,255,.15) 25%,transparent 25%,transparent 50%,rgba(255,255,255,.15) 50%,rgba(255,255,255,.15) 75%,transparent 75%,transparent); background-size: 1rem 1rem; }
+        .student-option { background: #fff; padding: 20px; margin: 12px 0; border: 2px solid #eee; border-radius: 12px; cursor: pointer; display: flex; align-items: center; font-size: 1.1rem; transition: 0.2s; position: relative; }
         .student-option:hover { border-color: var(--primary); transform: translateX(5px); }
         .student-option.selected { background: #f0f4ff; border-color: var(--primary); color: var(--primary); font-weight: 700; }
         .student-option input { width: 22px; height: 22px; margin: 0 15px 0 0; accent-color: var(--primary); }
 
-        @media (max-width: 600px) {
-            h1 { font-size: 1.8rem; } .card { padding: 1.5rem; width: 95%; }
-            .door { height: 250px; min-width: 100%; } .timer-circle { width: 220px; height: 220px; } .timer-display { font-size: 3.5rem; }
-        }
+        @media (max-width: 600px) { h1 { font-size: 1.8rem; } .card { padding: 1.5rem; width: 95%; } .door { height: 250px; min-width: 100%; } }
     </style>
 </head>
 <body>
@@ -483,13 +306,11 @@
             <p style="color: #666; margin-bottom: 40px;">請選擇您要發布的任務類型</p>
             
             <div class="menu-grid">
-                <!-- 1. 命運徵召按鈕 -->
                 <div class="menu-item menu-item-lottery" onclick="navTo('lottery-gate')">
                     <div class="menu-icon">⚔️</div>
                     <div class="menu-title">命運徵召</div>
                     <div class="menu-sub">Summoning</div>
                 </div>
-                <!-- 2. 魔龍挑戰按鈕 -->
                 <div class="menu-item menu-item-timer" onclick="navTo('timer')">
                     <div class="menu-icon">🐲</div>
                     <div class="menu-title">魔龍挑戰</div>
@@ -536,12 +357,9 @@
                 <div id="lotteryDisplay">READY</div>
             </div>
             
-            <!-- 設定面板 -->
             <div class="config-panel">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
                     <h3 style="font-size: 1rem; color: #555; margin:0; border:none;">⚙️ 徵召設定</h3>
-                    
-                    <!-- 模式切換開關 -->
                     <div class="mode-switch-container">
                         <span class="switch-label" id="modeLabel">可重複</span>
                         <label class="switch">
@@ -573,30 +391,33 @@
         </div>
     </div>
 
-    <!-- 2. 計時器：魔龍挑戰 (優化版) -->
+    <!-- 2. 計時器：魔龍挑戰 (完全透明化與史詩字體) -->
     <div id="page-timer" class="page">
-        <div class="card dragon-mode" id="timerCard" style="margin-top: 50px;">
-            <div class="timer-header-box">
-                <div class="timer-title-text">🐲 魔龍挑戰 🐲</div>
-                <div class="timer-subtitle">魔龍對冒險者發起了挑戰，請在時限內克服！</div>
+        <div class="card dragon-mode" id="timerCard">
+            <div style="text-align: center; margin-bottom: 30px;">
+                <!-- 史詩標題：血紅金屬漸層 + 強陰影 -->
+                <div class="dragon-title">魔龍挑戰</div>
+                
+                <!-- 副標題：黑底白字光暈，確保可讀性 -->
+                <div class="dragon-subtitle">
+                    魔龍對冒險者發起了挑戰，請在時限內克服！
+                </div>
             </div>
             
-            <div class="timer-circle">
-                <div id="timerDisplay" class="timer-display">03:00</div>
+            <!-- 計時器：移除邊框，僅保留文字發光 -->
+            <div style="text-align: center;">
+                <div id="timerDisplay" class="dragon-timer-display">03:00</div>
             </div>
             
-            <!-- 輸入時間：金字黑底，高辨識度 -->
-            <div class="timer-input-group" style="display: flex; justify-content: center; gap: 10px; align-items: center; margin-bottom: 30px;">
-                <input type="number" id="timerMin" value="3" min="0" 
-                       style="width: 80px; text-align: center; font-size: 1.5rem; background:rgba(0,0,0,0.7); border-color:#666; color: #ffd700; font-weight:bold;"> 
-                <span style="font-size: 1.5rem; color: #fff; font-weight: bold; text-shadow: 0 1px 2px #000;">:</span>
-                <input type="number" id="timerSec" value="0" min="0" max="59" 
-                       style="width: 80px; text-align: center; font-size: 1.5rem; background:rgba(0,0,0,0.7); border-color:#666; color: #ffd700; font-weight:bold;">
+            <!-- 輸入時間：金字黑底 -->
+            <div style="display: flex; justify-content: center; gap: 10px; align-items: center; margin-bottom: 40px;">
+                <input type="number" id="timerMin" value="3" min="0" class="dragon-input"> 
+                <span style="font-size: 2rem; color: #fff; font-weight: bold; text-shadow: 0 2px 4px #000;">:</span>
+                <input type="number" id="timerSec" value="0" min="0" max="59" class="dragon-input">
             </div>
 
-            <div style="text-align: center;">
-                <!-- 修正按鈕樣式與文案 -->
-                <button class="btn btn-dragon-fight" id="startTimerBtn" onclick="toggleTimer()" style="width: 200px; font-size: 1.3rem;">⚔️ 接受挑戰</button>
+            <div style="text-align: center; display: flex; gap: 20px; justify-content: center;">
+                <button class="btn btn-dragon-fight" id="startTimerBtn" onclick="toggleTimer()" style="width: 220px; font-size: 1.4rem;">⚔️ 接受挑戰</button>
                 <button class="btn btn-dragon-reset" onclick="resetTimer()">🔄 重置挑戰</button>
             </div>
         </div>
@@ -604,7 +425,6 @@
 
     <!-- 3. 投票系統 (教師端) -->
     <div id="page-vote-teacher" class="page">
-        <!-- 設定區 -->
         <div class="card" id="voteSetup" style="border-top: 5px solid var(--gold); margin-top: 50px;">
             <h2>發布戰略決策</h2>
             <div style="text-align: left;">
@@ -636,10 +456,8 @@
             <button class="btn btn-primary" style="width: 100%; margin: 20px 0;" onclick="createVote()">📜 生成任務卷軸 (QR Code)</button>
         </div>
 
-        <!-- 結果區 -->
         <div class="card" id="voteResult" style="display: none; border-top: 5px solid var(--primary); margin-top: 50px;">
             <h2 id="resultTitle">決策進行中...</h2>
-            
             <div style="display: flex; flex-direction: column; align-items: center; margin-bottom: 30px; background: #f8f9fa; padding: 20px; border-radius: 12px;">
                 <div id="qrCodeArea" style="background: white; padding: 10px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.05);"></div>
                 <div style="margin-top: 15px; color: #555;">
@@ -647,9 +465,7 @@
                     <div style="font-size: 0.9rem; color: #888;">STATUS: ACTIVE</div>
                 </div>
             </div>
-            
             <div id="voteBarsArea" style="text-align: left; min-height: 200px;"></div>
-            
             <div style="margin-top: 40px; border-top: 1px solid #eee; padding-top: 20px;">
                 <button class="btn btn-danger" onclick="stopVote()">結束決策</button>
                 <button class="btn btn-success" onclick="exportToCSV()">📥 下載紀錄 (CSV)</button>
@@ -667,17 +483,14 @@
 
             <div id="studentVotingForm" style="display: none;">
                 <h2 id="studentQTitle" style="color: var(--primary);">任務目標</h2>
-                
                 <div style="text-align: left; margin-bottom: 25px; padding: 20px; background: #f8f9fa; border-radius: 12px;">
                     <label>冒險者編號 (座號)</label>
                     <select id="studentIdSelect" style="margin-bottom: 0;">
                         <option value="">-- 請選擇您的編號 --</option>
                     </select>
                 </div>
-
                 <p id="voteRuleText" style="color: #e67e22; font-weight: bold; font-size: 0.95rem;"></p>
                 <div id="studentOptionsArea"></div>
-                
                 <button class="btn btn-primary" onclick="submitVote()" id="submitVoteBtn" style="width: 100%; margin-top: 30px; font-size: 1.2rem;">🚀 提交決策</button>
             </div>
 
@@ -724,11 +537,9 @@
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             document.getElementById(`page-${pageId}`).classList.add('active');
             
-            // 控制全域返回按鈕
             const homeBtn = document.getElementById('globalHomeBtn');
             if(pageId === 'home') {
                 homeBtn.style.display = 'none';
-                // 重置背景
                 document.body.style.background = ''; 
                 document.body.style.backgroundImage = `
                     radial-gradient(circle at 10% 20%, rgba(78, 115, 223, 0.2) 0%, transparent 20%),
@@ -739,7 +550,6 @@
                 homeBtn.style.display = 'inline-flex';
             }
 
-            // 離開抽籤頁時重置樣式
             if (pageId !== 'lottery-run') {
                 const card = document.getElementById('lotteryCard');
                 if(card) {
@@ -749,27 +559,23 @@
                 }
             }
             
-            // 進入計時頁面，設定魔龍全螢幕背景
             if(pageId.includes('timer')) {
-                document.body.style.backgroundImage = `linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('Gemini_Generated_Image_5gyjko5gyjko5gyj.jpg')`;
+                document.body.style.backgroundImage = `linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url('Gemini_Generated_Image_5gyjko5gyjko5gyj.jpg')`;
                 document.body.style.backgroundSize = 'cover';
                 document.body.style.backgroundPosition = 'center';
                 document.body.style.backgroundAttachment = 'fixed';
-                document.body.style.backgroundColor = '#2c2c2c';
+                document.body.style.backgroundColor = '#000';
                 
-                // 強制讓卡片變透明
                 const timerCard = document.getElementById('timerCard');
                 if(timerCard) timerCard.classList.add('dragon-mode');
             } else {
-                // 離開計時頁面要移除透明樣式
                 const timerCard = document.getElementById('timerCard');
                 if(timerCard) timerCard.classList.remove('dragon-mode');
             }
         };
 
-        // --- 抽籤邏輯 ---
         let currentLotteryMode = 'angel';
-        let lotteryDeck = []; // 剩餘號碼池
+        let lotteryDeck = [];
         
         window.toggleLotteryMode = () => {
             const isUnique = document.getElementById('uniqueModeCheck').checked;
@@ -779,8 +585,7 @@
         };
 
         window.resetLotteryDeck = () => {
-            lotteryDeck = []; // 清空，下次抽會重新初始化
-            console.log("Deck Reset");
+            lotteryDeck = []; 
         };
 
         window.initDeck = () => {
@@ -833,22 +638,17 @@
             const count = parseInt(document.getElementById('lotCount').value);
             const isUnique = document.getElementById('uniqueModeCheck').checked;
             
-            if(start >= end) return alert("範圍錯誤：起始必須小於結束");
+            if(start >= end) return alert("範圍錯誤");
             
             let pool = [];
-            
             if (isUnique) {
-                // 不重複模式
                 if (lotteryDeck.length === 0) window.initDeck();
-                
-                // 如果剩餘數量不足
                 if (lotteryDeck.length < count) {
                     alert("號碼已全數抽完！將重新洗牌。");
                     window.initDeck();
                 }
-                pool = [...lotteryDeck]; // 複製一份用於動畫顯示
+                pool = [...lotteryDeck];
             } else {
-                // 可重複模式：每次都產生完整池
                 for(let i=start; i<=end; i++) pool.push(i);
             }
 
@@ -856,39 +656,31 @@
             const display = document.getElementById('lotteryDisplay');
             let counter = 0;
             
-            // 動畫效果
             const interval = setInterval(() => {
                 const randomVal = pool[Math.floor(Math.random() * pool.length)];
                 display.innerText = randomVal.toString().padStart(2, '0');
                 counter++;
                 if(counter > 20) {
                     clearInterval(interval);
-                    
-                    // 產生最終結果
                     let winners = [];
                     if (isUnique) {
-                        // 從 global deck 抽取
                         for(let k=0; k<count; k++) {
                             const idx = Math.floor(Math.random() * lotteryDeck.length);
                             winners.push(lotteryDeck[idx]);
-                            lotteryDeck.splice(idx, 1); // 移除已抽出的
+                            lotteryDeck.splice(idx, 1);
                         }
                     } else {
-                        // 隨機抽取
                         for(let k=0; k<count; k++) {
                             winners.push(pool[Math.floor(Math.random() * pool.length)]);
                         }
                     }
-                    
                     display.innerText = winners.map(n => n.toString().padStart(2,'0')).join(' , ');
-                    
                     if(currentLotteryMode === 'angel') playBeep(1200, 0.5, 'sine');
                     else playBeep(150, 0.8, 'sawtooth');
                 }
             }, 60);
         };
 
-        // --- 計時器邏輯 ---
         let timerInterval;
         let isRunning = false;
         let totalTimeLeft = 0;
@@ -925,7 +717,7 @@
             if (isRunning) {
                 clearInterval(timerInterval);
                 isRunning = false;
-                btn.innerHTML = "▶️ 繼續";
+                btn.innerHTML = "⚔️ 接受挑戰";
             } else {
                 if(totalTimeLeft <= 0) totalTimeLeft = getSettingSeconds();
                 if(totalTimeLeft <= 0) return alert("請設定時間");
@@ -965,15 +757,14 @@
             document.getElementById('startTimerBtn').innerHTML = "⚔️ 接受挑戰";
         };
 
-        // --- 投票邏輯 ---
+        // ... Vote Logic ... (Same as before)
         window.toggleVoteLimit = () => {
             const type = document.getElementById('voteType').value;
             document.getElementById('voteLimitContainer').style.display = (type === 'multi') ? 'block' : 'none';
         };
 
         window.createVote = async () => {
-            if (!user) return alert("請先登入公會網路！");
-
+            if (!user) return alert("請先登入");
             const question = document.getElementById('voteQuestion').value;
             const type = document.getElementById('voteType').value;
             const limit = parseInt(document.getElementById('voteLimit').value);
@@ -982,17 +773,7 @@
 
             if (!question || options.length < 2) return alert("資料不完整");
 
-            const voteData = {
-                active: true,
-                question,
-                type,
-                limit: (type === 'multi' ? limit : 1),
-                classSize,
-                options,
-                timestamp: new Date().toISOString(),
-                votes: {},
-                logs: []
-            };
+            const voteData = { active: true, question, type, limit: (type === 'multi' ? limit : 1), classSize, options, timestamp: new Date().toISOString(), votes: {}, logs: [] };
             options.forEach(opt => voteData.votes[opt] = 0);
 
             const path = `users/${user.uid}/apps/classroom_adventure_tool`;
@@ -1026,9 +807,7 @@
                 const pct = total === 0 ? 0 : Math.round((count/total)*100);
                 div.innerHTML += `
                     <div class="vote-bar-row">
-                        <div class="vote-label-row">
-                            <span>${opt}</span><span style="color:var(--primary);">${count} 票 (${pct}%)</span>
-                        </div>
+                        <div class="vote-label-row"><span>${opt}</span><span>${count} 票 (${pct}%)</span></div>
                         <div class="vote-track"><div class="vote-fill" style="width:${pct}%"></div></div>
                     </div>`;
             });
@@ -1044,13 +823,10 @@
             const logs = data.logs || [];
             logs.sort((a,b) => parseInt(a.sid) - parseInt(b.sid));
             logs.forEach(log => csv += `${log.sid},"${log.opts.join('&')}"\n`);
-
             const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
-            a.href = url;
-            a.download = `VoteRecord_${new Date().toISOString().slice(0,10)}.csv`;
-            a.click();
+            a.href = url; a.download = `VoteRecord.csv`; a.click();
         };
 
         window.stopVote = () => {
@@ -1064,7 +840,6 @@
             currentStudentHost = hostUid;
             document.getElementById('statusBar').style.display = 'none';
             navTo('vote-student');
-
             onSnapshot(doc(db, `users/${hostUid}/apps/classroom_adventure_tool`), (snap) => {
                 const data = snap.data();
                 if(snap.exists() && data.active) {
@@ -1080,32 +855,23 @@
 
         function renderStudentForm(data) {
             document.getElementById('studentQTitle').innerText = data.question;
-            const ruleText = data.type === 'single' ? "單選模式" : `複選模式：請選擇 ${data.limit} 項`;
-            document.getElementById('voteRuleText').innerText = ruleText;
-
+            document.getElementById('voteRuleText').innerText = data.type === 'single' ? "單選模式" : `複選模式：請選擇 ${data.limit} 項`;
             const sel = document.getElementById('studentIdSelect');
             if(sel.options.length <= 1) {
-                sel.innerHTML = '<option value="">-- 請選擇您的編號 --</option>';
                 for(let i=1; i<=data.classSize; i++) {
                     const opt = document.createElement('option');
-                    opt.value = i;
-                    opt.innerText = `${i} 號冒險者`;
-                    sel.appendChild(opt);
+                    opt.value = i; opt.innerText = `${i} 號冒險者`; sel.appendChild(opt);
                 }
             }
-
             const container = document.getElementById('studentOptionsArea');
             container.innerHTML = "";
             const inputType = data.type === 'single' ? 'radio' : 'checkbox';
-
             data.options.forEach((opt, idx) => {
                 container.innerHTML += `
                     <div class="student-option" onclick="toggleOpt(this, '${inputType}')">
-                        <input type="${inputType}" name="v_opts" value="${opt}">
-                        <span>${opt}</span>
+                        <input type="${inputType}" name="v_opts" value="${opt}"><span>${opt}</span>
                     </div>`;
             });
-
             window.currentVoteLimit = data.limit;
             window.currentVoteType = data.type;
         }
@@ -1114,72 +880,45 @@
             const input = div.querySelector('input');
             if(type === 'radio') {
                 document.querySelectorAll('.student-option').forEach(d => {
-                    d.classList.remove('selected');
-                    d.querySelector('input').checked = false;
+                    d.classList.remove('selected'); d.querySelector('input').checked = false;
                 });
-                input.checked = true;
-                div.classList.add('selected');
+                input.checked = true; div.classList.add('selected');
             } else {
-                input.checked = !input.checked;
-                div.classList.toggle('selected', input.checked);
+                input.checked = !input.checked; div.classList.toggle('selected', input.checked);
             }
         };
 
         window.submitVote = async () => {
             const sid = document.getElementById('studentIdSelect').value;
             if(!sid) return alert("請先選擇編號！");
-
             const inputs = document.querySelectorAll('input[name="v_opts"]:checked');
             const selected = Array.from(inputs).map(i => i.value);
-            
             if(window.currentVoteType === 'multi') {
                 if(selected.length !== window.currentVoteLimit) return alert(`請務必選擇 ${window.currentVoteLimit} 項`);
             } else {
                 if(selected.length === 0) return alert("請選擇一項");
             }
-
             const btn = document.getElementById('submitVoteBtn');
-            btn.disabled = true;
-            btn.innerText = "傳送中...";
-
-            const updates = {
-                logs: arrayUnion({ sid: sid, opts: selected, ts: Date.now() })
-            };
-            selected.forEach(val => {
-                updates[`votes.${val}`] = increment(1);
-            });
-
+            btn.disabled = true; btn.innerText = "傳送中...";
+            const updates = { logs: arrayUnion({ sid: sid, opts: selected, ts: Date.now() }) };
+            selected.forEach(val => { updates[`votes.${val}`] = increment(1); });
             try {
                 await updateDoc(doc(db, `users/${currentStudentHost}/apps/classroom_adventure_tool`), updates);
                 document.getElementById('studentVotingForm').style.display = 'none';
                 document.getElementById('studentDone').style.display = 'block';
-            } catch(e) {
-                alert("傳送失敗");
-                btn.disabled = false;
-            }
+            } catch(e) { alert("傳送失敗"); btn.disabled = false; }
         };
 
         const authBtn = document.getElementById('authBtn');
-        const params = new URLSearchParams(window.location.search);
-        
-        if(params.get('mode') === 'student') {
-            initStudentMode(params.get('host'));
-        } else {
-            authBtn.onclick = () => {
-                if(user) signOut(auth);
-                else signInWithPopup(auth, new GoogleAuthProvider());
-            };
+        if(params.get('mode') === 'student') { initStudentMode(params.get('host')); } 
+        else {
+            authBtn.onclick = () => { if(user) signOut(auth); else signInWithPopup(auth, new GoogleAuthProvider()); };
             onAuthStateChanged(auth, u => {
                 user = u;
                 if(user) {
                     authBtn.innerText = `會長：${user.displayName}`;
-                    authBtn.classList.remove('btn-primary');
-                    authBtn.style.background = "transparent";
-                    authBtn.style.color = "var(--primary)";
-                    authBtn.style.border = "1px solid var(--primary)";
-                } else {
-                    authBtn.innerText = "☁️ 登入公會網絡";
-                }
+                    authBtn.classList.remove('btn-primary'); authBtn.style.background = "transparent"; authBtn.style.color = "var(--primary)"; authBtn.style.border = "1px solid var(--primary)";
+                } else { authBtn.innerText = "☁️ 登入公會網絡"; }
             });
         }
     </script>

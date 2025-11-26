@@ -312,7 +312,7 @@
         <div id="homeBtnContainer">
             <button class="btn btn-ghost" onclick="navTo('home')">↩ 返回大廳</button>
         </div>
-        <button id="authBtn" class="btn btn-ghost" style="font-size: 0.9rem;">☁️ 雲端登入</button>
+        <button id="authBtn" class="btn btn-ghost" style="font-size: 0.9rem;">☁️ 雲端登入 v6.0</button>
     </div>
 
     <!-- 首頁選單 -->
@@ -919,8 +919,6 @@
         };
 
         const authBtn = document.getElementById('authBtn');
-        const params = new URLSearchParams(window.location.search);
-        
         if(params.get('mode') === 'student') { initStudentMode(params.get('host')); } 
         else {
             authBtn.onclick = () => { if(user) signOut(auth); else signInWithPopup(auth, new GoogleAuthProvider()); };

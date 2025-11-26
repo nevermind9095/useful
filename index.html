@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>冒險旅途中的意外插曲 v7.7</title>
+    <title>冒險旅途中的意外插曲 v7.8</title>
     <!-- 引入 QRCode -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <!-- 引入 現代日系 RPG 風格字體 -->
@@ -270,6 +270,7 @@
             background: #fff; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);
             cursor: pointer; transition: all 0.3s; position: relative; overflow: hidden; border: 1px solid transparent;
         }
+        /* 背景圖使用 jpg */
         .menu-item-lottery { background-image: linear-gradient(rgba(255,255,255,0.85), rgba(255,255,255,0.85)), url('image_4aa398.jpg'); background-size: cover; background-position: center; }
         .menu-item-timer { background-image: linear-gradient(rgba(255,255,255,0.85), rgba(255,255,255,0.85)), url('Gemini_Generated_Image_5gyjko5gyjko5gyj.jpg'); background-size: cover; background-position: center; }
         
@@ -530,8 +531,22 @@
         import { getFirestore, doc, setDoc, onSnapshot, updateDoc, increment, getDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
         import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-        // [v7.7] 參數變數提升 (Hoisting) 至最頂層
-        const params = new URLSearchParams(window.location.search);
+        // [v7.8] 優先讀取 Hash 參數
+        function getParams() {
+            // 1. 嘗試標準 Query
+            const searchParams = new URLSearchParams(window.location.search);
+            if (searchParams.has('mode')) return searchParams;
+
+            // 2. 嘗試 Hash (移除 #)
+            if (window.location.hash) {
+                const hash = window.location.hash.substring(1); // Remove #
+                // 處理 #mode=student&host=...
+                return new URLSearchParams(hash);
+            }
+            return new URLSearchParams();
+        }
+
+        const params = getParams();
 
         const firebaseConfig = {
             apiKey: "AIzaSyDJFzG3RrCkJBx5B23lBVcoOHmaqZ2dAYA",
@@ -584,11 +599,11 @@
             // 離開抽籤頁時，清除特殊樣式
             if (pageId !== 'lottery-run') {
                 const card = document.getElementById('lotteryCard');
-                card.classList.remove('demon-theme');
+                if(card) card.classList.remove('demon-theme');
                 document.querySelectorAll('.lottery-display-text').forEach(el => el.style.color = '');
             }
             
-            // 魔龍模式背景 (使用 [修正] 後的正確原圖)
+            // 魔龍模式背景 (使用正確的原圖檔名)
             if(pageId.includes('timer')) {
                 document.body.style.backgroundImage = `linear-gradient(rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.75)), url('Gemini_Generated_Image_5gyjko5gyjko5gyj.jpg')`;
                 document.body.style.backgroundSize = 'cover';
@@ -804,9 +819,10 @@
             document.getElementById('voteSetup').style.display = 'none';
             document.getElementById('voteResult').style.display = 'block';
             
-            // [v7.7] 修復：使用 location.origin + location.pathname，避免 hash 導致的參數解析錯誤
-            const baseUrl = window.location.origin + window.location.pathname;
-            const studentLink = `${baseUrl}?mode=student&host=${user.uid}`;
+            // [v7.8] 使用 Hash 生成 QR Code
+            const baseUrl = window.location.href.split('#')[0].split('?')[0];
+            const studentLink = `${baseUrl}#mode=student&host=${user.uid}`;
+            
             const qrDiv = document.getElementById('qrCodeArea');
             qrDiv.innerHTML = "";
             new QRCode(qrDiv, { text: studentLink, width: 160, height: 160 });
@@ -934,34 +950,21 @@
         };
 
         const authBtn = document.getElementById('authBtn');
-        
-        // [v7.7] 雙重參數檢查：如果 standard URLParams 為空，嘗試從 hash 讀取 (備援)
-        let mode = params.get('mode');
-        let host = params.get('host');
-        
-        if (!mode && window.location.hash.includes('?')) {
-            const hashParams = new URLSearchParams(window.location.hash.split('?')[1]);
-            mode = hashParams.get('mode');
-            host = hashParams.get('host');
-        }
+        const mode = params.get('mode');
+        const host = params.get('host');
 
         if(mode === 'student' && host) { 
             initStudentMode(host); 
         } 
         else {
             authBtn.onclick = () => { 
-                // 測試點擊反應
                 alert("正在呼叫 Google 登入窗口...");
-                
                 if(user) {
                     signOut(auth);
                 } else {
                     const provider = new GoogleAuthProvider();
-                    provider.setCustomParameters({
-                        prompt: 'select_account'
-                    });
-                    signInWithPopup(auth, provider)
-                    .then((result) => {
+                    provider.setCustomParameters({ prompt: 'select_account' });
+                    signInWithPopup(auth, provider).then((result) => {
                         console.log("Login success:", result.user);
                     }).catch((error) => {
                         console.error("Login error:", error);
@@ -976,7 +979,6 @@
                 }
             };
             
-            // 初始化時若未登入，提示連線成功
             onAuthStateChanged(auth, u => {
                 user = u;
                 if(user) {

@@ -19,7 +19,7 @@
             /* 主色調 */
             --primary: #4e73df; /* 騎士藍 */
             --gold: #d4af37;    /* 公會金 */
-            --accent-red: #c0392b; /* 惡魔紅 */
+            --accent-red: #c0392b; /* 惡魔/魔龍紅 */
             
             /* 文字 */
             --text-dark: #2c3e50;
@@ -29,10 +29,10 @@
             --shadow-card: 0 8px 16px rgba(0,0,0,0.2);
             --radius-main: 12px;
             
-            /* 字體設定：強化襯線體的使用以匹配美術風格 */
-            --font-ui: 'Noto Sans TC', sans-serif;       /* 介面說明文字 (易讀) */
-            --font-header: 'Noto Serif TC', serif;       /* 標題、按鈕 (氣氛) */
-            --font-eng: 'Cinzel', serif;                 /* 英文裝飾 (奇幻感) */
+            /* 字體設定 */
+            --font-ui: 'Noto Sans TC', sans-serif;
+            --font-header: 'Noto Serif TC', serif;
+            --font-eng: 'Cinzel', serif;
         }
 
         * { box-sizing: border-box; font-family: var(--font-ui); user-select: none; }
@@ -70,7 +70,7 @@
             padding: 12px 24px;
             font-size: 1.2rem;
             font-weight: 900;
-            font-family: var(--font-header); /* 改用宋體增加氣勢 */
+            font-family: var(--font-header);
             border-radius: 50px;
             cursor: pointer;
             transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
@@ -110,14 +110,25 @@
             color: white; 
         }
         
-        .btn-home { 
-            position: fixed; top: 20px; left: 20px; z-index: 1000; 
-            font-size: 0.9rem; padding: 8px 20px;
-            background: rgba(255,255,255,0.9);
+        /* 全域返回按鈕 */
+        #globalHomeBtn {
+            position: fixed; 
+            top: 20px; 
+            left: 20px; 
+            z-index: 2000; 
+            font-size: 0.9rem; 
+            padding: 8px 20px;
+            background: rgba(255,255,255,0.95);
             color: var(--text-dark);
             backdrop-filter: blur(5px);
             border: 1px solid #ddd;
             font-family: var(--font-ui);
+            display: none; 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        #globalHomeBtn:hover {
+            background: #fff;
+            transform: scale(1.05);
         }
 
         /* --- 卡片容器 --- */
@@ -133,7 +144,6 @@
             border: 1px solid #e0e0e0;
             transition: all 0.5s;
         }
-        /* 卡片頂部裝飾線 */
         .card::before {
             content: '';
             position: absolute; top: 0; left: 50%; transform: translateX(-50%);
@@ -142,41 +152,24 @@
             border-radius: 0 0 4px 4px;
         }
 
-        /* --- 惡魔暗黑主題卡片 --- */
+        /* --- 惡魔/魔龍 暗黑主題卡片 --- */
         .card.demon-theme {
-            background-color: rgba(20, 20, 25, 0.8); /* 惡魔模式下的卡片底色 */
+            background-color: rgba(20, 20, 25, 0.8);
             border-color: #555;
             color: #ecf0f1;
             box-shadow: 0 10px 30px rgba(0,0,0,0.8);
             backdrop-filter: blur(5px); 
         }
-        .card.demon-theme h1, 
-        .card.demon-theme h2, 
-        .card.demon-theme h3 {
-            color: #e74c3c; /* 鮮豔的紅 */
-            text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+        .card.demon-theme h1, .card.demon-theme h2, .card.demon-theme h3 {
+            color: #e74c3c; text-shadow: 0 2px 4px rgba(0,0,0,0.8);
         }
-        .card.demon-theme label {
-            color: #ddd;
-        }
-        /* 惡魔模式下的輸入框 */
-        .card.demon-theme input {
-            background: rgba(0, 0, 0, 0.6);
-            color: #fff;
-            border-color: #666;
-        }
-        /* 惡魔模式下的結果顯示區 */
+        .card.demon-theme label { color: #ddd; }
+        .card.demon-theme input { background: rgba(0, 0, 0, 0.6); color: #fff; border-color: #666; }
         .card.demon-theme .lottery-result-area {
-            background: rgba(0, 0, 0, 0.7);
-            border-color: #c0392b;
-            color: #e74c3c;
+            background: rgba(0, 0, 0, 0.7); border-color: #c0392b; color: #e74c3c;
             box-shadow: inset 0 0 30px rgba(192, 57, 43, 0.3);
         }
-        /* 惡魔模式下的設定區塊 */
-        .card.demon-theme .config-panel {
-            background: rgba(0, 0, 0, 0.5);
-            border-color: #555;
-        }
+        .card.demon-theme .config-panel { background: rgba(0, 0, 0, 0.5); border-color: #555; }
 
         h1, h2, h3 { margin-top: 0; font-family: var(--font-header); color: #1a1c29; font-weight: 900; }
         h1 { font-size: 2.2rem; margin-bottom: 0.5rem; text-shadow: 0 2px 4px rgba(0,0,0,0.05); }
@@ -197,8 +190,7 @@
             font-family: var(--font-ui);
         }
         input:focus, select:focus, textarea:focus { 
-            outline: none; 
-            border-color: var(--primary); 
+            outline: none; border-color: var(--primary); 
             box-shadow: 0 0 0 3px rgba(78, 115, 223, 0.1);
         }
         label { color: #666; font-size: 1rem; margin-bottom: 6px; display: block; font-weight: 700; font-family: var(--font-header); }
@@ -246,12 +238,36 @@
             overflow: hidden;
             border: 1px solid transparent;
         }
+        
+        /* 新增：選單項目的背景圖設定 */
+        .menu-item-lottery {
+            /* 天使與惡魔各半圖，刷淡 */
+            background-image: linear-gradient(rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.85)), url('image_4aa398.jpg');
+            background-size: cover;
+            background-position: center;
+        }
+        .menu-item-timer {
+            /* 魔龍圖，刷淡 */
+            background-image: linear-gradient(rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.85)), url('Gemini_Generated_Image_5gyjko5gyjko5gyj.jpg');
+            background-size: cover;
+            background-position: center;
+        }
+
         .menu-item:hover { 
             transform: translateY(-8px); 
             box-shadow: 0 12px 24px rgba(78, 115, 223, 0.15); 
             border-color: var(--primary);
         }
+        /* 調整 hover 效果，讓圖片稍微清晰一點點 */
+        .menu-item-lottery:hover {
+            background-image: linear-gradient(rgba(255, 255, 255, 0.7), rgba(255, 255, 255, 0.7)), url('image_4aa398.jpg');
+        }
+        .menu-item-timer:hover {
+            background-image: linear-gradient(rgba(255, 255, 255, 0.7), rgba(255, 255, 255, 0.7)), url('Gemini_Generated_Image_5gyjko5gyjko5gyj.jpg');
+        }
+
         .menu-item::before {
+            /* 原本的裝飾圈圈保留，疊加在背景圖上 */
             content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
             background: radial-gradient(circle, rgba(78, 115, 223, 0.03) 0%, transparent 70%);
             transition: 0.5s;
@@ -263,9 +279,10 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             filter: drop-shadow(0 4px 6px rgba(78, 115, 223, 0.2));
+            z-index: 1;
         }
-        .menu-title { font-size: 1.5rem; font-weight: 900; color: var(--text-dark); margin-bottom: 5px; font-family: var(--font-header); }
-        .menu-sub { font-family: var(--font-eng); font-size: 0.8rem; color: #888; letter-spacing: 2px; text-transform: uppercase; }
+        .menu-title { font-size: 1.5rem; font-weight: 900; color: var(--text-dark); margin-bottom: 5px; font-family: var(--font-header); z-index: 1; }
+        .menu-sub { font-family: var(--font-eng); font-size: 0.8rem; color: #555; letter-spacing: 2px; text-transform: uppercase; z-index: 1; font-weight: bold;}
 
         /* --- 抽籤：命運之門 --- */
         .door-container {
@@ -288,7 +305,7 @@
             text-align: left;
         }
         
-        /* 使用 jpg 檔案 */
+        /* 單張天使與惡魔圖 */
         .door-angel { background-image: url('image_4b8832.jpg'); border: 4px solid #fff; }
         .door-angel::after { content: '✧'; position: absolute; top: 20px; right: 20px; color: rgba(255,255,255,0.8); font-size: 3rem; }
         .door-angel .door-title { color: #fff; font-size: 2rem; font-family: var(--font-header); text-shadow: 0 2px 10px rgba(255,255,255,0.5); }
@@ -323,13 +340,31 @@
             transition: all 0.5s;
         }
 
-        /* --- 計時：魔王降臨 --- */
-        #timerCard { border: none; overflow: hidden; background: #fff; }
-        #timerCard.demon-bg {
-            background: linear-gradient(rgba(255,255,255,0.9), rgba(255,255,255,0.9)), 
-                        url('https://placehold.co/800x600/330000/ff0000/png?text=BOSS+AURA'); 
-            background-size: cover;
+        /* --- 抽籤模式切換按鈕 --- */
+        .mode-switch-container {
+            display: flex; align-items: center; gap: 10px; margin-bottom: 15px;
         }
+        .switch-label { font-weight: bold; color: var(--primary); }
+        /* 簡單的 Toggle Switch */
+        .switch {
+            position: relative; display: inline-block; width: 60px; height: 30px;
+        }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider {
+            position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #ccc; transition: .4s; border-radius: 34px;
+        }
+        .slider:before {
+            position: absolute; content: ""; height: 22px; width: 22px; left: 4px; bottom: 4px;
+            background-color: white; transition: .4s; border-radius: 50%;
+        }
+        input:checked + .slider { background-color: var(--primary); }
+        input:checked + .slider:before { transform: translateX(30px); }
+
+        /* --- 計時：魔龍降臨 --- */
+        #timerCard { border: none; overflow: hidden; background: #fff; }
+        /* 魔龍背景，不再此處設定，改為 body 全背景 */
+        
         .timer-header-box { text-align: center; margin-bottom: 20px; }
         .timer-title-text { 
             font-size: 2.5rem; font-family: var(--font-header); font-weight: 900; 
@@ -380,6 +415,9 @@
         <button id="authBtn" class="btn btn-primary" style="font-size: 0.8rem; padding: 6px 18px;">☁️ 登入公會網絡</button>
     </div>
 
+    <!-- 全域返回按鈕 -->
+    <button id="globalHomeBtn" class="btn" onclick="navTo('home')">↩ 返回大廳</button>
+
     <!-- 首頁選單 -->
     <div id="page-home" class="page active">
         <div class="card" style="margin-top: 8vh; border-top: 5px solid var(--primary);">
@@ -387,15 +425,17 @@
             <p style="color: #666; margin-bottom: 40px;">請選擇您要發布的任務類型</p>
             
             <div class="menu-grid">
-                <div class="menu-item" onclick="navTo('lottery-gate')">
+                <!-- 1. 命運徵召按鈕：使用各半圖刷淡 -->
+                <div class="menu-item menu-item-lottery" onclick="navTo('lottery-gate')">
                     <div class="menu-icon">⚔️</div>
                     <div class="menu-title">命運徵召</div>
                     <div class="menu-sub">Summoning</div>
                 </div>
-                <div class="menu-item" onclick="navTo('timer')">
-                    <div class="menu-icon">⏳</div>
-                    <div class="menu-title">魔王挑戰</div>
-                    <div class="menu-sub">Boss Battle</div>
+                <!-- 2. 魔龍挑戰按鈕：使用魔龍圖刷淡 -->
+                <div class="menu-item menu-item-timer" onclick="navTo('timer')">
+                    <div class="menu-icon">🐲</div>
+                    <div class="menu-title">魔龍挑戰</div>
+                    <div class="menu-sub">Dragon Challenge</div>
                 </div>
                 <div class="menu-item" onclick="navTo('vote-teacher')">
                     <div class="menu-icon">📜</div>
@@ -408,8 +448,7 @@
 
     <!-- 1. 抽籤系統：大門選擇 -->
     <div id="page-lottery-gate" class="page">
-        <button class="btn btn-home" onclick="navTo('home')">↩ 返回大廳</button>
-        <div style="padding: 20px; text-align: center;">
+        <div style="padding: 20px; text-align: center; margin-top: 50px;">
             <h1 style="color: #fff; text-shadow: 0 2px 5px rgba(0,0,0,0.5);">命運的抉擇</h1>
             <p style="color: rgba(255,255,255,0.8);">請選擇召喚的途徑</p>
             
@@ -432,8 +471,7 @@
 
     <!-- 1-2. 抽籤系統：執行畫面 -->
     <div id="page-lottery-run" class="page">
-        <button class="btn btn-home" onclick="navTo('lottery-gate')">↩ 重選大門</button>
-        <div class="card" id="lotteryCard">
+        <div class="card" id="lotteryCard" style="margin-top: 50px;">
             <h2 id="lotteryTitle">冒險者徵召</h2>
             
             <div class="lottery-result-area">
@@ -442,15 +480,27 @@
             
             <!-- 設定面板 -->
             <div class="config-panel">
-                <h3 style="font-size: 1rem; color: #555; margin-bottom: 15px; border:none;">⚙️ 徵召設定</h3>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                    <h3 style="font-size: 1rem; color: #555; margin:0; border:none;">⚙️ 徵召設定</h3>
+                    
+                    <!-- 模式切換開關 -->
+                    <div class="mode-switch-container">
+                        <span class="switch-label" id="modeLabel">可重複</span>
+                        <label class="switch">
+                            <input type="checkbox" id="uniqueModeCheck" onchange="toggleLotteryMode()">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+
                 <div style="display: flex; gap: 20px; align-items: flex-end; flex-wrap: wrap;">
                     <div style="flex: 1;">
                         <label>號碼起始</label>
-                        <input type="number" id="lotRangeStart" value="1" style="text-align: center;">
+                        <input type="number" id="lotRangeStart" value="1" style="text-align: center;" onchange="resetLotteryDeck()">
                     </div>
                     <div style="flex: 1;">
                         <label>號碼結束</label>
-                        <input type="number" id="lotRangeEnd" value="30" style="text-align: center;">
+                        <input type="number" id="lotRangeEnd" value="30" style="text-align: center;" onchange="resetLotteryDeck()">
                     </div>
                     <div style="flex: 1;">
                         <label>抽取人數</label>
@@ -465,13 +515,12 @@
         </div>
     </div>
 
-    <!-- 2. 計時器：BOSS 挑戰 -->
+    <!-- 2. 計時器：魔龍挑戰 (更新：全螢幕背景) -->
     <div id="page-timer" class="page">
-        <button class="btn btn-home" onclick="navTo('home')">↩ 返回大廳</button>
-        <div class="card demon-bg" id="timerCard">
+        <div class="card demon-theme" id="timerCard" style="margin-top: 50px;">
             <div class="timer-header-box">
-                <div class="timer-title-text">⚠️ 魔王降臨 ⚠️</div>
-                <div style="color: #666; margin-top: 5px;">請在時限內擊敗魔王！</div>
+                <div class="timer-title-text">🐲 魔龍挑戰 🐲</div>
+                <div style="color: #ddd; margin-top: 5px; font-weight: bold;">魔龍對冒險者發起了挑戰，請在時限內克服！</div>
             </div>
             
             <div class="timer-circle">
@@ -480,13 +529,13 @@
             
             <!-- 輸入時間 -->
             <div style="display: flex; justify-content: center; gap: 10px; align-items: center; margin-bottom: 30px;">
-                <input type="number" id="timerMin" value="3" min="0" style="width: 80px; text-align: center; font-size: 1.5rem; background:transparent; border-color:transparent; border-bottom-color: #ccc;"> 
-                <span style="font-size: 1.5rem; color: #555;">:</span>
-                <input type="number" id="timerSec" value="0" min="0" max="59" style="width: 80px; text-align: center; font-size: 1.5rem; background:transparent; border-color:transparent; border-bottom-color: #ccc;">
+                <input type="number" id="timerMin" value="3" min="0" style="width: 80px; text-align: center; font-size: 1.5rem; background:rgba(0,0,0,0.5); border-color:#555; color: white;"> 
+                <span style="font-size: 1.5rem; color: #aaa;">:</span>
+                <input type="number" id="timerSec" value="0" min="0" max="59" style="width: 80px; text-align: center; font-size: 1.5rem; background:rgba(0,0,0,0.5); border-color:#555; color: white;">
             </div>
 
             <div style="text-align: center;">
-                <button class="btn btn-danger" id="startTimerBtn" onclick="toggleTimer()" style="width: 200px; font-size: 1.3rem;">⚔️ 開戰 ⚔️</button>
+                <button class="btn btn-danger" id="startTimerBtn" onclick="toggleTimer()" style="width: 200px; font-size: 1.3rem;">⚔️ 接受挑戰 ⚔️</button>
                 <button class="btn btn-success" onclick="resetTimer()">重置</button>
             </div>
         </div>
@@ -494,10 +543,8 @@
 
     <!-- 3. 投票系統 (教師端) -->
     <div id="page-vote-teacher" class="page">
-        <button class="btn btn-home" onclick="navTo('home')">↩ 返回大廳</button>
-        
         <!-- 設定區 -->
-        <div class="card" id="voteSetup" style="border-top: 5px solid var(--gold);">
+        <div class="card" id="voteSetup" style="border-top: 5px solid var(--gold); margin-top: 50px;">
             <h2>發布戰略決策</h2>
             <div style="text-align: left;">
                 <label>決策目標 (題目)</label>
@@ -529,7 +576,7 @@
         </div>
 
         <!-- 結果區 -->
-        <div class="card" id="voteResult" style="display: none; border-top: 5px solid var(--primary);">
+        <div class="card" id="voteResult" style="display: none; border-top: 5px solid var(--primary); margin-top: 50px;">
             <h2 id="resultTitle">決策進行中...</h2>
             
             <div style="display: flex; flex-direction: column; align-items: center; margin-bottom: 30px; background: #f8f9fa; padding: 20px; border-radius: 12px;">
@@ -598,7 +645,6 @@
 
         let app, db, auth, user;
         let isOnline = false;
-        let currentStudentHost = null;
         let audioCtx = null;
 
         try {
@@ -617,30 +663,63 @@
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             document.getElementById(`page-${pageId}`).classList.add('active');
             
-            // 修正：只要進入導航，先將 Body 背景重置為預設的魔法氛圍
-            // 這樣能確保從 lottery-run (有純色背景) 返回 lottery-gate 時，背景會恢復
-            document.body.style.background = ''; // 先清空 inline style
-            document.body.style.backgroundImage = `
-                radial-gradient(circle at 10% 20%, rgba(78, 115, 223, 0.2) 0%, transparent 20%),
-                radial-gradient(circle at 90% 80%, rgba(212, 175, 55, 0.1) 0%, transparent 20%)
-            `;
-            document.body.style.backgroundColor = '#1a1c29';
+            // 控制全域返回按鈕
+            const homeBtn = document.getElementById('globalHomeBtn');
+            if(pageId === 'home') {
+                homeBtn.style.display = 'none';
+                // 重置背景
+                document.body.style.background = ''; 
+                document.body.style.backgroundImage = `
+                    radial-gradient(circle at 10% 20%, rgba(78, 115, 223, 0.2) 0%, transparent 20%),
+                    radial-gradient(circle at 90% 80%, rgba(212, 175, 55, 0.1) 0%, transparent 20%)
+                `;
+                document.body.style.backgroundColor = '#1a1c29';
+            } else {
+                homeBtn.style.display = 'inline-flex';
+            }
 
-            // 如果離開抽籤執行頁面，重置卡片背景，避免殘留
+            // 離開抽籤頁時重置樣式
             if (pageId !== 'lottery-run') {
                 const card = document.getElementById('lotteryCard');
                 if(card) {
                     card.style.backgroundImage = '';
-                    card.style.backgroundColor = ''; // Reset
+                    card.style.backgroundColor = '';
                     card.classList.remove('demon-theme');
                 }
             }
             
-            if(pageId.includes('timer')) document.body.style.backgroundColor = '#2c2c2c';
+            // 進入計時頁面，設定魔龍全螢幕背景
+            if(pageId.includes('timer')) {
+                document.body.style.backgroundImage = `linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('Gemini_Generated_Image_5gyjko5gyjko5gyj.jpg')`;
+                document.body.style.backgroundSize = 'cover';
+                document.body.style.backgroundPosition = 'center';
+                document.body.style.backgroundAttachment = 'fixed';
+                document.body.style.backgroundColor = '#2c2c2c';
+            }
         };
 
-        // --- 抽籤邏輯 (修正版) ---
+        // --- 抽籤邏輯 ---
         let currentLotteryMode = 'angel';
+        let lotteryDeck = []; // 剩餘號碼池
+        
+        window.toggleLotteryMode = () => {
+            const isUnique = document.getElementById('uniqueModeCheck').checked;
+            const label = document.getElementById('modeLabel');
+            label.innerText = isUnique ? "不重複" : "可重複";
+            resetLotteryDeck();
+        };
+
+        window.resetLotteryDeck = () => {
+            lotteryDeck = []; // 清空，下次抽會重新初始化
+            console.log("Deck Reset");
+        };
+
+        window.initDeck = () => {
+            const start = parseInt(document.getElementById('lotRangeStart').value);
+            const end = parseInt(document.getElementById('lotRangeEnd').value);
+            lotteryDeck = [];
+            for(let i=start; i<=end; i++) lotteryDeck.push(i);
+        };
         
         window.enterLottery = (mode) => {
             currentLotteryMode = mode;
@@ -649,42 +728,33 @@
             const display = document.getElementById('lotteryDisplay');
             const card = document.getElementById('lotteryCard');
             
-            // 先移除之前的樣式
             card.classList.remove('demon-theme');
 
             if(mode === 'angel') {
-                // 天使模式
                 title.innerText = "✨ 天使的祝福 ✨";
                 title.style.color = "var(--primary)";
                 display.style.color = "var(--primary)";
                 
-                // 背景：天使圖 + 亮白透明覆蓋 (刷淡效果回歸 Body)
-                // 改為使用 jpg
                 document.body.style.backgroundImage = `linear-gradient(rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.85)), url('image_4b8832.jpg')`;
                 document.body.style.backgroundSize = 'cover';
                 document.body.style.backgroundPosition = 'center';
                 document.body.style.backgroundAttachment = 'fixed';
                 
-                // 卡片：恢復為半透明白底 (確保中間內容區塊乾淨)
                 card.style.backgroundColor = "rgba(255, 255, 255, 0.9)";
-                card.style.backgroundImage = "none"; // 清除卡片上的圖片
+                card.style.backgroundImage = "none";
 
             } else {
-                // 惡魔模式
                 title.innerText = "☠️ 惡魔的試煉 ☠️";
-                title.style.color = "#e74c3c"; // 亮紅
+                title.style.color = "#e74c3c";
                 display.style.color = "#e74c3c";
                 
-                // 背景：惡魔圖 + 0.6 濃度黑底 (刷淡效果回歸 Body)
-                // 改為使用 jpg
                 document.body.style.backgroundImage = `linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('image_4b8812.jpg')`;
                 document.body.style.backgroundSize = 'cover';
                 document.body.style.backgroundPosition = 'center';
                 document.body.style.backgroundAttachment = 'fixed';
                 
-                // 卡片切換為暗黑模式 (維持您喜歡的亮度)
                 card.classList.add('demon-theme');
-                card.style.backgroundImage = "none"; // 清除卡片上的圖片
+                card.style.backgroundImage = "none";
             }
         };
 
@@ -692,32 +762,59 @@
             const start = parseInt(document.getElementById('lotRangeStart').value);
             const end = parseInt(document.getElementById('lotRangeEnd').value);
             const count = parseInt(document.getElementById('lotCount').value);
+            const isUnique = document.getElementById('uniqueModeCheck').checked;
             
-            if(start >= end) return alert("範圍設定錯誤：起始必須小於結束");
+            if(start >= end) return alert("範圍錯誤：起始必須小於結束");
             
-            let numbers = [];
-            for(let i=start; i<=end; i++) numbers.push(i);
+            let pool = [];
+            
+            if (isUnique) {
+                // 不重複模式
+                if (lotteryDeck.length === 0) window.initDeck();
+                
+                // 如果剩餘數量不足
+                if (lotteryDeck.length < count) {
+                    alert("號碼已全數抽完！將重新洗牌。");
+                    window.initDeck();
+                }
+                pool = [...lotteryDeck]; // 複製一份用於動畫顯示
+            } else {
+                // 可重複模式：每次都產生完整池
+                for(let i=start; i<=end; i++) pool.push(i);
+            }
 
             if(audioCtx) playBeep(800, 0.05, 'sine');
             const display = document.getElementById('lotteryDisplay');
             let counter = 0;
             
+            // 動畫效果
             const interval = setInterval(() => {
-                const randomVal = numbers[Math.floor(Math.random() * numbers.length)];
+                const randomVal = pool[Math.floor(Math.random() * pool.length)];
                 display.innerText = randomVal.toString().padStart(2, '0');
                 counter++;
-                if(counter > 25) {
+                if(counter > 20) {
                     clearInterval(interval);
-                    // Shuffle
-                    for (let i = numbers.length - 1; i > 0; i--) {
-                        const j = Math.floor(Math.random() * (i + 1));
-                        [numbers[i], numbers[j]] = [numbers[j], numbers[i]];
+                    
+                    // 產生最終結果
+                    let winners = [];
+                    if (isUnique) {
+                        // 從 global deck 抽取
+                        for(let k=0; k<count; k++) {
+                            const idx = Math.floor(Math.random() * lotteryDeck.length);
+                            winners.push(lotteryDeck[idx]);
+                            lotteryDeck.splice(idx, 1); // 移除已抽出的
+                        }
+                    } else {
+                        // 隨機抽取
+                        for(let k=0; k<count; k++) {
+                            winners.push(pool[Math.floor(Math.random() * pool.length)]);
+                        }
                     }
-                    const winners = numbers.slice(0, count);
+                    
                     display.innerText = winners.map(n => n.toString().padStart(2,'0')).join(' , ');
                     
-                    if(currentLotteryMode === 'angel') playBeep(1200, 0.5, 'sine'); // 清脆
-                    else playBeep(150, 0.8, 'sawtooth'); // 低沉
+                    if(currentLotteryMode === 'angel') playBeep(1200, 0.5, 'sine');
+                    else playBeep(150, 0.8, 'sawtooth');
                 }
             }, 60);
         };
@@ -796,7 +893,7 @@
             totalTimeLeft = getSettingSeconds();
             updateTimerDisplay(totalTimeLeft);
             document.getElementById('timerCard').classList.remove('timer-urgent');
-            document.getElementById('startTimerBtn').innerHTML = "⚔️ 開戰 ⚔️";
+            document.getElementById('startTimerBtn').innerHTML = "⚔️ 接受挑戰 ⚔️";
         };
 
         // --- 投票邏輯 ---

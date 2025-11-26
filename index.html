@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>冒險旅途中的意外插曲 v8.0 (完美版)</title>
+    <title>冒險旅途中的意外插曲 v8.1 (防丟失版)</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@600;900&family=Cinzel:wght@700&display=swap" rel="stylesheet">
     
@@ -122,7 +122,7 @@
             display: flex;
             flex-direction: column;
             align-items: flex-end;
-            gap: 10px; /* 拉大間距 */
+            gap: 10px;
             margin-top: 5px;
         }
 
@@ -365,7 +365,6 @@
         <div style="padding: 20px; text-align: center; margin-top: 50px;">
             <h1 style="color: #fff; text-shadow: 0 2px 5px rgba(0,0,0,0.5);">命運的抉擇</h1>
             <p style="color: rgba(255,255,255,0.8);">請選擇召喚的途徑</p>
-            
             <div class="door-container">
                 <div class="door door-angel" onclick="enterLottery('angel')">
                     <div class="door-overlay">
@@ -385,11 +384,9 @@
 
     <div id="page-lottery-run" class="page">
         <div class="card transparent-mode" id="lotteryCard">
-            
             <div class="glass-panel lottery-result-area">
                 <div id="lotteryDisplay" class="lottery-display-text">READY</div>
             </div>
-            
             <div class="glass-panel config-panel">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
                     <h3 style="font-size: 1rem; color: #555; margin:0; border:none;">⚙️ 徵召設定</h3>
@@ -401,7 +398,6 @@
                         </label>
                     </div>
                 </div>
-
                 <div style="display: flex; gap: 20px; align-items: flex-end; flex-wrap: wrap;">
                     <div style="flex: 1;">
                         <label>號碼起始</label>
@@ -417,7 +413,6 @@
                     </div>
                 </div>
             </div>
-            
             <div style="margin-top: 30px; text-align: center;">
                 <button id="lotteryActionBtn" class="btn btn-primary" style="width: 100%; padding: 15px; font-size: 1.3rem;" onclick="drawNumbers()">✨ 開始召喚 ✨</button>
             </div>
@@ -430,17 +425,14 @@
                 <div class="dragon-title">魔龍挑戰</div>
                 <div class="dragon-subtitle">魔龍對冒險者發起了挑戰，請在時限內克服！</div>
             </div>
-            
             <div style="text-align: center;">
                 <div id="timerDisplay" class="dragon-timer-display">03:00</div>
             </div>
-            
             <div style="display: flex; justify-content: center; gap: 10px; align-items: center; margin-bottom: 40px;">
                 <input type="number" id="timerMin" value="3" min="0" class="dragon-input"> 
                 <span style="font-size: 2rem; color: #fff; font-weight: bold; text-shadow: 0 2px 4px #000;">:</span>
                 <input type="number" id="timerSec" value="0" min="0" max="59" class="dragon-input">
             </div>
-
             <div style="text-align: center; display: flex; gap: 20px; justify-content: center;">
                 <button class="btn btn-dragon-fight" id="startTimerBtn" onclick="toggleTimer()">⚔️ 接受挑戰</button>
                 <button class="btn btn-dragon-reset" onclick="resetTimer()">🔄 重置挑戰</button>
@@ -454,7 +446,6 @@
             <div style="text-align: left;">
                 <label>決策目標 (題目)</label>
                 <input type="text" id="voteQuestion" placeholder="例如：我們要先攻略哪一座迷宮？">
-                
                 <div style="display: flex; gap: 20px; flex-wrap: wrap;">
                     <div style="flex: 1;">
                         <label>公會人數 (名冊上限)</label>
@@ -468,12 +459,10 @@
                         </select>
                     </div>
                 </div>
-
                 <div id="voteLimitContainer" style="display: none; background: #fff3cd; padding: 10px; border-radius: 8px; margin-bottom: 15px;">
                     <label style="color: #856404; margin-bottom: 0;">⚠️ 複選限制：每人必須投幾票？</label>
                     <input type="number" id="voteLimit" value="2" min="2" style="margin-top: 5px; margin-bottom: 0;">
                 </div>
-                
                 <label>戰略選項 (每行一個)</label>
                 <textarea id="voteOptions" rows="5" placeholder="火焰山脈&#10;寒冰洞窟&#10;精靈之森"></textarea>
             </div>
@@ -503,7 +492,6 @@
                 <h2 style="color: #888;">等待公會長指令...</h2>
                 <div style="font-size: 3rem; margin-top: 20px; animation: bounce 2s infinite;">📩</div>
             </div>
-
             <div id="studentVotingForm" style="display: none;">
                 <h2 id="studentQTitle" style="color: var(--primary);">任務目標</h2>
                 <div style="text-align: left; margin-bottom: 25px; padding: 20px; background: #f8f9fa; border-radius: 12px;">
@@ -516,7 +504,6 @@
                 <div id="studentOptionsArea"></div>
                 <button class="btn btn-primary" onclick="submitVote()" id="submitVoteBtn" style="width: 100%; margin-top: 30px; font-size: 1.2rem;">🚀 提交決策</button>
             </div>
-
             <div id="studentDone" style="display: none; text-align: center; padding: 40px 0;">
                 <div style="font-size: 5rem; color: #27ae60; margin-bottom: 20px;">✓</div>
                 <h2>決策已送達</h2>
@@ -530,29 +517,20 @@
         import { getFirestore, doc, setDoc, onSnapshot, updateDoc, increment, getDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
         import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-        // [v8.0] 強力網址解析器 (修復手機掃碼失效問題)
+        // [v8.1] 萬能網址解析器
         function getUniversalParams() {
-            // 1. 先抓問號 (?) 後面的參數 (這是最穩定的)
             const searchParams = new URLSearchParams(window.location.search);
             let mode = searchParams.get('mode');
             let host = searchParams.get('host');
 
-            // 2. 如果問號抓不到，再嘗試抓井號 (#) 後面的 (相容舊版)
             if (!mode || !host) {
-                const hash = window.location.hash.substring(1); // 去掉 #
+                const hash = window.location.hash.substring(1);
                 const hashParams = new URLSearchParams(hash);
                 if (!mode) mode = hashParams.get('mode');
                 if (!host) host = hashParams.get('host');
             }
-
             return { mode, host };
         }
-
-        // Debug Function
-        window.debugUrl = () => {
-            const p = getUniversalParams();
-            alert(`URL: ${window.location.href}\nMode: ${p.mode}\nHost: ${p.host}`);
-        };
 
         const firebaseConfig = {
             apiKey: "AIzaSyDJFzG3RrCkJBx5B23lBVcoOHmaqZ2dAYA",
@@ -579,15 +557,12 @@
             alert("Firebase 初始化失敗");
         }
 
-        // 頁面導航
         window.navTo = (pageId) => {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             document.getElementById(`page-${pageId}`).classList.add('active');
-            
             const homeBtn = document.getElementById('homeBtnContainer');
             const authBtn = document.getElementById('authBtn');
             
-            // 重置背景
             document.body.style.background = ''; 
             document.body.style.backgroundImage = `
                 radial-gradient(circle at 10% 20%, rgba(78, 115, 223, 0.2) 0%, transparent 20%),
@@ -603,7 +578,6 @@
                 authBtn.style.display = 'block';
             }
 
-            // 離開抽籤頁時，清除樣式
             if (pageId !== 'lottery-run') {
                 const card = document.getElementById('lotteryCard');
                 if(card) {
@@ -617,14 +591,12 @@
                 document.getElementById('lotteryCard').classList.add('transparent-mode');
             }
             
-            // 魔龍背景
             if(pageId.includes('timer')) {
-                document.body.style.backgroundImage = `linear-gradient(rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.75)), url('image_48dd5d.jpg')`;
+                document.body.style.backgroundImage = `linear-gradient(rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.75)), url('Gemini_Generated_Image_5gyjko5gyjko5gyj.jpg')`;
                 document.body.style.backgroundSize = 'cover';
                 document.body.style.backgroundPosition = 'center';
                 document.body.style.backgroundAttachment = 'fixed';
                 document.body.style.backgroundColor = '#000';
-                
                 const timerCard = document.getElementById('timerCard');
                 if(timerCard) timerCard.classList.add('transparent-mode');
             } else {
@@ -633,10 +605,9 @@
             }
         };
 
-        // --- 抽籤邏輯 ---
+        // ... Lottery Logic ...
         let currentLotteryMode = 'angel';
         let lotteryDeck = [];
-        
         window.toggleLotteryMode = () => {
             const isUnique = document.getElementById('uniqueModeCheck').checked;
             const label = document.getElementById('modeLabel');
@@ -657,7 +628,7 @@
             const display = document.getElementById('lotteryDisplay');
             const configPanel = document.querySelector('.config-panel');
             if(mode === 'angel') {
-                document.body.style.backgroundImage = `linear-gradient(rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.85)), url('image_4aa398.jpg')`;
+                document.body.style.backgroundImage = `linear-gradient(rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.85)), url('image_4b8832.jpg')`;
                 btn.className = 'btn btn-primary';
                 display.style.color = "var(--primary)";
                 if(configPanel) configPanel.classList.remove('demon-theme');
@@ -754,7 +725,7 @@
             document.getElementById('startTimerBtn').innerHTML = "⚔️ 接受挑戰";
         };
 
-        // --- 投票系統邏輯 (修復重點) ---
+        // --- 投票系統 ---
         window.toggleVoteLimit = () => {
             const type = document.getElementById('voteType').value;
             document.getElementById('voteLimitContainer').style.display = (type === 'multi') ? 'block' : 'none';
@@ -779,13 +750,12 @@
             document.getElementById('voteSetup').style.display = 'none';
             document.getElementById('voteResult').style.display = 'block';
             
-            // [v8.0 Fix] 使用 ? (Query Param) 生成網址，抗重新導向
-            let baseUrl = window.location.href.split('#')[0].split('?')[0];
-            if (!baseUrl.endsWith('.html') && !baseUrl.endsWith('/')) {
-                baseUrl += '/';
-            }
+            // [v8.1] 絕對路徑 + 井號參數
+            const baseUrl = window.location.href.split('#')[0].split('?')[0];
+            // 確保有 index.html
+            const safeUrl = baseUrl.endsWith('index.html') ? baseUrl : (baseUrl.endsWith('/') ? baseUrl + 'index.html' : baseUrl + '/index.html');
             
-            const studentLink = `${baseUrl}?mode=student&host=${user.uid}`;
+            const studentLink = `${safeUrl}#mode=student&host=${user.uid}`;
             const qrDiv = document.getElementById('qrCodeArea');
             qrDiv.innerHTML = "";
             new QRCode(qrDiv, { text: studentLink, width: 160, height: 160 });
@@ -912,9 +882,8 @@
             } catch(e) { alert("傳送失敗"); btn.disabled = false; }
         };
 
-        // --- 主程式入口 ---
         const authBtn = document.getElementById('authBtn');
-        const p = getUniversalParams(); // [v8.0] 使用新的解析器
+        const p = getUniversalParams(); // [v8.1]
 
         if(p.mode === 'student' && p.host) { 
             initStudentMode(p.host); 

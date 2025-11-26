@@ -3,10 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>冒險旅途中的意外插曲 v7.9</title>
-    <!-- 引入 QRCode -->
+    <title>冒險旅途中的意外插曲 v8.0 (完美版)</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-    <!-- 引入 現代日系 RPG 風格字體 -->
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@600;900&family=Cinzel:wght@700&display=swap" rel="stylesheet">
     
     <style>
@@ -78,15 +76,8 @@
         .btn-primary { background: linear-gradient(135deg, var(--primary), #2c52b3); color: white; }
         .btn-danger { background: linear-gradient(135deg, var(--accent-red), #962d22); color: white; }
         .btn-success { background: linear-gradient(135deg, #27ae60, #219150); color: white; }
-        
-        /* 幽靈按鈕 (透明底) */
-        .btn-ghost { 
-            background: rgba(255,255,255,0.1); 
-            color: #fff; 
-            border: 1px solid rgba(255,255,255,0.3); 
-            backdrop-filter: blur(4px); 
-        }
-        .btn-ghost:hover { background: rgba(255,255,255,0.2); }
+        .btn-ghost { background: rgba(255,255,255,0.2); color: #fff; border: 1px solid rgba(255,255,255,0.5); backdrop-filter: blur(4px); }
+        .btn-ghost:hover { background: rgba(255,255,255,0.3); }
 
         /* 魔龍挑戰專屬按鈕 */
         .btn-dragon-fight {
@@ -109,25 +100,63 @@
             border-bottom: 1px solid rgba(255,255,255,0.1);
             padding: 10px 20px;
             display: flex;
+            align-items: flex-start;
             justify-content: space-between;
-            align-items: center;
             position: sticky;
             top: 0;
             z-index: 2000;
+            min-height: 60px;
         }
-        
-        /* 返回大廳按鈕 (高對比度) */
-        #homeBtnContainer { display: none; }
+        #homeBtnContainer { display: none; padding-top: 5px; }
+
+        /* 返回大廳按鈕 */
         #globalHomeBtn {
-            background: #2c3e50;
-            color: #ffffff;
+            background: #2c3e50; color: #ffffff;
             border: 1px solid rgba(255,255,255,0.3);
             box-shadow: 0 4px 10px rgba(0,0,0,0.3);
         }
-        #globalHomeBtn:hover {
-            background: #34495e;
-            transform: scale(1.05);
+        #globalHomeBtn:hover { background: #34495e; transform: scale(1.05); }
+
+        /* 右上角控制區群組 (垂直排列) */
+        .top-right-group {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 10px; /* 拉大間距 */
+            margin-top: 5px;
         }
+
+        /* 雲端狀態列 */
+        .cloud-status {
+            font-size: 0.75rem; color: white;
+            display: flex; align-items: center; gap: 8px;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 6px 10px;
+            border-radius: 5px;
+            border: 1px solid rgba(255,255,255,0.3);
+            width: fit-content;
+        }
+        .status-dot { width: 8px; height: 8px; border-radius: 50%; background: #999; }
+        .status-dot.online { background: #00FF00; box-shadow: 0 0 5px #00FF00; }
+
+        /* 雲端登入按鈕 */
+        .auth-btn {
+            background: #444; color: white; border: 1px solid #fff;
+            border-radius: 3px; padding: 2px 6px; font-size: 0.7rem;
+            cursor: pointer; margin-left: 4px;
+        }
+        .auth-btn.logged-in { background: #4caf50; border-color: #81c784; }
+
+        /* 音樂按鈕 */
+        .music-btn {
+            background: #222; color: #4DEEEE;
+            border: 2px solid #444; border-radius: 20px;
+            padding: 6px 12px; font-size: 0.8rem;
+            cursor: pointer; display: flex; align-items: center; justify-content: center;
+            gap: 5px; box-shadow: inset 0 0 5px #000;
+            white-space: nowrap; width: fit-content;
+        }
+        .music-btn.active { background: #4DEEEE; color: #222; box-shadow: 0 0 10px #4DEEEE; }
 
         /* --- 卡片容器 --- */
         .card {
@@ -150,7 +179,7 @@
             border-radius: 0 0 4px 4px;
         }
 
-        /* --- 通用透明模式 (用於魔龍與抽籤) --- */
+        /* --- 通用透明模式 --- */
         .card.transparent-mode {
             background: transparent !important;
             box-shadow: none !important;
@@ -173,85 +202,50 @@
             margin-bottom: 20px;
             transition: all 0.5s;
         }
-        
-        /* 惡魔/魔龍模式下的懸浮面板 */
         .demon-theme .glass-panel {
             background: rgba(0, 0, 0, 0.6);
             border: 1px solid rgba(255, 255, 255, 0.1);
             color: #fff;
         }
         
-        /* 抽籤結果大字 */
         .lottery-display-text {
-            font-size: 6rem;
-            font-weight: 700;
-            font-family: 'Cinzel', serif;
-            text-align: center;
-            min-height: 120px;
-            line-height: 1.2;
+            font-size: 6rem; font-weight: 700; font-family: 'Cinzel', serif;
+            text-align: center; min-height: 120px; line-height: 1.2;
         }
 
         h1 { font-size: 2.2rem; margin-bottom: 0.5rem; font-family: var(--font-header); color: #1a1c29; font-weight: 900; }
         h1 span { color: var(--gold); font-family: var(--font-eng); font-size: 1.8rem; margin-left: 10px; }
         h2 { font-size: 1.8rem; border-bottom: 2px solid rgba(0,0,0,0.05); padding-bottom: 10px; margin-bottom: 25px; font-family: var(--font-header); color: #1a1c29; }
         
-        /* 魔龍標題特效 */
+        /* 魔龍 */
         .dragon-title {
-            font-family: var(--font-header);
-            font-size: 4rem;
-            font-weight: 900;
+            font-family: var(--font-header); font-size: 4rem; font-weight: 900;
             background: linear-gradient(to bottom, #ffeb3b 0%, #ff5722 60%, #b71c1c 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            filter: drop-shadow(0 0 15px rgba(255, 69, 0, 0.8));
-            letter-spacing: 8px;
-            margin-bottom: 15px;
-            text-transform: uppercase;
-            line-height: 1.2;
-            text-align: center;
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 0 15px rgba(255, 69, 0, 0.8)); letter-spacing: 8px;
+            margin-bottom: 15px; text-transform: uppercase; line-height: 1.2; text-align: center;
         }
-        
         .dragon-subtitle {
-            font-family: var(--font-ui);
-            color: #fff;
-            font-weight: bold;
-            font-size: 1.2rem;
-            text-shadow: 0 2px 4px #000;
-            background: linear-gradient(90deg, transparent, rgba(0,0,0,0.8), transparent);
-            padding: 8px 40px;
-            display: inline-block;
-            letter-spacing: 1px;
-            text-align: center;
-            width: 100%;
+            font-family: var(--font-ui); color: #fff; font-weight: bold; font-size: 1.2rem;
+            text-shadow: 0 2px 4px #000; background: linear-gradient(90deg, transparent, rgba(0,0,0,0.8), transparent);
+            padding: 8px 40px; display: inline-block; letter-spacing: 1px; text-align: center; width: 100%;
         }
-
-        /* 計時器數字 (魔龍版) */
         .dragon-timer-display {
-            font-family: 'Cinzel', serif;
-            font-size: 8rem;
-            font-weight: 700;
-            color: #fff;
-            text-shadow: 0 0 10px rgba(255, 215, 0, 0.8), 0 4px 4px #000;
-            margin: 30px 0;
-            background: radial-gradient(closest-side, rgba(0,0,0,0.4), transparent);
-            padding: 10px;
-            line-height: 1;
-            text-align: center;
+            font-family: 'Cinzel', serif; font-size: 8rem; font-weight: 700; color: #fff;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.8), 0 4px 4px #000; margin: 30px 0;
+            background: radial-gradient(closest-side, rgba(0,0,0,0.4), transparent); padding: 10px; line-height: 1; text-align: center;
         }
         .timer-urgent .dragon-timer-display {
             color: #ff4d4d; text-shadow: 0 0 30px red, 0 4px 8px black;
             animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both infinite;
         }
         @keyframes shake { 10%, 90% { transform: translate3d(-1px, 0, 0); } 20%, 80% { transform: translate3d(2px, 0, 0); } }
-
-        /* 輸入框 (魔龍版) */
         .dragon-input {
             background: rgba(0,0,0,0.7) !important; border: 1px solid #888 !important; color: #ffcc00 !important;
             font-family: 'Cinzel', serif !important; font-size: 1.8rem !important; font-weight: bold !important;
             text-align: center; width: 90px; border-radius: 8px; box-shadow: 0 0 15px rgba(0,0,0,0.5) !important;
         }
 
-        /* 輸入框 (通用) */
         input, select, textarea {
             background: #fff; border: 2px solid #e0e0e0; border-radius: 8px; color: var(--text-dark);
             padding: 12px; font-size: 1.1rem; width: 100%; margin-bottom: 15px; transition: 0.3s; font-family: var(--font-ui);
@@ -259,10 +253,7 @@
         input:focus, select:focus, textarea:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(78, 115, 223, 0.1); }
         label { color: #666; font-size: 1rem; margin-bottom: 6px; display: block; font-weight: 700; font-family: var(--font-header); }
         
-        /* 惡魔模式下的輸入框調色 */
-        .demon-theme input {
-            background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.3); color: #fff;
-        }
+        .demon-theme input { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.3); color: #fff; }
         .demon-theme label { color: #ccc; }
         .demon-theme h3 { color: #ffcc00 !important; }
 
@@ -270,7 +261,7 @@
         .page.active { display: block; }
         @keyframes fadeSlideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* 選單 */
+        /* Menu */
         .menu-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 25px; padding: 10px; }
         .menu-item {
             height: 240px; display: flex; flex-direction: column; justify-content: center; align-items: center;
@@ -278,11 +269,11 @@
             cursor: pointer; transition: all 0.3s; position: relative; overflow: hidden; border: 1px solid transparent;
         }
         .menu-item-lottery { background-image: linear-gradient(rgba(255,255,255,0.85), rgba(255,255,255,0.85)), url('image_4aa398.jpg'); background-size: cover; background-position: center; }
-        .menu-item-timer { background-image: linear-gradient(rgba(255,255,255,0.85), rgba(255,255,255,0.85)), url('Gemini_Generated_Image_5gyjko5gyjko5gyj.jpg'); background-size: cover; background-position: center; }
+        .menu-item-timer { background-image: linear-gradient(rgba(255,255,255,0.85), rgba(255,255,255,0.85)), url('image_48dd5d.jpg'); background-size: cover; background-position: center; }
         
         .menu-item:hover { transform: translateY(-8px); box-shadow: 0 12px 24px rgba(78, 115, 223, 0.15); border-color: var(--primary); }
         .menu-item-lottery:hover { background-image: linear-gradient(rgba(255,255,255,0.7), rgba(255,255,255,0.7)), url('image_4aa398.jpg'); }
-        .menu-item-timer:hover { background-image: linear-gradient(rgba(255,255,255,0.7), rgba(255,255,255,0.7)), url('Gemini_Generated_Image_5gyjko5gyjko5gyj.jpg'); }
+        .menu-item-timer:hover { background-image: linear-gradient(rgba(255,255,255,0.7), rgba(255,255,255,0.7)), url('image_48dd5d.jpg'); }
         
         .menu-item::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(78, 115, 223, 0.03) 0%, transparent 70%); transition: 0.5s; }
         .menu-item:hover::before { transform: scale(1.1); }
@@ -290,7 +281,7 @@
         .menu-title { font-size: 1.5rem; font-weight: 900; color: var(--text-dark); margin-bottom: 5px; font-family: var(--font-header); z-index: 1; }
         .menu-sub { font-family: var(--font-eng); font-size: 0.8rem; color: #555; letter-spacing: 2px; text-transform: uppercase; z-index: 1; font-weight: bold;}
 
-        /* 抽籤門 */
+        /* Doors */
         .door-container { display: flex; gap: 30px; justify-content: center; flex-wrap: wrap; margin-top: 40px; }
         .door { width: 45%; min-width: 300px; height: 420px; position: relative; cursor: pointer; transition: 0.4s; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.3); background-size: cover; background-position: center; }
         .door:hover { transform: scale(1.03); box-shadow: 0 15px 40px rgba(0,0,0,0.4); }
@@ -323,24 +314,28 @@
         .student-option.selected { background: #f0f4ff; border-color: var(--primary); color: var(--primary); font-weight: 700; }
         .student-option input { width: 22px; height: 22px; margin: 0 15px 0 0; accent-color: var(--primary); }
 
-        #version-debug {
-            position: fixed; bottom: 5px; right: 5px; font-size: 10px; color: #888; cursor: pointer; z-index: 3000;
-        }
-
         @media (max-width: 600px) { h1 { font-size: 1.8rem; } .card { padding: 1.5rem; width: 95%; } .door { height: 250px; min-width: 100%; } }
     </style>
 </head>
 <body>
 
-    <!-- 頂部狀態列 (左:返回, 右:登入) -->
     <div id="statusBar">
         <div id="homeBtnContainer">
             <button id="globalHomeBtn" class="btn" onclick="navTo('home')">↩ 返回大廳</button>
         </div>
-        <button id="authBtn" class="btn btn-ghost" style="font-size: 0.9rem;">☁️ 雲端登入</button>
+        
+        <div class="top-right-group">
+            <div class="cloud-status">
+                <div class="status-dot" id="cloudStatusDot"></div>
+                <span id="cloudStatusText">離線</span>
+                <button id="authBtn" class="auth-btn" onclick="toggleAuth()">登入</button>
+            </div>
+            <div class="music-btn" id="musicToggle" onclick="toggleMusic()">
+                🎵 BGM: OFF
+            </div>
+        </div>
     </div>
 
-    <!-- 首頁選單 -->
     <div id="page-home" class="page active">
         <div class="card" style="margin-top: 8vh; border-top: 5px solid var(--primary);">
             <h1>冒險旅途中的意外插曲</h1>
@@ -366,7 +361,6 @@
         </div>
     </div>
 
-    <!-- 1. 抽籤系統：大門選擇 -->
     <div id="page-lottery-gate" class="page">
         <div style="padding: 20px; text-align: center; margin-top: 50px;">
             <h1 style="color: #fff; text-shadow: 0 2px 5px rgba(0,0,0,0.5);">命運的抉擇</h1>
@@ -389,7 +383,6 @@
         </div>
     </div>
 
-    <!-- 1-2. 抽籤系統：執行畫面 (全透明佈局) -->
     <div id="page-lottery-run" class="page">
         <div class="card transparent-mode" id="lotteryCard">
             
@@ -431,7 +424,6 @@
         </div>
     </div>
 
-    <!-- 2. 計時器：魔龍挑戰 (全透明 + 史詩文字) -->
     <div id="page-timer" class="page">
         <div class="card transparent-mode" id="timerCard">
             <div style="text-align: center; margin-bottom: 30px;">
@@ -456,7 +448,6 @@
         </div>
     </div>
 
-    <!-- 3. 投票系統 (教師端) -->
     <div id="page-vote-teacher" class="page">
         <div class="card" id="voteSetup" style="border-top: 5px solid var(--gold); margin-top: 50px;">
             <h2>發布戰略決策</h2>
@@ -506,7 +497,6 @@
         </div>
     </div>
 
-    <!-- 4. 投票系統 (學生端) -->
     <div id="page-vote-student" class="page">
         <div class="card" style="margin-top: 5vh; border-top: 5px solid var(--primary);">
             <div id="studentWaiting">
@@ -534,34 +524,30 @@
             </div>
         </div>
     </div>
-    
-    <div id="version-debug" onclick="debugUrl()">v7.9</div>
 
-    <!-- Logic -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getFirestore, doc, setDoc, onSnapshot, updateDoc, increment, getDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
         import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-        // [v7.9] Universal Router & Param Extractor
-        // 同時檢查 Query (?) 和 Hash (#)
+        // [v8.0] 強力網址解析器 (修復手機掃碼失效問題)
         function getUniversalParams() {
-            let mode = null, host = null;
-            const currentUrl = window.location.href;
-            
-            // 1. 檢查 Hash (優先)
-            if (currentUrl.includes('mode=student')) {
-                const parts = currentUrl.split('mode=student');
-                // 簡單解析：從 mode=student 往後找 host
-                mode = 'student';
-                if (currentUrl.includes('host=')) {
-                    const hostPart = currentUrl.split('host=')[1];
-                    host = hostPart ? hostPart.split('&')[0].split('#')[0] : null;
-                }
+            // 1. 先抓問號 (?) 後面的參數 (這是最穩定的)
+            const searchParams = new URLSearchParams(window.location.search);
+            let mode = searchParams.get('mode');
+            let host = searchParams.get('host');
+
+            // 2. 如果問號抓不到，再嘗試抓井號 (#) 後面的 (相容舊版)
+            if (!mode || !host) {
+                const hash = window.location.hash.substring(1); // 去掉 #
+                const hashParams = new URLSearchParams(hash);
+                if (!mode) mode = hashParams.get('mode');
+                if (!host) host = hashParams.get('host');
             }
+
             return { mode, host };
         }
-        
+
         // Debug Function
         window.debugUrl = () => {
             const p = getUniversalParams();
@@ -579,6 +565,7 @@
 
         let app, db, auth, user;
         let isOnline = false;
+        let currentStudentHost = null;
         let audioCtx = null;
 
         try {
@@ -600,6 +587,7 @@
             const homeBtn = document.getElementById('homeBtnContainer');
             const authBtn = document.getElementById('authBtn');
             
+            // 重置背景
             document.body.style.background = ''; 
             document.body.style.backgroundImage = `
                 radial-gradient(circle at 10% 20%, rgba(78, 115, 223, 0.2) 0%, transparent 20%),
@@ -615,22 +603,23 @@
                 authBtn.style.display = 'block';
             }
 
+            // 離開抽籤頁時，清除樣式
             if (pageId !== 'lottery-run') {
                 const card = document.getElementById('lotteryCard');
                 if(card) {
                     card.classList.remove('demon-theme');
-                    card.classList.remove('transparent-mode'); // 防止樣式殘留
+                    card.classList.remove('transparent-mode');
                     card.style.backgroundImage = '';
                     card.style.backgroundColor = '';
                 }
                 document.querySelectorAll('.lottery-display-text').forEach(el => el.style.color = '');
             } else {
-                // 確保進入 lottery-run 時是透明模式
                 document.getElementById('lotteryCard').classList.add('transparent-mode');
             }
             
+            // 魔龍背景
             if(pageId.includes('timer')) {
-                document.body.style.backgroundImage = `linear-gradient(rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.75)), url('Gemini_Generated_Image_5gyjko5gyjko5gyj.jpg')`;
+                document.body.style.backgroundImage = `linear-gradient(rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.75)), url('image_48dd5d.jpg')`;
                 document.body.style.backgroundSize = 'cover';
                 document.body.style.backgroundPosition = 'center';
                 document.body.style.backgroundAttachment = 'fixed';
@@ -644,7 +633,7 @@
             }
         };
 
-        // ... Lottery Logic ...
+        // --- 抽籤邏輯 ---
         let currentLotteryMode = 'angel';
         let lotteryDeck = [];
         
@@ -654,30 +643,24 @@
             label.innerText = isUnique ? "不重複" : "可重複";
             resetLotteryDeck();
         };
-
         window.resetLotteryDeck = () => { lotteryDeck = []; };
-
         window.initDeck = () => {
             const start = parseInt(document.getElementById('lotRangeStart').value);
             const end = parseInt(document.getElementById('lotRangeEnd').value);
             lotteryDeck = [];
             for(let i=start; i<=end; i++) lotteryDeck.push(i);
         };
-        
         window.enterLottery = (mode) => {
             currentLotteryMode = mode;
             navTo('lottery-run');
             const btn = document.getElementById('lotteryActionBtn');
             const display = document.getElementById('lotteryDisplay');
             const configPanel = document.querySelector('.config-panel');
-            
-            // 設定背景與面板樣式
             if(mode === 'angel') {
-                document.body.style.backgroundImage = `linear-gradient(rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.85)), url('image_4b8832.jpg')`;
+                document.body.style.backgroundImage = `linear-gradient(rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.85)), url('image_4aa398.jpg')`;
                 btn.className = 'btn btn-primary';
                 display.style.color = "var(--primary)";
                 if(configPanel) configPanel.classList.remove('demon-theme');
-
             } else {
                 document.body.style.backgroundImage = `linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('image_4b8812.jpg')`;
                 btn.className = 'btn btn-danger';
@@ -688,30 +671,31 @@
             document.body.style.backgroundPosition = 'center';
             document.body.style.backgroundAttachment = 'fixed';
         };
+        
+        function playBeep(freq = 440, dur = 0.1, type = 'sine') {
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
+            osc.type = type; osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            osc.start(); gain.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + dur);
+            osc.stop(audioCtx.currentTime + dur);
+        }
 
         window.drawNumbers = () => {
             const start = parseInt(document.getElementById('lotRangeStart').value);
             const end = parseInt(document.getElementById('lotRangeEnd').value);
             const count = parseInt(document.getElementById('lotCount').value);
             const isUnique = document.getElementById('uniqueModeCheck').checked;
-            
             if(start >= end) return alert("範圍錯誤");
             let pool = [];
             if (isUnique) {
                 if (lotteryDeck.length === 0) window.initDeck();
-                if (lotteryDeck.length < count) {
-                    alert("號碼已全數抽完！將重新洗牌。");
-                    window.initDeck();
-                }
+                if (lotteryDeck.length < count) { alert("號碼已全數抽完！將重新洗牌。"); window.initDeck(); }
                 pool = [...lotteryDeck];
-            } else {
-                for(let i=start; i<=end; i++) pool.push(i);
-            }
-
+            } else { for(let i=start; i<=end; i++) pool.push(i); }
             if(audioCtx) playBeep(800, 0.05, 'sine');
             const display = document.getElementById('lotteryDisplay');
             let counter = 0;
-            
             const interval = setInterval(() => {
                 const randomVal = pool[Math.floor(Math.random() * pool.length)];
                 display.innerText = randomVal.toString().padStart(2, '0');
@@ -726,27 +710,16 @@
                             lotteryDeck.splice(idx, 1);
                         }
                     } else {
-                        for(let k=0; k<count; k++) {
-                            winners.push(pool[Math.floor(Math.random() * pool.length)]);
-                        }
+                        for(let k=0; k<count; k++) { winners.push(pool[Math.floor(Math.random() * pool.length)]); }
                     }
                     display.innerText = winners.map(n => n.toString().padStart(2,'0')).join(' , ');
-                    if(currentLotteryMode === 'angel') playBeep(1200, 0.5, 'sine');
-                    else playBeep(150, 0.8, 'sawtooth');
+                    if(currentLotteryMode === 'angel') playBeep(1200, 0.5, 'sine'); else playBeep(150, 0.8, 'sawtooth');
                 }
             }, 60);
         };
 
-        // ... Timer Logic ...
+        // Timer Logic
         let timerInterval; let isRunning = false; let totalTimeLeft = 0;
-        function playBeep(freq = 440, dur = 0.1, type = 'sine') {
-            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
-            osc.type = type; osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-            osc.connect(gain); gain.connect(audioCtx.destination);
-            osc.start(); gain.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + dur);
-            osc.stop(audioCtx.currentTime + dur);
-        }
         function updateTimerDisplay(totalSeconds) {
             const m = Math.floor(totalSeconds / 60).toString().padStart(2, '0');
             const s = (totalSeconds % 60).toString().padStart(2, '0');
@@ -760,9 +733,8 @@
         window.toggleTimer = () => {
             if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             const btn = document.getElementById('startTimerBtn');
-            if (isRunning) {
-                clearInterval(timerInterval); isRunning = false; btn.innerHTML = "⚔️ 接受挑戰";
-            } else {
+            if (isRunning) { clearInterval(timerInterval); isRunning = false; btn.innerHTML = "⚔️ 接受挑戰"; } 
+            else {
                 if(totalTimeLeft <= 0) totalTimeLeft = getSettingSeconds();
                 if(totalTimeLeft <= 0) return alert("請設定時間");
                 isRunning = true; btn.innerHTML = "⏸️ 暫停";
@@ -782,7 +754,7 @@
             document.getElementById('startTimerBtn').innerHTML = "⚔️ 接受挑戰";
         };
 
-        // ... Vote Logic ...
+        // --- 投票系統邏輯 (修復重點) ---
         window.toggleVoteLimit = () => {
             const type = document.getElementById('voteType').value;
             document.getElementById('voteLimitContainer').style.display = (type === 'multi') ? 'block' : 'none';
@@ -795,26 +767,29 @@
             const limit = parseInt(document.getElementById('voteLimit').value);
             const classSize = parseInt(document.getElementById('voteClassSize').value);
             const options = document.getElementById('voteOptions').value.split('\n').filter(o => o.trim());
+
             if (!question || options.length < 2) return alert("資料不完整");
 
             const voteData = { active: true, question, type, limit: (type === 'multi' ? limit : 1), classSize, options, timestamp: new Date().toISOString(), votes: {}, logs: [] };
             options.forEach(opt => voteData.votes[opt] = 0);
+
             const path = `users/${user.uid}/apps/classroom_adventure_tool`;
             await setDoc(doc(db, path), voteData);
+
             document.getElementById('voteSetup').style.display = 'none';
             document.getElementById('voteResult').style.display = 'block';
             
-            // [v7.9 Fix] 使用 Hash 生成 QR Code
-            const baseUrl = window.location.href.split('#')[0].split('?')[0];
-            // 確保結尾不是 .html (如果可能被省略) 但最保險是包含 index.html
-            const cleanBaseUrl = baseUrl.endsWith('/') ? baseUrl : baseUrl + '/'; 
-            // 實際上直接用目前的 href 最穩，只要去掉參數
-            const finalBase = window.location.origin + window.location.pathname;
+            // [v8.0 Fix] 使用 ? (Query Param) 生成網址，抗重新導向
+            let baseUrl = window.location.href.split('#')[0].split('?')[0];
+            if (!baseUrl.endsWith('.html') && !baseUrl.endsWith('/')) {
+                baseUrl += '/';
+            }
             
-            const studentLink = `${finalBase}#mode=student&host=${user.uid}`;
+            const studentLink = `${baseUrl}?mode=student&host=${user.uid}`;
             const qrDiv = document.getElementById('qrCodeArea');
             qrDiv.innerHTML = "";
             new QRCode(qrDiv, { text: studentLink, width: 160, height: 160 });
+
             startTeacherListener(user.uid);
         };
 
@@ -825,12 +800,19 @@
         }
 
         function renderVoteBars(data) {
-            const div = document.getElementById('voteBarsArea'); div.innerHTML = "";
-            let total = 0; for(let k in data.votes) total += data.votes[k];
+            const div = document.getElementById('voteBarsArea');
+            div.innerHTML = "";
+            let total = 0;
+            for(let k in data.votes) total += data.votes[k];
+
             data.options.forEach(opt => {
                 const count = data.votes[opt] || 0;
                 const pct = total === 0 ? 0 : Math.round((count/total)*100);
-                div.innerHTML += `<div class="vote-bar-row"><div class="vote-label-row"><span>${opt}</span><span>${count} 票 (${pct}%)</span></div><div class="vote-track"><div class="vote-fill" style="width:${pct}%"></div></div></div>`;
+                div.innerHTML += `
+                    <div class="vote-bar-row">
+                        <div class="vote-label-row"><span>${opt}</span><span>${count} 票 (${pct}%)</span></div>
+                        <div class="vote-track"><div class="vote-fill" style="width:${pct}%"></div></div>
+                    </div>`;
             });
         }
 
@@ -846,7 +828,8 @@
             logs.forEach(log => csv += `${log.sid},"${log.opts.join('&')}"\n`);
             const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
             const url = URL.createObjectURL(blob);
-            const a = document.createElement('a'); a.href = url; a.download = `VoteRecord.csv`; a.click();
+            const a = document.createElement('a');
+            a.href = url; a.download = `VoteRecord.csv`; a.click();
         };
 
         window.stopVote = () => {
@@ -887,7 +870,10 @@
             container.innerHTML = "";
             const inputType = data.type === 'single' ? 'radio' : 'checkbox';
             data.options.forEach((opt, idx) => {
-                container.innerHTML += `<div class="student-option" onclick="toggleOpt(this, '${inputType}')"><input type="${inputType}" name="v_opts" value="${opt}"><span>${opt}</span></div>`;
+                container.innerHTML += `
+                    <div class="student-option" onclick="toggleOpt(this, '${inputType}')">
+                        <input type="${inputType}" name="v_opts" value="${opt}"><span>${opt}</span>
+                    </div>`;
             });
             window.currentVoteLimit = data.limit;
             window.currentVoteType = data.type;
@@ -896,7 +882,9 @@
         window.toggleOpt = (div, type) => {
             const input = div.querySelector('input');
             if(type === 'radio') {
-                document.querySelectorAll('.student-option').forEach(d => { d.classList.remove('selected'); d.querySelector('input').checked = false; });
+                document.querySelectorAll('.student-option').forEach(d => {
+                    d.classList.remove('selected'); d.querySelector('input').checked = false;
+                });
                 input.checked = true; div.classList.add('selected');
             } else {
                 input.checked = !input.checked; div.classList.toggle('selected', input.checked);
@@ -908,8 +896,11 @@
             if(!sid) return alert("請先選擇編號！");
             const inputs = document.querySelectorAll('input[name="v_opts"]:checked');
             const selected = Array.from(inputs).map(i => i.value);
-            if(window.currentVoteType === 'multi') { if(selected.length !== window.currentVoteLimit) return alert(`請務必選擇 ${window.currentVoteLimit} 項`); } 
-            else { if(selected.length === 0) return alert("請選擇一項"); }
+            if(window.currentVoteType === 'multi') {
+                if(selected.length !== window.currentVoteLimit) return alert(`請務必選擇 ${window.currentVoteLimit} 項`);
+            } else {
+                if(selected.length === 0) return alert("請選擇一項");
+            }
             const btn = document.getElementById('submitVoteBtn');
             btn.disabled = true; btn.innerText = "傳送中...";
             const updates = { logs: arrayUnion({ sid: sid, opts: selected, ts: Date.now() }) };
@@ -921,36 +912,40 @@
             } catch(e) { alert("傳送失敗"); btn.disabled = false; }
         };
 
+        // --- 主程式入口 ---
         const authBtn = document.getElementById('authBtn');
-        
-        // --- [v7.9] 主程式入口: 萬能路由檢測 ---
-        const p = getUniversalParams();
-        
+        const p = getUniversalParams(); // [v8.0] 使用新的解析器
+
         if(p.mode === 'student' && p.host) { 
-            // 強制進入學生模式
             initStudentMode(p.host); 
-        } 
-        else {
-            // 正常老師模式
+        } else {
             authBtn.onclick = () => { 
-                alert("正在呼叫 Google 登入窗口...");
-                if(user) { signOut(auth); } 
-                else {
+                if(user) {
+                    signOut(auth);
+                } else {
                     const provider = new GoogleAuthProvider();
                     provider.setCustomParameters({ prompt: 'select_account' });
-                    signInWithPopup(auth, provider).then((result) => { console.log("Login success"); })
+                    signInWithPopup(auth, provider)
+                    .then((result) => { console.log("Login success:", result.user); })
                     .catch((error) => {
-                        if (error.code === 'auth/unauthorized-domain') alert("網域授權錯誤：請檢查 Firebase Console");
-                        else alert("登入失敗：" + error.message);
+                        console.error("Login error:", error);
+                        if (error.code === 'auth/unauthorized-domain') {
+                            alert("錯誤：此網域尚未加入 Firebase 授權清單。\n請到 Firebase Console -> Authentication -> Settings -> Authorized Domains 新增此網址。");
+                        } else {
+                            alert("登入失敗：" + error.message);
+                        }
                     });
                 }
             };
             onAuthStateChanged(auth, u => {
                 user = u;
                 if(user) {
-                    authBtn.innerText = `✅ ${user.displayName}`; authBtn.classList.replace('btn-ghost', 'btn-success'); authBtn.style.border = "none";
+                    authBtn.innerText = `✅ ${user.displayName}`; 
+                    authBtn.classList.replace('btn-ghost', 'btn-success'); 
+                    authBtn.style.border = "none";
                 } else { 
-                    authBtn.innerText = "☁️ 雲端登入"; authBtn.classList.replace('btn-success', 'btn-ghost'); 
+                    authBtn.innerText = "☁️ 雲端登入"; 
+                    authBtn.classList.replace('btn-success', 'btn-ghost'); 
                 }
             });
         }

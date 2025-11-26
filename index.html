@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>冒險者公會任務系統 | Adventurer's Guild</title>
+    <title>冒險者公會任務系統 v5.0 | Adventurer's Guild</title>
     <!-- 引入 QRCode -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <!-- 引入 現代日系 RPG 風格字體 -->
@@ -80,20 +80,32 @@
         .btn-danger { background: linear-gradient(135deg, var(--accent-red), #962d22); color: white; }
         .btn-success { background: linear-gradient(135deg, #27ae60, #219150); color: white; }
 
-        /* 魔龍挑戰專屬按鈕 */
+        /* 魔龍挑戰專屬按鈕 (重製) */
         .btn-dragon-fight {
-            background: linear-gradient(180deg, #800000 0%, #330000 100%);
-            color: #ffcc00;
-            border: 1px solid #ff4d4d;
-            box-shadow: 0 0 15px rgba(255, 0, 0, 0.5);
-            text-shadow: 0 2px 2px black;
+            background: linear-gradient(to bottom, #8b0000 0%, #3a0000 100%);
+            color: #ffd700;
+            border: 2px solid #b8860b; /* 暗金邊框 */
+            box-shadow: 0 0 20px rgba(255, 0, 0, 0.4);
+            text-shadow: 0 2px 2px #000;
+            padding: 15px 40px;
+            font-size: 1.5rem;
         }
+        .btn-dragon-fight:hover {
+            background: linear-gradient(to bottom, #a00000, #500000);
+            box-shadow: 0 0 30px rgba(255, 50, 0, 0.6);
+        }
+
         .btn-dragon-reset {
-            background: rgba(0,0,0,0.6);
+            background: rgba(20, 20, 20, 0.8);
             color: #aaa;
             border: 1px solid #555;
+            backdrop-filter: blur(4px);
         }
-        .btn-dragon-reset:hover { background: rgba(50,50,50,0.8); color: #fff; }
+        .btn-dragon-reset:hover {
+            background: rgba(50, 50, 50, 0.9);
+            color: #fff;
+            border-color: #fff;
+        }
         
         /* 全域返回按鈕 */
         #globalHomeBtn {
@@ -127,7 +139,7 @@
             border-radius: 0 0 4px 4px;
         }
 
-        /* --- 惡魔/魔龍 暗黑主題卡片 --- */
+        /* --- 惡魔主題卡片 --- */
         .card.demon-theme {
             background-color: rgba(20, 20, 25, 0.8);
             border-color: #555;
@@ -147,78 +159,84 @@
         h1 span { color: var(--gold); font-family: var(--font-eng); font-size: 1.8rem; margin-left: 10px; }
         h2 { font-size: 1.8rem; border-bottom: 2px solid rgba(0,0,0,0.05); padding-bottom: 10px; margin-bottom: 25px; font-family: var(--font-header); color: #1a1c29; }
         
-        /* --- 魔龍模式 (極簡透明風格) --- */
+        /* --- [修正] 魔龍模式 (完全透明化) --- */
         .card.dragon-mode {
-            background: transparent !important; /* 完全透明 */
+            background: transparent !important; /* 強制透明 */
             box-shadow: none !important;
             border: none !important;
             backdrop-filter: none !important;
-            padding: 0 !important; /* 縮減留白 */
-            margin-top: 10vh !important; /* 稍微往下移 */
-            max-width: 600px; /* 縮小寬度，集中視覺 */
+            padding: 0 !important; /* 移除內距，讓元素更集中 */
+            margin-top: 15vh !important; /* 垂直置中調整 */
+            max-width: 800px; 
         }
         .card.dragon-mode::before { display: none; } /* 隱藏頂部金線 */
 
-        /* 魔龍標題特效 */
+        /* 魔龍標題特效 (移除 Emoji，強化霸氣) */
         .dragon-title {
             font-family: var(--font-header);
-            font-size: 3.5rem;
+            font-size: 4rem;
             font-weight: 900;
-            /* 金屬與血紅漸層 */
-            background: linear-gradient(to bottom, #ffcc00, #ff3300);
+            /* 金色轉深紅漸層 */
+            background: linear-gradient(to bottom, #ffeb3b 0%, #ff5722 60%, #b71c1c 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            /* 強烈發光與陰影 */
-            filter: drop-shadow(0 0 10px rgba(255, 50, 0, 0.8));
-            letter-spacing: 5px;
-            margin-bottom: 10px;
+            /* 強烈發光陰影 */
+            filter: drop-shadow(0 0 15px rgba(255, 69, 0, 0.8));
+            letter-spacing: 8px;
+            margin-bottom: 15px;
             text-transform: uppercase;
+            line-height: 1.2;
         }
         
+        /* 魔龍副標題 (黑底條增加可讀性) */
         .dragon-subtitle {
             font-family: var(--font-ui);
             color: #fff;
             font-weight: bold;
-            font-size: 1.1rem;
-            text-shadow: 0 2px 4px #000, 0 0 8px rgba(0,0,0,0.8);
-            background: linear-gradient(90deg, transparent, rgba(0,0,0,0.6), transparent);
-            padding: 5px 20px;
+            font-size: 1.2rem;
+            text-shadow: 0 2px 2px #000;
+            background: linear-gradient(90deg, transparent, rgba(0,0,0,0.8), transparent);
+            padding: 8px 40px;
             display: inline-block;
+            letter-spacing: 1px;
+            border-top: 1px solid rgba(255,255,255,0.2);
+            border-bottom: 1px solid rgba(255,255,255,0.2);
         }
 
-        /* 計時器數字本體 */
+        /* 計時器數字 (去背，改用光暈) */
         .dragon-timer-display {
             font-family: 'Cinzel', serif;
-            font-size: 7rem;
+            font-size: 8rem;
             font-weight: 700;
             color: #fff;
-            text-shadow: 0 0 20px rgba(255, 200, 0, 0.8), 0 4px 4px #000;
-            margin: 20px 0;
-            /* 移除白色背景，改用淡淡的光暈 */
-            background: radial-gradient(closest-side, rgba(0,0,0,0.5), transparent);
-            padding: 20px;
-            border-radius: 50%;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.8), 0 4px 4px #000;
+            margin: 30px 0;
+            /* 移除白色圓形背景，改為極淡的中心光暈 */
+            background: radial-gradient(closest-side, rgba(0,0,0,0.4), transparent);
+            padding: 10px;
+            line-height: 1;
         }
 
         /* 緊張狀態 */
         .timer-urgent .dragon-timer-display {
-            color: #ff3333;
-            text-shadow: 0 0 30px red, 0 4px 4px black;
+            color: #ff4d4d;
+            text-shadow: 0 0 30px red, 0 4px 8px black;
             animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both infinite;
         }
         @keyframes shake { 10%, 90% { transform: translate3d(-1px, 0, 0); } 20%, 80% { transform: translate3d(2px, 0, 0); } }
 
-        /* 輸入框優化 */
+        /* 輸入框優化 (魔龍版) */
         .dragon-input {
-            background: rgba(0,0,0,0.6) !important;
-            border: 1px solid #666 !important;
+            background: rgba(0,0,0,0.7) !important;
+            border: 1px solid #888 !important;
             color: #ffcc00 !important;
             font-family: 'Cinzel', serif !important;
-            font-size: 1.5rem !important;
+            font-size: 1.8rem !important;
             font-weight: bold !important;
             text-align: center;
-            width: 80px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.5) !important;
+            width: 90px;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.5) !important;
         }
 
         /* --- 其他通用樣式 --- */
@@ -260,8 +278,10 @@
         .door-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.2) 60%, transparent 100%); display: flex; flex-direction: column; justify-content: flex-end; padding: 40px 30px; text-align: left; }
         
         .door-angel { background-image: url('image_4b8832.jpg'); border: 4px solid #fff; }
+        .door-angel::after { content: '✧'; position: absolute; top: 20px; right: 20px; color: rgba(255,255,255,0.8); font-size: 3rem; }
         .door-angel .door-title { color: #fff; font-size: 2rem; font-family: var(--font-header); text-shadow: 0 2px 10px rgba(255,255,255,0.5); }
         .door-demon { background-image: url('image_4b8812.jpg'); border: 4px solid #c0392b; }
+        .door-demon::after { content: '☠'; position: absolute; top: 20px; right: 20px; color: rgba(192, 57, 43, 0.5); font-size: 3rem; }
         .door-demon .door-title { color: #e74c3c; font-size: 2rem; font-family: var(--font-header); text-shadow: 0 2px 10px rgba(0,0,0,0.8); }
         .door-desc { font-size: 1.1rem; color: rgba(255,255,255,0.9); margin-top: 8px; font-weight: 500; font-family: var(--font-header); }
 
@@ -293,7 +313,7 @@
 
     <!-- 頂部狀態 -->
     <div id="statusBar">
-        <button id="authBtn" class="btn btn-primary" style="font-size: 0.8rem; padding: 6px 18px;">☁️ 登入公會網絡</button>
+        <button id="authBtn" class="btn btn-primary" style="font-size: 0.8rem; padding: 6px 18px;">☁️ 登入公會網絡 v5.0</button>
     </div>
 
     <!-- 全域返回按鈕 -->
@@ -306,11 +326,13 @@
             <p style="color: #666; margin-bottom: 40px;">請選擇您要發布的任務類型</p>
             
             <div class="menu-grid">
+                <!-- 1. 命運徵召按鈕 -->
                 <div class="menu-item menu-item-lottery" onclick="navTo('lottery-gate')">
                     <div class="menu-icon">⚔️</div>
                     <div class="menu-title">命運徵召</div>
                     <div class="menu-sub">Summoning</div>
                 </div>
+                <!-- 2. 魔龍挑戰按鈕 -->
                 <div class="menu-item menu-item-timer" onclick="navTo('timer')">
                     <div class="menu-icon">🐲</div>
                     <div class="menu-title">魔龍挑戰</div>
@@ -357,6 +379,7 @@
                 <div id="lotteryDisplay">READY</div>
             </div>
             
+            <!-- 設定面板 -->
             <div class="config-panel">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
                     <h3 style="font-size: 1rem; color: #555; margin:0; border:none;">⚙️ 徵召設定</h3>
@@ -391,33 +414,34 @@
         </div>
     </div>
 
-    <!-- 2. 計時器：魔龍挑戰 (完全透明化與史詩字體) -->
+    <!-- 2. 計時器：魔龍挑戰 (完全透明 + 史詩文字版) -->
     <div id="page-timer" class="page">
         <div class="card dragon-mode" id="timerCard">
             <div style="text-align: center; margin-bottom: 30px;">
-                <!-- 史詩標題：血紅金屬漸層 + 強陰影 -->
+                <!-- 移除 Emoji，改用發光漸層大字 -->
                 <div class="dragon-title">魔龍挑戰</div>
                 
-                <!-- 副標題：黑底白字光暈，確保可讀性 -->
+                <!-- 副標題 -->
                 <div class="dragon-subtitle">
                     魔龍對冒險者發起了挑戰，請在時限內克服！
                 </div>
             </div>
             
-            <!-- 計時器：移除邊框，僅保留文字發光 -->
+            <!-- 計時器 -->
             <div style="text-align: center;">
                 <div id="timerDisplay" class="dragon-timer-display">03:00</div>
             </div>
             
-            <!-- 輸入時間：金字黑底 -->
+            <!-- 輸入時間 -->
             <div style="display: flex; justify-content: center; gap: 10px; align-items: center; margin-bottom: 40px;">
                 <input type="number" id="timerMin" value="3" min="0" class="dragon-input"> 
                 <span style="font-size: 2rem; color: #fff; font-weight: bold; text-shadow: 0 2px 4px #000;">:</span>
                 <input type="number" id="timerSec" value="0" min="0" max="59" class="dragon-input">
             </div>
 
+            <!-- 按鈕 -->
             <div style="text-align: center; display: flex; gap: 20px; justify-content: center;">
-                <button class="btn btn-dragon-fight" id="startTimerBtn" onclick="toggleTimer()" style="width: 220px; font-size: 1.4rem;">⚔️ 接受挑戰</button>
+                <button class="btn btn-dragon-fight" id="startTimerBtn" onclick="toggleTimer()">⚔️ 接受挑戰</button>
                 <button class="btn btn-dragon-reset" onclick="resetTimer()">🔄 重置挑戰</button>
             </div>
         </div>

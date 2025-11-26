@@ -29,10 +29,10 @@
             --shadow-card: 0 8px 16px rgba(0,0,0,0.2);
             --radius-main: 12px;
             
-            /* 字體 */
-            --font-ui: 'Noto Sans TC', sans-serif;
-            --font-header: 'Noto Serif TC', serif;
-            --font-eng: 'Cinzel', serif;
+            /* 字體設定：強化襯線體的使用以匹配美術風格 */
+            --font-ui: 'Noto Sans TC', sans-serif;       /* 介面說明文字 (易讀) */
+            --font-header: 'Noto Serif TC', serif;       /* 標題、按鈕 (氣氛) */
+            --font-eng: 'Cinzel', serif;                 /* 英文裝飾 (奇幻感) */
         }
 
         * { box-sizing: border-box; font-family: var(--font-ui); user-select: none; }
@@ -68,8 +68,9 @@
         .btn {
             border: none;
             padding: 12px 24px;
-            font-size: 1.1rem;
-            font-weight: 700;
+            font-size: 1.2rem;
+            font-weight: 900;
+            font-family: var(--font-header); /* 改用宋體增加氣勢 */
             border-radius: 50px;
             cursor: pointer;
             transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
@@ -81,6 +82,7 @@
             margin: 5px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
             overflow: hidden;
+            letter-spacing: 1px;
         }
         
         .btn::after {
@@ -115,11 +117,12 @@
             color: var(--text-dark);
             backdrop-filter: blur(5px);
             border: 1px solid #ddd;
+            font-family: var(--font-ui);
         }
 
         /* --- 卡片容器 --- */
         .card {
-            background: var(--bg-paper);
+            background: var(--bg-paper); /* 恢復為純色背景 */
             border-radius: var(--radius-main);
             padding: 2.5rem;
             margin: 20px auto;
@@ -128,9 +131,6 @@
             position: relative;
             box-shadow: var(--shadow-card);
             border: 1px solid #e0e0e0;
-            /* 關鍵：這裡設定卡片的背景圖行為 */
-            background-size: cover;
-            background-position: center;
             transition: all 0.5s;
         }
         /* 卡片頂部裝飾線 */
@@ -144,9 +144,11 @@
 
         /* --- 惡魔暗黑主題卡片 (文字與組件調整) --- */
         .card.demon-theme {
+            background-color: rgba(20, 20, 25, 0.8); /* 深色半透明底，讓文字在背景圖上清晰 */
             border-color: #555;
             color: #ecf0f1;
             box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+            backdrop-filter: blur(5px); /* 增加模糊效果，提升質感 */
         }
         .card.demon-theme h1, 
         .card.demon-theme h2, 
@@ -176,10 +178,10 @@
             border-color: #555;
         }
 
-        h1, h2, h3 { margin-top: 0; font-family: var(--font-header); color: #1a1c29; }
+        h1, h2, h3 { margin-top: 0; font-family: var(--font-header); color: #1a1c29; font-weight: 900; }
         h1 { font-size: 2.2rem; margin-bottom: 0.5rem; text-shadow: 0 2px 4px rgba(0,0,0,0.05); }
         h1 span { color: var(--gold); font-family: var(--font-eng); font-size: 1.8rem; margin-left: 10px; }
-        h2 { font-size: 1.6rem; border-bottom: 2px solid rgba(0,0,0,0.05); padding-bottom: 10px; margin-bottom: 25px; }
+        h2 { font-size: 1.8rem; border-bottom: 2px solid rgba(0,0,0,0.05); padding-bottom: 10px; margin-bottom: 25px; }
         
         /* --- 輸入框 --- */
         input, select, textarea {
@@ -199,7 +201,7 @@
             border-color: var(--primary); 
             box-shadow: 0 0 0 3px rgba(78, 115, 223, 0.1);
         }
-        label { color: #666; font-size: 0.95rem; margin-bottom: 6px; display: block; font-weight: 500; }
+        label { color: #666; font-size: 1rem; margin-bottom: 6px; display: block; font-weight: 700; font-family: var(--font-header); }
 
         /* --- 頂部狀態列 --- */
         #statusBar {
@@ -262,7 +264,7 @@
             -webkit-text-fill-color: transparent;
             filter: drop-shadow(0 4px 6px rgba(78, 115, 223, 0.2));
         }
-        .menu-title { font-size: 1.4rem; font-weight: 700; color: var(--text-dark); margin-bottom: 5px; }
+        .menu-title { font-size: 1.5rem; font-weight: 900; color: var(--text-dark); margin-bottom: 5px; font-family: var(--font-header); }
         .menu-sub { font-family: var(--font-eng); font-size: 0.8rem; color: #888; letter-spacing: 2px; text-transform: uppercase; }
 
         /* --- 抽籤：命運之門 --- */
@@ -294,7 +296,7 @@
         .door-demon::after { content: '☠'; position: absolute; top: 20px; right: 20px; color: rgba(192, 57, 43, 0.5); font-size: 3rem; }
         .door-demon .door-title { color: #e74c3c; font-size: 2rem; font-family: var(--font-header); text-shadow: 0 2px 10px rgba(0,0,0,0.8); }
         
-        .door-desc { font-size: 1rem; color: rgba(255,255,255,0.8); margin-top: 8px; font-weight: 300; }
+        .door-desc { font-size: 1.1rem; color: rgba(255,255,255,0.9); margin-top: 8px; font-weight: 500; font-family: var(--font-header); }
 
         /* 抽籤結果區 */
         .lottery-result-area {
@@ -655,15 +657,15 @@
                 title.style.color = "var(--primary)";
                 display.style.color = "var(--primary)";
                 
-                // 1. 周邊背景改為維持底色 (純色或淡色)
-                document.body.style.backgroundImage = 'none'; 
-                document.body.style.backgroundColor = "#d6eaf8"; // 淺藍底色
-
-                // 2. 中間卡片：刷淡圖片
-                // 使用 linear-gradient 覆蓋白色半透明層 (0.85) + 圖片
-                card.style.backgroundImage = `linear-gradient(rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.85)), url('image_4b8832.png')`;
-                card.style.backgroundSize = 'cover';
-                card.style.backgroundPosition = 'center';
+                // 背景：天使圖 + 亮白透明覆蓋 (刷淡效果回歸 Body)
+                document.body.style.backgroundImage = `linear-gradient(rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.85)), url('image_4b8832.png')`;
+                document.body.style.backgroundSize = 'cover';
+                document.body.style.backgroundPosition = 'center';
+                document.body.style.backgroundAttachment = 'fixed';
+                
+                // 卡片：恢復為半透明白底
+                card.style.backgroundColor = "rgba(255, 255, 255, 0.9)";
+                card.style.backgroundImage = "none";
 
             } else {
                 // 惡魔模式
@@ -671,18 +673,15 @@
                 title.style.color = "#e74c3c"; // 亮紅
                 display.style.color = "#e74c3c";
                 
-                // 1. 周邊背景改為維持底色 (深色)
-                document.body.style.backgroundImage = 'none';
-                document.body.style.backgroundColor = "#111"; // 深黑底色
+                // 背景：惡魔圖 + 0.6 濃度黑底 (刷淡效果回歸 Body)
+                document.body.style.backgroundImage = `linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('image_4b8812.png')`;
+                document.body.style.backgroundSize = 'cover';
+                document.body.style.backgroundPosition = 'center';
+                document.body.style.backgroundAttachment = 'fixed';
                 
-                // 2. 中間卡片：刷淡圖片 (但不要太暗)
-                // 修正：之前遮罩 0.9 太暗，改為 0.5，讓圖片看得清楚
-                card.style.backgroundImage = `linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('image_4b8812.png')`;
-                card.style.backgroundSize = 'cover';
-                card.style.backgroundPosition = 'center';
-                
-                // 卡片切換為暗黑模式 (字體變白)
+                // 卡片切換為暗黑模式 (維持您喜歡的亮度)
                 card.classList.add('demon-theme');
+                card.style.backgroundImage = "none";
             }
         };
 

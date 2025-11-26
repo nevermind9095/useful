@@ -109,6 +109,21 @@
             background: linear-gradient(135deg, #27ae60, #219150); 
             color: white; 
         }
+
+        /* --- 魔龍專屬按鈕樣式 --- */
+        .btn-dragon-fight {
+            background: linear-gradient(135deg, #800000, #330000); /* 深紅漸層 */
+            color: #ffd700; /* 金色文字 */
+            border: 2px solid #b8860b; /* 暗金邊框 */
+            box-shadow: 0 0 15px rgba(255, 0, 0, 0.4);
+            text-shadow: 0 2px 4px black;
+        }
+        .btn-dragon-reset {
+            background: linear-gradient(135deg, #4a4a4a, #2b2b2b); /* 鐵灰漸層 */
+            color: #e0e0e0; /* 銀白文字 */
+            border: 2px solid #777; /* 銀灰邊框 */
+            text-shadow: 0 1px 2px black;
+        }
         
         /* 全域返回按鈕 */
         #globalHomeBtn {
@@ -164,8 +179,6 @@
             color: #e74c3c; text-shadow: 0 2px 4px rgba(0,0,0,0.8);
         }
         .card.demon-theme label { color: #ddd; }
-        
-        /* 暗黑模式下的輸入框 (抽籤) */
         .card.demon-theme input { background: rgba(0, 0, 0, 0.6); color: #fff; border-color: #666; }
         
         .card.demon-theme .lottery-result-area {
@@ -242,7 +255,7 @@
             border: 1px solid transparent;
         }
         
-        /* 選單背景圖 (確保使用 .jpg) */
+        /* 選單背景圖 */
         .menu-item-lottery {
             background-image: linear-gradient(rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.85)), url('image_4aa398.jpg');
             background-size: cover;
@@ -359,30 +372,57 @@
         input:checked + .slider { background-color: var(--primary); }
         input:checked + .slider:before { transform: translateX(30px); }
 
-        /* --- 計時：魔龍降臨 (字體優化) --- */
+        /* --- 計時：魔龍降臨 (透明化處理與字體優化) --- */
         #timerCard { border: none; overflow: hidden; background: #fff; }
         
+        /* 魔龍模式下，背景全透明，只保留文字與必要元件 */
+        .card.dragon-mode {
+            background-color: transparent; /* 透明底 */
+            border: none;
+            box-shadow: none;
+            backdrop-filter: none;
+        }
+
         .timer-header-box { text-align: center; margin-bottom: 20px; }
         .timer-title-text { 
-            font-size: 2.5rem; font-family: var(--font-header); font-weight: 900; 
-            background: linear-gradient(to right, #c0392b, #8e44ad);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            font-size: 3rem; font-family: var(--font-header); font-weight: 900; 
+            /* 強烈發光的紅色標題 */
+            color: #ff4d4d;
+            text-shadow: 0 0 10px rgba(255, 0, 0, 0.8), 2px 2px 0px #000;
+            letter-spacing: 2px;
         }
-        /* 魔龍模式下的副標題優化 */
-        .demon-theme .timer-header-box div:last-child {
-            color: #fff !important; /* 強制亮白 */
-            text-shadow: 0 2px 4px rgba(0,0,0,0.9); /* 強陰影 */
-            font-size: 1.1rem;
+        /* 優化後的副標題：金色 + 重陰影 */
+        .timer-subtitle {
+            color: #ffd700 !important;
+            text-shadow: 2px 2px 4px #000, 0 0 10px rgba(0,0,0,0.8);
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-top: 10px;
             letter-spacing: 1px;
+            background: rgba(0,0,0,0.3); /* 稍微加一點底色條增加可讀性 */
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
         }
 
         .timer-circle {
-            width: 280px; height: 280px; border-radius: 50%; border: 6px solid #f0f0f0; margin: 20px auto;
+            /* 修改：移除白底，改為擴散黑影 */
+            width: 280px; height: 280px; 
+            border-radius: 50%; 
+            /* border: 6px solid rgba(255,255,255,0.1);  可以完全拿掉邊框 */
+            border: none;
+            margin: 20px auto;
             display: flex; align-items: center; justify-content: center; position: relative;
-            background: #fff; box-shadow: 0 10px 30px rgba(0,0,0,0.1); transition: 0.3s;
+            /* 核心修改：透明度處理 */
+            background: radial-gradient(circle, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0) 70%); 
+            box-shadow: none; 
+            transition: 0.3s;
         }
-        .timer-display { font-size: 4.5rem; font-family: 'Cinzel', serif; font-weight: 700; color: var(--text-dark); }
+        .timer-display { 
+            font-size: 5rem; font-family: 'Cinzel', serif; font-weight: 700; 
+            color: #fff;
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.8);
+        }
         
         /* 魔龍計時輸入框優化 */
         .timer-input-group input {
@@ -392,10 +432,15 @@
         }
 
         .timer-urgent .timer-circle {
-            border-color: var(--accent-red); box-shadow: 0 0 40px rgba(192, 57, 43, 0.3); animation: pulse-red 1s infinite;
+            background: radial-gradient(circle, rgba(192, 57, 43, 0.6) 0%, rgba(0,0,0,0) 70%); 
+            animation: pulse-red 1s infinite;
         }
-        .timer-urgent .timer-display { color: var(--accent-red); }
-        @keyframes pulse-red { 0% { box-shadow: 0 0 0 0 rgba(192, 57, 43, 0.4); } 70% { box-shadow: 0 0 0 20px rgba(192, 57, 43, 0); } 100% { box-shadow: 0 0 0 0 rgba(192, 57, 43, 0); } }
+        .timer-urgent .timer-display { color: #ff4d4d; text-shadow: 0 0 20px red; }
+        @keyframes pulse-red { 
+            0% { transform: scale(1); } 
+            50% { transform: scale(1.05); } 
+            100% { transform: scale(1); } 
+        }
 
         /* --- 投票系統 --- */
         .vote-bar-row { margin-bottom: 24px; position: relative; }
@@ -528,12 +573,12 @@
         </div>
     </div>
 
-    <!-- 2. 計時器：魔龍挑戰 (高對比度字體優化) -->
+    <!-- 2. 計時器：魔龍挑戰 (優化版) -->
     <div id="page-timer" class="page">
-        <div class="card demon-theme" id="timerCard" style="margin-top: 50px;">
+        <div class="card dragon-mode" id="timerCard" style="margin-top: 50px;">
             <div class="timer-header-box">
                 <div class="timer-title-text">🐲 魔龍挑戰 🐲</div>
-                <div style="color: #fff; margin-top: 5px; font-weight: bold; text-shadow: 0 2px 4px #000;">魔龍對冒險者發起了挑戰，請在時限內克服！</div>
+                <div class="timer-subtitle">魔龍對冒險者發起了挑戰，請在時限內克服！</div>
             </div>
             
             <div class="timer-circle">
@@ -550,8 +595,9 @@
             </div>
 
             <div style="text-align: center;">
-                <button class="btn btn-danger" id="startTimerBtn" onclick="toggleTimer()" style="width: 200px; font-size: 1.3rem;">⚔️ 接受挑戰 ⚔️</button>
-                <button class="btn btn-success" onclick="resetTimer()">重置</button>
+                <!-- 修正按鈕樣式與文案 -->
+                <button class="btn btn-dragon-fight" id="startTimerBtn" onclick="toggleTimer()" style="width: 200px; font-size: 1.3rem;">⚔️ 接受挑戰</button>
+                <button class="btn btn-dragon-reset" onclick="resetTimer()">🔄 重置挑戰</button>
             </div>
         </div>
     </div>
@@ -710,6 +756,14 @@
                 document.body.style.backgroundPosition = 'center';
                 document.body.style.backgroundAttachment = 'fixed';
                 document.body.style.backgroundColor = '#2c2c2c';
+                
+                // 強制讓卡片變透明
+                const timerCard = document.getElementById('timerCard');
+                if(timerCard) timerCard.classList.add('dragon-mode');
+            } else {
+                // 離開計時頁面要移除透明樣式
+                const timerCard = document.getElementById('timerCard');
+                if(timerCard) timerCard.classList.remove('dragon-mode');
             }
         };
 
@@ -908,7 +962,7 @@
             totalTimeLeft = getSettingSeconds();
             updateTimerDisplay(totalTimeLeft);
             document.getElementById('timerCard').classList.remove('timer-urgent');
-            document.getElementById('startTimerBtn').innerHTML = "⚔️ 接受挑戰 ⚔️";
+            document.getElementById('startTimerBtn').innerHTML = "⚔️ 接受挑戰";
         };
 
         // --- 投票邏輯 ---

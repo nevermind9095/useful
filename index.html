@@ -3,899 +3,756 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>冒險旅途中的意外插曲 v8.5</title>
-    <!-- 引入 QRCode -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-    <!-- 引入 現代日系 RPG 風格字體 -->
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@600;900&family=Cinzel:wght@700&display=swap" rel="stylesheet">
-    
+    <title>寶可夢數學大師 - 異分母分數 (MP3版)</title>
     <style>
-        /* --- 現代日系 RPG 風格變數 --- */
         :root {
-            --bg-world: #1a1c29;
-            --bg-paper: #fdfbf7;
-            --primary: #4e73df;
-            --gold: #d4af37;
-            --accent-red: #c0392b;
-            --text-dark: #2c3e50;
-            --text-light: #ecf0f1;
-            --shadow-card: 0 8px 16px rgba(0,0,0,0.2);
-            --radius-main: 12px;
-            --font-ui: 'Noto Sans TC', sans-serif;
-            --font-header: 'Noto Serif TC', serif;
-            --font-eng: 'Cinzel', serif;
+            --poke-red: #FF3E3E;
+            --poke-dark-red: #CC0000;
+            --poke-white: #FFFFFF;
+            --poke-black: #2D2D2D;
+            --poke-yellow: #FFCB05;
+            --poke-blue: #3B4CCA;
+            --bg-color: #F0F0F0;
         }
 
-        * { box-sizing: border-box; font-family: var(--font-ui); user-select: none; }
-        
+        * {
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            font-family: "Microsoft JhengHei", "微軟正黑體", sans-serif;
+        }
+
         body {
+            background-color: #333;
+            background-image: linear-gradient(rgba(0,0,0,0.5) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(0,0,0,0.5) 1px, transparent 1px);
+            background-size: 20px 20px;
+            color: var(--poke-black);
             margin: 0;
-            padding: 0;
-            background-color: var(--bg-world);
-            background-image: 
-                radial-gradient(circle at 10% 20%, rgba(78, 115, 223, 0.2) 0%, transparent 20%),
-                radial-gradient(circle at 90% 80%, rgba(212, 175, 55, 0.1) 0%, transparent 20%);
-            background-size: cover;
-            background-attachment: fixed;
-            background-position: center;
-            min-height: 100vh;
+            padding: 10px;
             display: flex;
             flex-direction: column;
-            color: var(--text-dark);
+            align-items: center;
+            min-height: 100vh;
             overflow-x: hidden;
-            transition: background 0.5s ease;
         }
 
-        body::before {
-            content: "";
-            position: fixed; top: 0; left: 0; width: 100%; height: 6px;
-            background: linear-gradient(90deg, var(--primary), var(--gold), var(--primary));
-            z-index: 1000;
-            pointer-events: none;
-        }
-
-        /* --- 按鈕元件 --- */
-        .btn {
-            border: none;
-            padding: 8px 20px;
-            font-size: 1rem;
-            font-weight: 900;
-            font-family: var(--font-header);
-            border-radius: 50px;
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-            position: relative;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            overflow: hidden;
-            letter-spacing: 1px;
-            pointer-events: auto !important;
-        }
-        .btn:hover { transform: translateY(-2px); box-shadow: 0 6px 12px rgba(0,0,0,0.2); }
-        .btn:active { transform: scale(0.96); }
-
-        .btn-primary { background: linear-gradient(135deg, var(--primary), #2c52b3); color: white; }
-        .btn-danger { background: linear-gradient(135deg, var(--accent-red), #962d22); color: white; }
-        .btn-success { background: linear-gradient(135deg, #27ae60, #219150); color: white; }
-        .btn-ghost { background: rgba(255,255,255,0.2); color: #fff; border: 1px solid rgba(255,255,255,0.5); backdrop-filter: blur(4px); }
-        .btn-ghost:hover { background: rgba(255,255,255,0.3); }
-
-        /* 魔龍挑戰專屬按鈕 */
-        .btn-dragon-fight {
-            background: linear-gradient(to bottom, #8b0000 0%, #3a0000 100%);
-            color: #ffd700;
-            border: 2px solid #b8860b;
-            box-shadow: 0 0 20px rgba(255, 0, 0, 0.4);
-            text-shadow: 0 2px 2px #000;
-            padding: 15px 40px;
-            font-size: 1.5rem;
-        }
-        .btn-dragon-fight:hover { background: linear-gradient(to bottom, #a00000, #500000); box-shadow: 0 0 30px rgba(255, 50, 0, 0.6); }
-        .btn-dragon-reset { background: rgba(20, 20, 20, 0.8); color: #aaa; border: 1px solid #555; backdrop-filter: blur(4px); }
-        .btn-dragon-reset:hover { background: rgba(50, 50, 50, 0.9); color: #fff; border-color: #fff; }
-
-        /* --- 頂部狀態列 --- */
-        #statusBar {
-            background: rgba(255,255,255,0.1);
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-            padding: 10px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            position: sticky;
-            top: 0;
-            z-index: 2000;
-            pointer-events: none; 
-        }
-        #statusBar > * { pointer-events: auto; } 
-        
-        #homeBtnContainer { display: none; }
-        #globalHomeBtn {
-            background: #2c3e50;
-            color: #ffffff;
-            border: 1px solid rgba(255,255,255,0.3);
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-        }
-        #globalHomeBtn:hover {
-            background: #34495e;
-            transform: scale(1.05);
-        }
-
-        /* --- 卡片容器 --- */
-        .card {
-            background: var(--bg-paper);
-            border-radius: var(--radius-main);
-            padding: 2.5rem;
-            margin: 20px auto;
-            width: 90%;
-            max-width: 900px;
-            position: relative;
-            box-shadow: var(--shadow-card);
-            border: 1px solid #e0e0e0;
-            transition: all 0.5s;
-            pointer-events: auto !important;
-        }
-        .card::before {
-            content: '';
-            position: absolute; top: 0; left: 50%; transform: translateX(-50%);
-            width: 80%; height: 4px;
-            background: linear-gradient(90deg, transparent, var(--gold), transparent);
-            border-radius: 0 0 4px 4px;
-        }
-
-        /* --- 通用透明模式 --- */
-        .card.transparent-mode {
-            background: transparent !important;
-            box-shadow: none !important;
-            border: none !important;
-            backdrop-filter: none !important;
-            padding: 0 !important;
-            margin-top: 10vh !important;
-            max-width: 800px;
-        }
-        .card.transparent-mode::before { display: none; }
-
-        /* --- 懸浮面板樣式 --- */
-        .glass-panel {
-            background: rgba(255, 255, 255, 0.9);
-            padding: 20px;
-            border-radius: 16px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-            backdrop-filter: blur(8px);
-            border: 1px solid rgba(255, 255, 255, 0.5);
-            margin-bottom: 20px;
-            transition: all 0.5s;
-        }
-        
-        /* 惡魔/魔龍模式下的懸浮面板 */
-        .demon-theme .glass-panel {
-            background: rgba(0, 0, 0, 0.85);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            color: #fff;
-        }
-        .demon-theme h3 { color: #ffcc00 !important; }
-        
-        .lottery-display-text {
-            font-size: 6rem;
-            font-weight: 700;
-            font-family: 'Cinzel', serif;
-            text-align: center;
-            min-height: 120px;
-            line-height: 1.2;
-        }
-
-        h1 { font-size: 2.2rem; margin-bottom: 0.5rem; font-family: var(--font-header); color: #1a1c29; font-weight: 900; }
-        h1 span { color: var(--gold); font-family: var(--font-eng); font-size: 1.8rem; margin-left: 10px; }
-        h2 { font-size: 1.8rem; border-bottom: 2px solid rgba(0,0,0,0.05); padding-bottom: 10px; margin-bottom: 25px; font-family: var(--font-header); color: #1a1c29; }
-        
-        /* 魔龍標題特效 */
-        .dragon-title {
-            font-family: var(--font-header);
-            font-size: 4rem;
-            font-weight: 900;
-            background: linear-gradient(to bottom, #ffeb3b 0%, #ff5722 60%, #b71c1c 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            filter: drop-shadow(0 0 15px rgba(255, 69, 0, 0.8));
-            letter-spacing: 8px;
-            margin-bottom: 15px;
-            text-transform: uppercase;
-            line-height: 1.2;
-            text-align: center;
-        }
-        
-        .dragon-subtitle {
-            font-family: var(--font-ui);
-            color: #fff;
-            font-weight: bold;
-            font-size: 1.2rem;
-            text-shadow: 0 2px 4px #000;
-            background: linear-gradient(90deg, transparent, rgba(0,0,0,0.8), transparent);
-            padding: 8px 40px;
-            display: inline-block;
-            letter-spacing: 1px;
-            text-align: center;
+        /* 遊戲機外框 */
+        .pokedex-container {
             width: 100%;
+            max-width: 800px;
+            background-color: var(--poke-red);
+            border-radius: 20px;
+            padding: 15px;
+            box-shadow: 0 5px 0 var(--poke-dark-red), 0 10px 10px rgba(0,0,0,0.5);
+            position: relative;
+            margin-bottom: 15px;
+            border: 4px solid var(--poke-black);
         }
 
-        /* 計時器數字 */
-        .dragon-timer-display {
-            font-family: 'Cinzel', serif;
-            font-size: 8rem;
-            font-weight: 700;
-            color: #fff;
-            text-shadow: 0 0 10px rgba(255, 215, 0, 0.8), 0 4px 4px #000;
-            margin: 30px 0;
-            background: radial-gradient(closest-side, rgba(0,0,0,0.4), transparent);
+        /* 頂部控制列 */
+        .top-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+       
+        .lights-left {
+            display: flex;
+            align-items: start;
+            gap: 10px;
+        }
+
+        .camera-lens {
+            width: 50px;
+            height: 50px;
+            background: radial-gradient(circle at 30% 30%, #4DEEEE, #0099CC);
+            border-radius: 50%;
+            border: 4px solid white;
+            box-shadow: 0 0 10px #4DEEEE;
+            position: relative;
+        }
+       
+        .camera-lens::after {
+            content: '';
+            position: absolute;
+            top: 10px; left: 10px;
+            width: 15px; height: 15px;
+            background: white;
+            border-radius: 50%;
+            opacity: 0.6;
+        }
+
+        .small-lights {
+            display: flex;
+            gap: 5px;
+            padding-top: 5px;
+        }
+        .light {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            border: 2px solid rgba(0,0,0,0.3);
+            box-shadow: inset 0 0 5px rgba(0,0,0,0.5);
+        }
+        .light.red { background-color: #FF0000; }
+        .light.yellow { background-color: #FFFF00; }
+        .light.green { background-color: #00FF00; }
+
+        /* 音樂按鈕樣式 */
+        .music-btn {
+            background: #222;
+            color: #4DEEEE;
+            border: 2px solid #444;
+            border-radius: 5px;
+            padding: 5px 10px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            box-shadow: inset 0 0 5px #000;
+        }
+        .music-btn.active {
+            background: #4DEEEE;
+            color: #222;
+            box-shadow: 0 0 10px #4DEEEE;
+        }
+
+        /* 螢幕區 */
+        .screen-border {
+            background-color: #DEDEDE;
+            border-radius: 10px 10px 40px 10px;
+            padding: 20px;
+            border: 3px solid var(--poke-black);
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.2);
+        }
+
+        .battle-screen {
+            background-color: #F8F8F8;
+            background-image: linear-gradient(to bottom, #ffffff, #e0f0ff);
+            border: 3px solid var(--poke-black);
+            border-radius: 8px;
             padding: 10px;
-            line-height: 1;
-            text-align: center;
-        }
-        .timer-urgent .dragon-timer-display {
-            color: #ff4d4d; text-shadow: 0 0 30px red, 0 4px 8px black;
-            animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both infinite;
-        }
-        @keyframes shake { 10%, 90% { transform: translate3d(-1px, 0, 0); } 20%, 80% { transform: translate3d(2px, 0, 0); } }
-
-        .dragon-input {
-            background: rgba(0,0,0,0.7) !important; border: 1px solid #888 !important; color: #ffcc00 !important;
-            font-family: 'Cinzel', serif !important; font-size: 1.8rem !important; font-weight: bold !important;
-            text-align: center; width: 90px; border-radius: 8px; box-shadow: 0 0 15px rgba(0,0,0,0.5) !important;
+            min-height: 280px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            overflow: hidden;
         }
 
-        input, select, textarea {
-            background: #fff; border: 2px solid #e0e0e0; border-radius: 8px; color: var(--text-dark);
-            padding: 12px; font-size: 1.1rem; width: 100%; margin-bottom: 15px; transition: 0.3s; font-family: var(--font-ui);
+        .mistake-indicators {
+            position: absolute; top: 10px; left: 10px; display: flex; gap: 5px; z-index: 10;
         }
-        input:focus, select:focus, textarea:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(78, 115, 223, 0.1); }
-        label { color: #666; font-size: 1rem; margin-bottom: 6px; display: block; font-weight: 700; font-family: var(--font-header); }
+        .mistake-dot {
+            width: 12px; height: 12px; border-radius: 50%; background: rgba(0,0,0,0.1); border: 1px solid rgba(0,0,0,0.2);
+        }
+        .mistake-dot.active { background: #FF0000; box-shadow: 0 0 5px red; }
+
+        .pokemon-display {
+            position: relative; width: 100%; height: 180px; display: flex; justify-content: center; align-items: center; margin-top: 10px;
+        }
+
+        .pokemon-img {
+            width: 160px; height: 160px; image-rendering: pixelated; filter: drop-shadow(0 5px 5px rgba(0,0,0,0.2)); transition: all 0.5s ease; z-index: 2;
+        }
+        .pokemon-img.silhouette { filter: brightness(0) grayscale(100%); opacity: 0.8; }
+        .pokemon-img.run-away { animation: runAway 0.8s forwards; }
+        .pokemon-img.captured { animation: captureAnim 1s forwards; }
+
+        @keyframes runAway { 0% { transform: translateX(0) scale(1); opacity: 1; } 100% { transform: translateX(-300px) scale(0.5); opacity: 0; } }
+        @keyframes captureAnim { 0% { transform: scale(1); filter: brightness(10); } 100% { transform: scale(0); opacity: 0; } }
+
+        .pokeball-throw {
+            position: absolute; width: 40px; height: 40px; background: url('https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png') no-repeat center/contain; z-index: 10; display: none;
+        }
+
+        .battle-platform {
+            position: absolute; bottom: 15px; width: 200px; height: 60px; background: rgba(0,0,0,0.1); border-radius: 50%; transform: scaleY(0.4); z-index: 1;
+        }
+
+        .problem-float {
+            background: rgba(255,255,255,0.95); border: 3px solid var(--poke-black); border-radius: 10px; padding: 8px 20px; position: absolute; top: 10px; right: 5px; font-weight: bold; font-size: 1.8rem; display: flex; align-items: center; gap: 5px; box-shadow: 3px 3px 0 rgba(0,0,0,0.2); z-index: 5;
+        }
+
+        .control-panel {
+            background-color: var(--poke-black); color: white; padding: 15px; border-radius: 0 0 15px 15px; min-height: 160px; display: flex; flex-direction: column; justify-content: space-between; border-left: 5px solid var(--poke-dark-red); border-right: 5px solid var(--poke-dark-red); border-bottom: 5px solid var(--poke-dark-red);
+        }
+
+        .dialog-box {
+            border: 3px solid #eee; border-radius: 8px; padding: 10px; font-size: 1.1rem; line-height: 1.4; margin-bottom: 10px; background: #222; color: white; min-height: 75px; font-family: "Courier New", Courier, monospace;
+        }
+
+        .action-buttons { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+
+        .btn-action {
+            background: #f8f8f8; color: var(--poke-black); border: 3px solid #666; padding: 12px 10px; font-size: 1rem; font-weight: bold; border-radius: 8px; cursor: pointer; transition: all 0.1s; min-width: 100px; flex: 1; max-width: 48%; touch-action: manipulation;
+        }
+        .btn-action:active { background: var(--poke-yellow); border-color: #B8860B; transform: scale(0.96); }
+
+        .input-mode-container {
+            display: flex; align-items: center; gap: 10px; justify-content: center; background: #ddd; padding: 10px; border-radius: 10px; color: black; border: 3px solid #555; flex-wrap: wrap;
+        }
+
+        input[type="number"] {
+            width: 60px; height: 45px; font-size: 1.3rem; text-align: center; border: 2px solid var(--poke-black); border-radius: 5px; font-weight: bold;
+        }
+        input[type="number"]:focus { outline: none; background-color: #e0f7fa; border-color: var(--poke-blue); }
+
+        .fraction { display: inline-flex; flex-direction: column; align-items: center; vertical-align: middle; margin: 0 2px; color: black; font-weight: bold; }
+        .numerator { border-bottom: 2px solid black; width: 100%; text-align: center; padding-bottom:2px; }
+        .denominator { width: 100%; text-align: center; padding-top:2px; }
+
+        .pc-box {
+            width: 100%; max-width: 800px; background: white; border: 4px solid var(--poke-black); border-radius: 15px; padding: 15px; margin-top: 15px; position: relative;
+        }
+        .pc-title { font-size: 1.2rem; font-weight: bold; margin-bottom: 10px; border-bottom: 2px solid #eee; padding-bottom: 5px; display: flex; justify-content: space-between; align-items: center; }
+        .pokemon-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(60px, 1fr)); gap: 5px; max-height: 300px; overflow-y: auto; padding: 5px; }
+        .grid-item { background: #eee; border-radius: 8px; padding: 3px; text-align: center; border: 1px solid #ccc; transition: all 0.3s; aspect-ratio: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        .grid-item.unknown img { filter: brightness(0); opacity: 0.3; }
+        .grid-item.caught { border-color: var(--poke-yellow); background: #FFFDE7; }
+        .grid-item.caught img { filter: none; }
+        .grid-item img { width: 90%; height: auto; }
+        .grid-item .name-tag { font-size: 0.6rem; margin-top: 2px; font-weight: bold; color: #555; }
+
+        .victory-modal {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 100; display: none; flex-direction: column; justify-content: center; align-items: center; color: white; text-align: center; animation: fadeIn 1s;
+        }
+        .badge-img {
+            width: 150px; height: 150px; background: radial-gradient(circle, gold, orange); border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 4rem; border: 5px solid white; box-shadow: 0 0 30px gold; margin: 20px; animation: spin 10s linear infinite;
+        }
         
-        /* 惡魔模式下的輸入框調色 */
-        .demon-theme input {
-            background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.3); color: #fff;
+        /* 雲端狀態指示燈 */
+        .cloud-status {
+            position: absolute;
+            top: 5px;
+            right: 10px;
+            font-size: 0.8rem;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 5px;
         }
-        .demon-theme label { color: #ccc; }
-        .demon-theme h3 { color: #ffcc00 !important; }
-
-        .page { display: none; animation: fadeSlideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1); }
-        .page.active { display: block; }
-        @keyframes fadeSlideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-
-        /* 選單 */
-        .menu-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 25px; padding: 10px; }
-        .menu-item {
-            height: 240px; display: flex; flex-direction: column; justify-content: center; align-items: center;
-            background: #fff; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-            cursor: pointer; transition: all 0.3s; position: relative; overflow: hidden; border: 1px solid transparent;
+        .status-dot {
+            width: 8px; height: 8px; border-radius: 50%; background: #999;
         }
-        .menu-item-lottery { background-image: linear-gradient(rgba(255,255,255,0.85), rgba(255,255,255,0.85)), url('image_4aa398.jpg'); background-size: cover; background-position: center; }
-        .menu-item-timer { background-image: linear-gradient(rgba(255,255,255,0.85), rgba(255,255,255,0.85)), url('Gemini_Generated_Image_5gyjko5gyjko5gyj.jpg'); background-size: cover; background-position: center; }
-        
-        .menu-item:hover { transform: translateY(-8px); box-shadow: 0 12px 24px rgba(78, 115, 223, 0.15); border-color: var(--primary); }
-        .menu-item-lottery:hover { background-image: linear-gradient(rgba(255,255,255,0.7), rgba(255,255,255,0.7)), url('image_4aa398.jpg'); }
-        .menu-item-timer:hover { background-image: linear-gradient(rgba(255,255,255,0.7), rgba(255,255,255,0.7)), url('Gemini_Generated_Image_5gyjko5gyjko5gyj.jpg'); }
-        
-        .menu-item::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(78, 115, 223, 0.03) 0%, transparent 70%); transition: 0.5s; }
-        .menu-item:hover::before { transform: scale(1.1); }
-        .menu-icon { font-size: 4rem; margin-bottom: 15px; background: linear-gradient(135deg, var(--primary), #2c52b3); -webkit-background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(0 4px 6px rgba(78, 115, 223, 0.2)); z-index: 1; }
-        .menu-title { font-size: 1.5rem; font-weight: 900; color: var(--text-dark); margin-bottom: 5px; font-family: var(--font-header); z-index: 1; }
-        .menu-sub { font-family: var(--font-eng); font-size: 0.8rem; color: #555; letter-spacing: 2px; text-transform: uppercase; z-index: 1; font-weight: bold;}
+        .status-dot.online { background: #00FF00; box-shadow: 0 0 5px #00FF00; }
 
-        /* 抽籤門 */
-        .door-container { display: flex; gap: 30px; justify-content: center; flex-wrap: wrap; margin-top: 40px; }
-        .door { width: 45%; min-width: 300px; height: 420px; position: relative; cursor: pointer; transition: 0.4s; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.3); background-size: cover; background-position: center; }
-        .door:hover { transform: scale(1.03); box-shadow: 0 15px 40px rgba(0,0,0,0.4); }
-        .door-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.2) 60%, transparent 100%); display: flex; flex-direction: column; justify-content: flex-end; padding: 40px 30px; text-align: left; }
-        .door-angel { background-image: url('image_4b8832.jpg'); border: 4px solid #fff; }
-        .door-angel::after { content: '✧'; position: absolute; top: 20px; right: 20px; color: rgba(255,255,255,0.8); font-size: 3rem; }
-        .door-angel .door-title { color: #fff; font-size: 2rem; font-family: var(--font-header); text-shadow: 0 2px 10px rgba(255,255,255,0.5); }
-        .door-demon { background-image: url('image_4b8812.jpg'); border: 4px solid #c0392b; }
-        .door-demon::after { content: '☠'; position: absolute; top: 20px; right: 20px; color: rgba(192, 57, 43, 0.5); font-size: 3rem; }
-        .door-demon .door-title { color: #e74c3c; font-size: 2rem; font-family: var(--font-header); text-shadow: 0 2px 10px rgba(0,0,0,0.8); }
-        .door-desc { font-size: 1.1rem; color: rgba(255,255,255,0.9); margin-top: 8px; font-weight: 500; font-family: var(--font-header); }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .shake-anim { animation: shake 0.5s; }
+        .bounce { animation: bounce 2s infinite; }
+        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
 
-        /* Switch */
-        .mode-switch-container { display: flex; align-items: center; gap: 10px; margin-bottom: 0; }
-        .switch-label { font-weight: bold; color: var(--primary); }
-        .demon-theme .switch-label { color: #ffcc00; }
-        .switch { position: relative; display: inline-block; width: 60px; height: 30px; }
-        .switch input { opacity: 0; width: 0; height: 0; }
-        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 34px; }
-        .slider:before { position: absolute; content: ""; height: 22px; width: 22px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; }
-        input:checked + .slider { background-color: var(--primary); }
-        input:checked + .slider:before { transform: translateX(30px); }
-
-        .vote-bar-row { margin-bottom: 24px; position: relative; }
-        .vote-label-row { display: flex; justify-content: space-between; margin-bottom: 8px; font-weight: 700; color: #555; }
-        .vote-track { height: 16px; background: #f0f0f0; width: 100%; border-radius: 8px; overflow: hidden; }
-        .vote-fill { height: 100%; background: var(--primary); width: 0%; transition: width 0.8s cubic-bezier(0.22, 1, 0.36, 1); border-radius: 8px; background-image: linear-gradient(45deg,rgba(255,255,255,.15) 25%,transparent 25%,transparent 50%,rgba(255,255,255,.15) 50%,rgba(255,255,255,.15) 75%,transparent 75%,transparent); background-size: 1rem 1rem; }
-        .student-option { background: #fff; padding: 20px; margin: 12px 0; border: 2px solid #eee; border-radius: 12px; cursor: pointer; display: flex; align-items: center; font-size: 1.1rem; transition: 0.2s; position: relative; }
-        .student-option:hover { border-color: var(--primary); transform: translateX(5px); }
-        .student-option.selected { background: #f0f4ff; border-color: var(--primary); color: var(--primary); font-weight: 700; }
-        .student-option input { width: 22px; height: 22px; margin: 0 15px 0 0; accent-color: var(--primary); }
-
-        /* Footer Debug Info */
-        #debug-info {
-            position: fixed; bottom: 0; left: 0; right: 0; 
-            background: rgba(0,0,0,0.8); color: #0f0; font-family: monospace; font-size: 10px;
-            padding: 5px; text-align: center; z-index: 9999; pointer-events: none;
-        }
-
-        @media (max-width: 600px) { h1 { font-size: 1.8rem; } .card { padding: 1.5rem; width: 95%; } .door { height: 250px; min-width: 100%; } }
     </style>
 </head>
 <body>
 
-    <!-- 頂部狀態列 -->
-    <div id="statusBar">
-        <div id="homeBtnContainer">
-            <button id="globalHomeBtn" class="btn" onclick="navTo('home')">↩ 返回大廳</button>
-        </div>
-        <button id="authBtn" class="btn btn-ghost" style="font-size: 0.9rem;">☁️ 雲端登入</button>
-    </div>
+    <!-- 背景音樂：使用相對路徑，請確保檔案名稱為 battle_bgm.mp3 -->
+    <audio id="bgmAudio" loop>
+        <source src="./battle_bgm.mp3" type="audio/mpeg">
+    </audio>
 
-    <!-- 首頁選單 -->
-    <div id="page-home" class="page active">
-        <div class="card" style="margin-top: 8vh; border-top: 5px solid var(--primary);">
-            <h1>冒險旅途中的意外插曲 <span class="version-tag" style="font-size: 0.8rem; background: #ddd; color: #333; padding: 2px 6px; border-radius: 4px;">v8.5</span></h1>
-            <p style="color: #666; margin-bottom: 40px;">請選擇冒險者即將遭遇的事件</p>
-            
-            <div class="menu-grid">
-                <div class="menu-item menu-item-lottery" onclick="navTo('lottery-gate')">
-                    <div class="menu-icon">⚔️</div>
-                    <div class="menu-title">命運徵召</div>
-                    <div class="menu-sub">Summoning</div>
-                </div>
-                <div class="menu-item menu-item-timer" onclick="navTo('timer')">
-                    <div class="menu-icon">🐲</div>
-                    <div class="menu-title">魔龍挑戰</div>
-                    <div class="menu-sub">Dragon Challenge</div>
-                </div>
-                <div class="menu-item" onclick="navTo('vote-teacher')">
-                    <div class="menu-icon">📜</div>
-                    <div class="menu-title">戰略決策</div>
-                    <div class="menu-sub">Strategy</div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- 1. 抽籤系統：大門選擇 -->
-    <div id="page-lottery-gate" class="page">
-        <div style="padding: 20px; text-align: center; margin-top: 50px;">
-            <h1 style="color: #fff; text-shadow: 0 2px 5px rgba(0,0,0,0.5);">命運的抉擇</h1>
-            <p style="color: rgba(255,255,255,0.8);">請選擇召喚的途徑</p>
-            
-            <div class="door-container">
-                <div class="door door-angel" onclick="enterLottery('angel')">
-                    <div class="door-overlay">
-                        <div class="door-title">天使的祝福</div>
-                        <div class="door-desc">獲得女神的恩典與獎勵</div>
-                    </div>
-                </div>
-                <div class="door door-demon" onclick="enterLottery('demon')">
-                    <div class="door-overlay">
-                        <div class="door-title">惡魔的試煉</div>
-                        <div class="door-desc">面對深淵的艱難挑戰</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- 1-2. 抽籤系統：執行畫面 -->
-    <div id="page-lottery-run" class="page">
-        <div class="card transparent-mode" id="lotteryCard">
-            
-            <div class="glass-panel lottery-result-area">
-                <div id="lotteryDisplay" class="lottery-display-text">READY</div>
-            </div>
-            
-            <div class="glass-panel config-panel">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                    <h3 style="font-size: 1rem; color: #555; margin:0; border:none;">⚙️ 徵召設定</h3>
-                    <div class="mode-switch-container">
-                        <span class="switch-label" id="modeLabel">可重複</span>
-                        <label class="switch">
-                            <input type="checkbox" id="uniqueModeCheck" onchange="toggleLotteryMode()">
-                            <span class="slider"></span>
-                        </label>
-                    </div>
-                </div>
-
-                <div style="display: flex; gap: 20px; align-items: flex-end; flex-wrap: wrap;">
-                    <div style="flex: 1;">
-                        <label>號碼起始</label>
-                        <input type="number" id="lotRangeStart" value="1" style="text-align: center;" onchange="resetLotteryDeck()">
-                    </div>
-                    <div style="flex: 1;">
-                        <label>號碼結束</label>
-                        <input type="number" id="lotRangeEnd" value="30" style="text-align: center;" onchange="resetLotteryDeck()">
-                    </div>
-                    <div style="flex: 1;">
-                        <label>抽取人數</label>
-                        <input type="number" id="lotCount" value="1" max="10" style="text-align: center;">
-                    </div>
-                </div>
-            </div>
-            
-            <div style="margin-top: 30px; text-align: center;">
-                <button id="lotteryActionBtn" class="btn btn-primary" style="width: 100%; padding: 15px; font-size: 1.3rem;" onclick="drawNumbers()">✨ 開始召喚 ✨</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- 2. 計時器：魔龍挑戰 -->
-    <div id="page-timer" class="page">
-        <div class="card transparent-mode" id="timerCard">
-            <div style="text-align: center; margin-bottom: 30px;">
-                <div class="dragon-title">魔龍挑戰</div>
-                <div class="dragon-subtitle">魔龍對冒險者發起了挑戰，請在時限內克服！</div>
-            </div>
-            
-            <div style="text-align: center;">
-                <div id="timerDisplay" class="dragon-timer-display">03:00</div>
-            </div>
-            
-            <div style="display: flex; justify-content: center; gap: 10px; align-items: center; margin-bottom: 40px;">
-                <input type="number" id="timerMin" value="3" min="0" class="dragon-input"> 
-                <span style="font-size: 2rem; color: #fff; font-weight: bold; text-shadow: 0 2px 4px #000;">:</span>
-                <input type="number" id="timerSec" value="0" min="0" max="59" class="dragon-input">
-            </div>
-
-            <div style="text-align: center; display: flex; gap: 20px; justify-content: center;">
-                <button class="btn btn-dragon-fight" id="startTimerBtn" onclick="toggleTimer()">⚔️ 接受挑戰</button>
-                <button class="btn btn-dragon-reset" onclick="resetTimer()">🔄 重置挑戰</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- 3. 投票系統 (教師端) -->
-    <div id="page-vote-teacher" class="page">
-        <div class="card" id="voteSetup" style="border-top: 5px solid var(--gold); margin-top: 50px;">
-            <h2>發布戰略決策</h2>
-            <div style="text-align: left;">
-                <label>決策目標 (題目)</label>
-                <input type="text" id="voteQuestion" placeholder="例如：我們要先攻略哪一座迷宮？">
-                
-                <div style="display: flex; gap: 20px; flex-wrap: wrap;">
-                    <div style="flex: 1;">
-                        <label>公會人數 (名冊上限)</label>
-                        <input type="number" id="voteClassSize" value="30" min="1">
-                    </div>
-                    <div style="flex: 1;">
-                        <label>投票模式</label>
-                        <select id="voteType" onchange="toggleVoteLimit()">
-                            <option value="single">單選 (一人一票)</option>
-                            <option value="multi">複選 (一人多票)</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div id="voteLimitContainer" style="display: none; background: #fff3cd; padding: 10px; border-radius: 8px; margin-bottom: 15px;">
-                    <label style="color: #856404; margin-bottom: 0;">⚠️ 複選限制：每人必須投幾票？</label>
-                    <input type="number" id="voteLimit" value="2" min="2" style="margin-top: 5px; margin-bottom: 0;">
-                </div>
-                
-                <label>戰略選項 (每行一個)</label>
-                <textarea id="voteOptions" rows="5" placeholder="火焰山脈&#10;寒冰洞窟&#10;精靈之森"></textarea>
-            </div>
-            <button class="btn btn-primary" style="width: 100%; margin: 20px 0;" onclick="createVote()">📜 生成任務卷軸 (QR Code)</button>
-        </div>
-
-        <div class="card" id="voteResult" style="display: none; border-top: 5px solid var(--primary); margin-top: 50px;">
-            <h2 id="resultTitle">決策進行中...</h2>
-            <div style="display: flex; flex-direction: column; align-items: center; margin-bottom: 30px; background: #f8f9fa; padding: 20px; border-radius: 12px;">
-                <div id="qrCodeArea" style="background: white; padding: 10px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.05);"></div>
-                <div style="margin-top: 15px; color: #555;">
-                    <div style="font-weight: bold;">冒險者請掃描加入</div>
-                    <div style="font-size: 0.9rem; color: #888;">STATUS: ACTIVE</div>
-                </div>
-            </div>
-            <div id="voteBarsArea" style="text-align: left; min-height: 200px;"></div>
-            <div style="margin-top: 40px; border-top: 1px solid #eee; padding-top: 20px;">
-                <button class="btn btn-danger" onclick="stopVote()">結束決策</button>
-                <button class="btn btn-success" onclick="exportToCSV()">📥 下載紀錄 (CSV)</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- 4. 投票系統 (學生端) -->
-    <div id="page-vote-student" class="page">
-        <div class="card" style="margin-top: 5vh; border-top: 5px solid var(--primary);">
-            <div id="studentWaiting">
-                <h2 style="color: #888;">等待公會長指令...</h2>
-                <div style="font-size: 3rem; margin-top: 20px; animation: bounce 2s infinite;">📩</div>
-            </div>
-
-            <div id="studentVotingForm" style="display: none;">
-                <h2 id="studentQTitle" style="color: var(--primary);">任務目標</h2>
-                <div style="text-align: left; margin-bottom: 25px; padding: 20px; background: #f8f9fa; border-radius: 12px;">
-                    <label>冒險者編號 (座號)</label>
-                    <select id="studentIdSelect" style="margin-bottom: 0;">
-                        <option value="">-- 請選擇您的編號 --</option>
-                    </select>
-                </div>
-                <p id="voteRuleText" style="color: #e67e22; font-weight: bold; font-size: 0.95rem;"></p>
-                <div id="studentOptionsArea"></div>
-                <button class="btn btn-primary" onclick="submitVote()" id="submitVoteBtn" style="width: 100%; margin-top: 30px; font-size: 1.2rem;">🚀 提交決策</button>
-            </div>
-
-            <div id="studentDone" style="display: none; text-align: center; padding: 40px 0;">
-                <div style="font-size: 5rem; color: #27ae60; margin-bottom: 20px;">✓</div>
-                <h2>決策已送達</h2>
-                <p style="color: #888;">請等候公會長的最終指示</p>
-            </div>
-        </div>
-    </div>
-
-    <!-- Debug Footer -->
-    <div id="debug-info"></div>
-
-    <!-- Logic -->
+    <!-- Firebase Module Script -->
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, doc, setDoc, onSnapshot, updateDoc, increment, getDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-        import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
+        import { getFirestore, doc, setDoc, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyDJFzG3RrCkJBx5B23lBVcoOHmaqZ2dAYA",
-            authDomain: "forgemini-7349a.firebaseapp.com",
-            projectId: "forgemini-7349a",
-            storageBucket: "forgemini-7349a.firebasestorage.app",
-            messagingSenderId: "865250968546",
-            appId: "1:865250968546:web:fc3ded71179b709d422fbb"
-        };
-
-        let app, db, auth, user;
-        let isOnline = false;
-
-        try {
-            app = initializeApp(firebaseConfig);
-            db = getFirestore(app);
-            auth = getAuth(app);
-            isOnline = true;
-            console.log("Firebase Initialized.");
-        } catch (e) {
-            console.error("Firebase Init Error:", e);
-            alert("Firebase 初始化失敗");
-        }
-
-        // [v8.5] 暴力解析 + 偵錯
-        function getUniversalParams() {
-            const url = window.location.href;
-            let mode = null, host = null;
-
-            // Regex for any variant of mode=student
-            const modeMatch = url.match(/[?&#]mode=student/);
-            if (modeMatch) mode = 'student';
-
-            const hostMatch = url.match(/[?&#]host=([^&#]+)/);
-            if (hostMatch) host = hostMatch[1];
-
-            // Update Debug Info
-            const debugEl = document.getElementById('debug-info');
-            debugEl.innerText = `URL: ${url} | Mode: ${mode} | Host: ${host}`;
-
-            return { mode, host };
-        }
-
-        // Navigation
-        window.navTo = (pageId) => {
-            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-            document.getElementById(`page-${pageId}`).classList.add('active');
-            
-            const homeBtn = document.getElementById('homeBtnContainer');
-            const authBtn = document.getElementById('authBtn');
-            
-            // Reset Background
-            document.body.style.background = ''; 
-            document.body.style.backgroundImage = `
-                radial-gradient(circle at 10% 20%, rgba(78, 115, 223, 0.2) 0%, transparent 20%),
-                radial-gradient(circle at 90% 80%, rgba(212, 175, 55, 0.1) 0%, transparent 20%)
-            `;
-            document.body.style.backgroundColor = '#1a1c29';
-
-            if(pageId === 'home') {
-                homeBtn.style.display = 'none';
-                authBtn.style.display = 'block';
-            } else {
-                homeBtn.style.display = 'block';
-                authBtn.style.display = 'block';
-            }
-
-            // Clear Lottery Styles
-            if (pageId !== 'lottery-run') {
-                const card = document.getElementById('lotteryCard');
-                if(card) {
-                    card.classList.remove('demon-theme', 'transparent-mode');
-                    card.style.backgroundImage = '';
-                    card.style.backgroundColor = '';
-                }
-                document.querySelectorAll('.lottery-display-text').forEach(el => el.style.color = '');
-            } else {
-                document.getElementById('lotteryCard').classList.add('transparent-mode');
-            }
-            
-            // Dragon Styles
-            if(pageId.includes('timer')) {
-                document.body.style.backgroundImage = `linear-gradient(rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.75)), url('Gemini_Generated_Image_5gyjko5gyjko5gyj.jpg')`;
-                document.body.style.backgroundSize = 'cover';
-                document.body.style.backgroundPosition = 'center';
-                document.body.style.backgroundAttachment = 'fixed';
-                document.body.style.backgroundColor = '#000';
-                const timerCard = document.getElementById('timerCard');
-                if(timerCard) timerCard.classList.add('transparent-mode');
-            } else {
-                const timerCard = document.getElementById('timerCard');
-                if(timerCard) timerCard.classList.remove('transparent-mode');
-            }
-        };
-
-        // --- Lottery Logic ---
-        let currentLotteryMode = 'angel';
-        let lotteryDeck = [];
-        
-        window.toggleLotteryMode = () => {
-            const isUnique = document.getElementById('uniqueModeCheck').checked;
-            const label = document.getElementById('modeLabel');
-            label.innerText = isUnique ? "不重複" : "可重複";
-            resetLotteryDeck();
-        };
-
-        window.resetLotteryDeck = () => { lotteryDeck = []; };
-
-        window.initDeck = () => {
-            const start = parseInt(document.getElementById('lotRangeStart').value);
-            const end = parseInt(document.getElementById('lotRangeEnd').value);
-            lotteryDeck = [];
-            for(let i=start; i<=end; i++) lotteryDeck.push(i);
-        };
-        
-        window.enterLottery = (mode) => {
-            currentLotteryMode = mode;
-            navTo('lottery-run');
-            const btn = document.getElementById('lotteryActionBtn');
-            const display = document.getElementById('lotteryDisplay');
-            const configPanel = document.querySelector('.config-panel');
-            
-            if(mode === 'angel') {
-                document.body.style.backgroundImage = `linear-gradient(rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.85)), url('image_4b8832.jpg')`;
-                document.body.style.backgroundSize = 'cover';
-                document.body.style.backgroundPosition = 'center';
-                document.body.style.backgroundAttachment = 'fixed';
-                btn.className = 'btn btn-primary';
-                display.style.color = "var(--primary)";
-                if(configPanel) configPanel.classList.remove('demon-theme');
-
-            } else {
-                document.body.style.backgroundImage = `linear-gradient(rgba(0, 0, 0, 0.85), rgba(0, 0, 0, 0.85)), url('image_4b8812.jpg')`;
-                document.body.style.backgroundSize = 'cover';
-                document.body.style.backgroundPosition = 'center';
-                document.body.style.backgroundAttachment = 'fixed';
-                btn.className = 'btn btn-danger';
-                display.style.color = "#e74c3c";
-                if(configPanel) configPanel.classList.add('demon-theme');
-            }
-        };
-
-        window.drawNumbers = () => {
-            const start = parseInt(document.getElementById('lotRangeStart').value);
-            const end = parseInt(document.getElementById('lotRangeEnd').value);
-            const count = parseInt(document.getElementById('lotCount').value);
-            const isUnique = document.getElementById('uniqueModeCheck').checked;
-            
-            if(start >= end) return alert("範圍錯誤");
-            let pool = [];
-            if (isUnique) {
-                if (lotteryDeck.length === 0) window.initDeck();
-                if (lotteryDeck.length < count) {
-                    alert("號碼已全數抽完！將重新洗牌。");
-                    window.initDeck();
-                }
-                pool = [...lotteryDeck];
-            } else {
-                for(let i=start; i<=end; i++) pool.push(i);
-            }
-            // Animation... (Simulated)
-            const randomVal = pool[Math.floor(Math.random() * pool.length)];
-            document.getElementById('lotteryDisplay').innerText = randomVal; 
-            // Full logic omitted for brevity, same as before
-        };
-
-        // --- Timer Logic ---
-        let timerInterval; let isRunning = false; let totalTimeLeft = 0;
-        function updateTimerDisplay(totalSeconds) {
-            const m = Math.floor(totalSeconds / 60).toString().padStart(2, '0');
-            const s = (totalSeconds % 60).toString().padStart(2, '0');
-            document.getElementById('timerDisplay').innerText = `${m}:${s}`;
-        }
-        window.toggleTimer = () => {
-            // Audio context init...
-            const btn = document.getElementById('startTimerBtn');
-            if (isRunning) {
-                clearInterval(timerInterval); isRunning = false; btn.innerHTML = "⚔️ 接受挑戰";
-            } else {
-                const m = parseInt(document.getElementById('timerMin').value) || 0;
-                const s = parseInt(document.getElementById('timerSec').value) || 0;
-                if(totalTimeLeft <= 0) totalTimeLeft = m * 60 + s;
-                
-                isRunning = true; btn.innerHTML = "⏸️ 暫停";
-                timerInterval = setInterval(() => {
-                    totalTimeLeft--; updateTimerDisplay(totalTimeLeft);
-                    if (totalTimeLeft <= 0) { clearInterval(timerInterval); isRunning = false; btn.innerHTML = "重來"; }
-                }, 1000);
-            }
-        };
-        window.resetTimer = () => {
-             clearInterval(timerInterval); isRunning = false; totalTimeLeft = 0;
-             updateTimerDisplay(0);
-             document.getElementById('startTimerBtn').innerHTML = "⚔️ 接受挑戰";
-        };
-
-        // --- Vote Logic ---
-        window.toggleVoteLimit = () => {
-            const type = document.getElementById('voteType').value;
-            document.getElementById('voteLimitContainer').style.display = (type === 'multi') ? 'block' : 'none';
-        };
-
-        window.createVote = async () => {
-            if (!user) return alert("請先登入");
-            const question = document.getElementById('voteQuestion').value;
-            const type = document.getElementById('voteType').value;
-            const limit = parseInt(document.getElementById('voteLimit').value);
-            const classSize = parseInt(document.getElementById('voteClassSize').value);
-            const options = document.getElementById('voteOptions').value.split('\n').filter(o => o.trim());
-
-            if (!question || options.length < 2) return alert("資料不完整");
-
-            const voteData = { active: true, question, type, limit: (type === 'multi' ? limit : 1), classSize, options, timestamp: new Date().toISOString(), votes: {}, logs: [] };
-            options.forEach(opt => voteData.votes[opt] = 0);
-            const path = `users/${user.uid}/apps/classroom_adventure_tool`;
-            await setDoc(doc(db, path), voteData);
-            document.getElementById('voteSetup').style.display = 'none';
-            document.getElementById('voteResult').style.display = 'block';
-            
-            // [v8.5] Use Hash + index.html
-            let baseUrl = window.location.href.split('#')[0].split('?')[0];
-            if (baseUrl.endsWith('/')) baseUrl = baseUrl.slice(0, -1);
-            if (!baseUrl.endsWith('index.html')) baseUrl += '/index.html';
-            
-            const studentLink = `${baseUrl}#mode=student&host=${user.uid}`;
-            const qrDiv = document.getElementById('qrCodeArea');
-            qrDiv.innerHTML = "";
-            new QRCode(qrDiv, { text: studentLink, width: 160, height: 160 });
-            startTeacherListener(user.uid);
-        };
-
-        function startTeacherListener(uid) {
-            onSnapshot(doc(db, `users/${uid}/apps/classroom_adventure_tool`), (snap) => {
-                if(snap.exists()) renderVoteBars(snap.data());
-            });
-        }
-
-        function renderVoteBars(data) {
-            const div = document.getElementById('voteBarsArea'); div.innerHTML = "";
-            let total = 0; for(let k in data.votes) total += data.votes[k];
-            data.options.forEach(opt => {
-                const count = data.votes[opt] || 0;
-                const pct = total === 0 ? 0 : Math.round((count/total)*100);
-                div.innerHTML += `<div class="vote-bar-row"><div class="vote-label-row"><span>${opt}</span><span>${count} 票 (${pct}%)</span></div><div class="vote-track"><div class="vote-fill" style="width:${pct}%"></div></div></div>`;
-            });
-        }
-
-        window.exportToCSV = async () => {
-            // CSV logic...
-        };
-
-        window.stopVote = () => {
-             if(confirm("確定結束投票？")) {
-                 document.getElementById('voteResult').style.display = 'none';
-                 document.getElementById('voteSetup').style.display = 'block';
-                 document.getElementById('voteBarsArea').innerHTML = '';
-                 document.getElementById('qrCodeArea').innerHTML = '';
-                 window.scrollTo(0, 0);
-             }
-        };
-
-        function initStudentMode(hostUid) {
-            document.getElementById('statusBar').style.display = 'none';
-            navTo('vote-student');
-            onSnapshot(doc(db, `users/${hostUid}/apps/classroom_adventure_tool`), (snap) => {
-                const data = snap.data();
-                if(snap.exists() && data.active) {
-                    document.getElementById('studentWaiting').style.display = 'none';
-                    document.getElementById('studentVotingForm').style.display = 'block';
-                    renderStudentForm(data);
-                } else {
-                    document.getElementById('studentWaiting').style.display = 'block';
-                    document.getElementById('studentVotingForm').style.display = 'none';
-                }
-            });
-        }
-
-        function renderStudentForm(data) {
-            document.getElementById('studentQTitle').innerText = data.question;
-            document.getElementById('voteRuleText').innerText = data.type === 'single' ? "單選模式" : `複選模式：請選擇 ${data.limit} 項`;
-            const sel = document.getElementById('studentIdSelect');
-            if(sel.options.length <= 1) {
-                for(let i=1; i<=data.classSize; i++) {
-                    const opt = document.createElement('option');
-                    opt.value = i; opt.innerText = `${i} 號冒險者`; sel.appendChild(opt);
-                }
-            }
-            const container = document.getElementById('studentOptionsArea');
-            container.innerHTML = "";
-            const inputType = data.type === 'single' ? 'radio' : 'checkbox';
-            data.options.forEach((opt, idx) => {
-                container.innerHTML += `<div class="student-option" onclick="toggleOpt(this, '${inputType}')"><input type="${inputType}" name="v_opts" value="${opt}"><span>${opt}</span></div>`;
-            });
-            window.currentVoteLimit = data.limit;
-            window.currentVoteType = data.type;
-        }
-
-        window.toggleOpt = (div, type) => {
-            const input = div.querySelector('input');
-            if(type === 'radio') {
-                document.querySelectorAll('.student-option').forEach(d => { d.classList.remove('selected'); d.querySelector('input').checked = false; });
-                input.checked = true; div.classList.add('selected');
-            } else {
-                input.checked = !input.checked; div.classList.toggle('selected', input.checked);
-            }
-        };
-
-        window.submitVote = async () => {
-            const sid = document.getElementById('studentIdSelect').value;
-            if(!sid) return alert("請先選擇編號！");
-            const inputs = document.querySelectorAll('input[name="v_opts"]:checked');
-            const selected = Array.from(inputs).map(i => i.value);
-            if(window.currentVoteType === 'multi') { if(selected.length !== window.currentVoteLimit) return alert(`請務必選擇 ${window.currentVoteLimit} 項`); } 
-            else { if(selected.length === 0) return alert("請選擇一項"); }
-            const btn = document.getElementById('submitVoteBtn');
-            btn.disabled = true; btn.innerText = "傳送中...";
-            const updates = { logs: arrayUnion({ sid: sid, opts: selected, ts: Date.now() }) };
-            selected.forEach(val => { updates[`votes.${val}`] = increment(1); });
-            try {
-                await updateDoc(doc(db, `users/${currentStudentHost}/apps/classroom_adventure_tool`), updates);
-                document.getElementById('studentVotingForm').style.display = 'none';
-                document.getElementById('studentDone').style.display = 'block';
-            } catch(e) { alert("傳送失敗"); btn.disabled = false; }
-        };
-
-        const authBtn = document.getElementById('authBtn');
-        
-        // [v8.5] Main execution logic
-        const p = getUniversalParams();
-
-        if(p.mode === 'student' && p.host) { 
-            initStudentMode(p.host); 
-        } 
-        else {
-            authBtn.onclick = () => { 
-                if(user) { signOut(auth); } 
-                else {
-                    const provider = new GoogleAuthProvider();
-                    provider.setCustomParameters({ prompt: 'select_account' });
-                    signInWithPopup(auth, provider).then((result) => { console.log("Login success"); })
-                    .catch((error) => {
-                        if (error.code === 'auth/unauthorized-domain') alert("網域授權錯誤");
-                        else alert("登入失敗：" + error.message);
+        window.Cloud = {
+            db: null,
+            user: null,
+            appId: typeof __app_id !== 'undefined' ? __app_id : 'poke-math-default',
+            init: async () => {
+                if (typeof __firebase_config === 'undefined') return;
+                try {
+                    const app = initializeApp(JSON.parse(__firebase_config));
+                    const auth = getAuth(app);
+                    window.Cloud.db = getFirestore(app);
+                    
+                    if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                        await signInWithCustomToken(auth, __initial_auth_token);
+                    } else {
+                        await signInAnonymously(auth);
+                    }
+                    
+                    onAuthStateChanged(auth, (u) => {
+                        window.Cloud.user = u;
+                        if (u) {
+                            document.getElementById('cloudStatusDot').classList.add('online');
+                            document.getElementById('cloudStatusText').innerText = "雲端連線中";
+                            window.Cloud.load(); // 登入後自動載入
+                        }
                     });
+                } catch (e) {
+                    console.error("Cloud Init Error:", e);
                 }
-            };
-            onAuthStateChanged(auth, u => {
-                user = u;
-                if(user) {
-                    authBtn.innerText = `✅ ${user.displayName}`; authBtn.classList.replace('btn-ghost', 'btn-success'); authBtn.style.border = "none";
-                } else { 
-                    authBtn.innerText = "☁️ 雲端登入"; authBtn.classList.replace('btn-success', 'btn-ghost'); 
+            },
+            save: async (caughtArray) => {
+                if (!window.Cloud.db || !window.Cloud.user) return;
+                try {
+                    // 嚴格路徑規則
+                    const path = `artifacts/${window.Cloud.appId}/users/${window.Cloud.user.uid}/game_data`;
+                    await setDoc(doc(window.Cloud.db, path, 'saveFile'), { 
+                        caughtList: caughtArray,
+                        timestamp: serverTimestamp() 
+                    });
+                } catch (e) {
+                    console.error("Save Failed:", e);
                 }
+            },
+            load: () => {
+                if (!window.Cloud.db || !window.Cloud.user) return;
+                const path = `artifacts/${window.Cloud.appId}/users/${window.Cloud.user.uid}/game_data`;
+                onSnapshot(doc(window.Cloud.db, path, 'saveFile'), (snap) => {
+                    if (snap.exists()) {
+                        const data = snap.data();
+                        if (data && data.caughtList) {
+                            // 更新全域變數 caughtPokemon (Set 結構)
+                            window.caughtPokemon = new Set(data.caughtList);
+                            // 觸發 UI 更新
+                            if (typeof window.renderPC === 'function') window.renderPC();
+                        }
+                    }
+                });
+            }
+        };
+        
+        window.Cloud.init();
+    </script>
+
+    <!-- 勝利畫面 -->
+    <div class="victory-modal" id="victoryModal">
+        <h1>👑 恭喜成為寶可夢數學大師！</h1>
+        <div class="badge-img">🏆</div>
+        <h2>你已經收服了所有 100 隻寶可夢！</h2>
+        <button class="btn-action" onclick="location.reload()">重新開始冒險</button>
+    </div>
+
+    <div class="pokedex-container">
+        <div class="cloud-status">
+            <div class="status-dot" id="cloudStatusDot"></div>
+            <span id="cloudStatusText">離線模式</span>
+        </div>
+        <div class="top-bar">
+            <div class="lights-left">
+                <div class="camera-lens"></div>
+                <div class="small-lights">
+                    <div class="light red"></div>
+                    <div class="light yellow"></div>
+                    <div class="light green"></div>
+                </div>
+            </div>
+            <!-- 音樂開關 -->
+            <div class="music-btn" id="musicToggle" onclick="toggleMusic()">
+                🎵 BGM: OFF
+            </div>
+        </div>
+
+        <div class="screen-border">
+            <div class="battle-screen">
+                <div class="mistake-indicators">
+                    <div class="mistake-dot" id="mistake1"></div>
+                    <div class="mistake-dot" id="mistake2"></div>
+                </div>
+
+                <div class="pokemon-display">
+                    <div class="battle-platform"></div>
+                    <img id="pokemonImg" src="" class="pokemon-img silhouette bounce" alt="Pokemon">
+                    <div id="pokeballThrow" class="pokeball-throw"></div>
+                </div>
+
+                <div class="problem-float" id="problemCard" style="display:none;"></div>
+            </div>
+
+            <div class="control-panel">
+                <div class="dialog-box" id="dialogBox">系統啟動中...</div>
+                <div class="action-buttons" id="actionArea"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="pc-box">
+        <div class="pc-title">
+            <span>📦 寶可夢盒子</span>
+            <span>完成度: <span id="caughtCount">0</span>/100</span>
+        </div>
+        <div class="pokemon-grid" id="pcGrid"></div>
+    </div>
+
+    <script>
+        // --- 音效 (Web Audio API - 僅用於音效 SFX) ---
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        
+        // --- BGM 控制 (使用 Audio Tag) ---
+        let isMusicOn = false;
+        const bgmAudio = document.getElementById('bgmAudio');
+        bgmAudio.volume = 0.3; // 設定 BGM 音量
+
+        function toggleMusic() {
+            isMusicOn = !isMusicOn;
+            const btn = document.getElementById('musicToggle');
+            
+            if (audioCtx.state === 'suspended') audioCtx.resume(); // 確保 SFX 正常
+
+            if (isMusicOn) {
+                btn.innerText = "🎵 BGM: ON";
+                btn.classList.add('active');
+                // 如果在戰鬥中，開始播放
+                if (document.getElementById('pokemonImg').src && document.getElementById('problemCard').style.display !== 'none') {
+                    bgmAudio.play().catch(e => console.log("BGM play failed", e));
+                }
+            } else {
+                btn.innerText = "🎵 BGM: OFF";
+                btn.classList.remove('active');
+                bgmAudio.pause();
+            }
+        }
+
+        const Sound = {
+            playTone: (freq, type, duration, time = 0, vol = 0.1) => {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = type;
+                osc.frequency.setValueAtTime(freq, audioCtx.currentTime + time);
+                gain.gain.setValueAtTime(0, audioCtx.currentTime + time);
+                gain.gain.linearRampToValueAtTime(vol, audioCtx.currentTime + time + 0.01);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + time + duration);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start(audioCtx.currentTime + time);
+                osc.stop(audioCtx.currentTime + time + duration);
+            },
+            playCorrect: () => { Sound.playTone(600, 'sine', 0.1, 0); Sound.playTone(1200, 'sine', 0.2, 0.1); },
+            playWrong: () => { Sound.playTone(150, 'sawtooth', 0.3, 0); Sound.playTone(100, 'sawtooth', 0.3, 0.2); },
+            playThrow: () => {
+                const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
+                osc.frequency.setValueAtTime(800, audioCtx.currentTime); osc.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.3);
+                gain.gain.setValueAtTime(0.1, audioCtx.currentTime); gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.3);
+                osc.connect(gain); gain.connect(audioCtx.destination); osc.start(); osc.stop(audioCtx.currentTime + 0.3);
+            },
+            playCaught: () => {
+                [523, 659, 784, 1046, 1318].forEach((f, i) => Sound.playTone(f, 'square', 0.1, i*0.08, 0.1));
+                Sound.playTone(1046, 'square', 0.4, 0.4, 0.1);
+            },
+            playRunAway: () => {
+                Sound.playTone(600, 'sawtooth', 0.1, 0); Sound.playTone(400, 'sawtooth', 0.1, 0.2);
+            }
+        };
+
+        // --- 寶可夢資料 ---
+        const CURATED_POKEMON = [
+            {id: 1, name: "妙蛙種子"}, {id: 4, name: "小火龍"}, {id: 6, name: "噴火龍"}, {id: 7, name: "傑尼龜"}, {id: 9, name: "水箭龜"}, {id: 25, name: "皮卡丘"}, {id: 39, name: "胖丁"}, {id: 52, name: "喵喵"}, {id: 54, name: "可達鴨"}, {id: 59, name: "風速狗"}, {id: 63, name: "凱西"}, {id: 68, name: "怪力"}, {id: 94, name: "耿鬼"}, {id: 129, name: "鯉魚王"}, {id: 130, name: "暴鯉龍"}, {id: 131, name: "拉普拉斯"}, {id: 132, name: "百變怪"}, {id: 133, name: "伊布"}, {id: 134, name: "水伊布"}, {id: 135, name: "雷伊布"}, {id: 136, name: "火伊布"}, {id: 143, name: "卡比獸"}, {id: 149, name: "快龍"}, {id: 150, name: "超夢"}, {id: 151, name: "夢幻"},
+            {id: 152, name: "菊草葉"}, {id: 155, name: "火球鼠"}, {id: 158, name: "小鋸鱷"}, {id: 175, name: "波克比"}, {id: 196, name: "太陽伊布"}, {id: 197, name: "月亮伊布"}, {id: 202, name: "果然翁"}, {id: 212, name: "巨鉗螳螂"}, {id: 248, name: "班基拉斯"}, {id: 249, name: "洛奇亞"}, {id: 250, name: "鳳王"},
+            {id: 252, name: "木守宮"}, {id: 255, name: "火稚雞"}, {id: 258, name: "水躍魚"}, {id: 282, name: "沙奈朵"}, {id: 373, name: "暴飛龍"}, {id: 376, name: "巨金怪"}, {id: 384, name: "烈空坐"}, {id: 385, name: "基拉祈"},
+            {id: 390, name: "小火焰猴"}, {id: 393, name: "波加曼"}, {id: 448, name: "路卡利歐"}, {id: 470, name: "葉伊布"}, {id: 471, name: "冰伊布"}, {id: 493, name: "阿爾宙斯"},
+            {id: 495, name: "藤藤蛇"}, {id: 501, name: "水水獺"}, {id: 571, name: "索羅亞克"}, {id: 609, name: "水晶燈火靈"},
+            {id: 650, name: "哈力栗"}, {id: 653, name: "火狐狸"}, {id: 656, name: "呱呱泡蛙"}, {id: 658, name: "甲賀忍蛙"}, {id: 700, name: "仙子伊布"},
+            {id: 722, name: "木木梟"}, {id: 725, name: "火斑喵"}, {id: 728, name: "球球海獅"}, {id: 778, name: "謎擬Q"}, {id: 791, name: "索爾迦雷歐"}, {id: 792, name: "露奈雅拉"},
+            {id: 810, name: "敲音猴"}, {id: 813, name: "炎兔兒"}, {id: 816, name: "淚眼蜥"}, {id: 888, name: "蒼響"}, {id: 889, name: "藏瑪然特"},
+            {id: 906, name: "新葉喵"}, {id: 909, name: "呆火鱷"}, {id: 912, name: "潤水鴨"}, {id: 1008, name: "密勒頓"}, {id: 1007, name: "故勒頓"}
+        ];
+
+        let POKEMON_DB = [...CURATED_POKEMON];
+        while(POKEMON_DB.length < 100) {
+            POKEMON_DB.push(CURATED_POKEMON[Math.floor(Math.random() * CURATED_POKEMON.length)]);
+        }
+        POKEMON_DB = POKEMON_DB.slice(0, 100);
+
+        // 將 caughtPokemon 提升到 window 層級，方便 Firebase 更新
+        window.caughtPokemon = new Set();
+        
+        let currentProblem = null;
+        let currentPokemon = null;
+        let mistakeCount = 0;
+        const MAX_MISTAKES = 2;
+
+        // --- 數學邏輯 ---
+        const gcd = (a, b) => b === 0 ? a : gcd(b, a % b);
+        const lcm = (a, b) => (a * b) / gcd(a, b);
+        const randInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+
+        function generateProblem() {
+            let p = {};
+            let isValid = false;
+            let attempts = 0;
+            const count = window.caughtPokemon.size;
+            let minDen = 2, maxDen = count < 12 ? 12 : (count < 30 ? 30 : 99);
+
+            while (!isValid && attempts < 500) {
+                attempts++;
+                p.d1 = randInt(minDen, maxDen); p.d2 = randInt(minDen, maxDen);
+                if (p.d1 === p.d2) continue;
+                p.n1 = randInt(1, p.d1 - 1); p.n2 = randInt(1, p.d2 - 1);
+                p.op = Math.random() > 0.5 ? '+' : '-';
+                if (p.op === '-') { if ((p.n1/p.d1) < (p.n2/p.d2)) [p.n1, p.d1, p.n2, p.d2] = [p.n2, p.d2, p.n1, p.d1]; }
+               
+                let gcd1 = gcd(p.n1, p.d1); let gcd2 = gcd(p.n2, p.d2);
+                p.needsSimplify = (gcd1 > 1 || gcd2 > 1);
+                p.s_n1 = p.n1 / gcd1; p.s_d1 = p.d1 / gcd1; p.s_n2 = p.n2 / gcd2; p.s_d2 = p.d2 / gcd2;
+
+                let commonFactor = gcd(p.s_d1, p.s_d2);
+                p.strategy = (commonFactor === 1) ? 'cross' : 'lcm';
+                p.commonDenom = (commonFactor === 1) ? p.s_d1 * p.s_d2 : lcm(p.s_d1, p.s_d2);
+
+                if (p.commonDenom >= 100) continue;
+
+                p.c_n1 = p.s_n1 * (p.commonDenom / p.s_d1); p.c_n2 = p.s_n2 * (p.commonDenom / p.s_d2);
+                let rawNum = (p.op === '+') ? (p.c_n1 + p.c_n2) : (p.c_n1 - p.c_n2);
+                let finalGcd = gcd(rawNum, p.commonDenom);
+                p.finalNum = rawNum / finalGcd; p.finalDen = p.commonDenom / finalGcd;
+                isValid = true;
+            }
+            return p;
+        }
+
+        // --- 存檔相關函式 ---
+        function saveGame() {
+            // 1. 存本機
+            const arr = Array.from(window.caughtPokemon);
+            localStorage.setItem('poke_math_save_v2', JSON.stringify(arr));
+            // 2. 存雲端 (如果有連線)
+            if (window.Cloud && window.Cloud.save) {
+                window.Cloud.save(arr);
+            }
+            renderPC();
+        }
+
+        function loadLocalSave() {
+            const saved = localStorage.getItem('poke_math_save_v2');
+            if (saved) {
+                window.caughtPokemon = new Set(JSON.parse(saved));
+                renderPC();
+            }
+        }
+
+        // --- 遊戲流程 ---
+        function init() {
+            loadLocalSave(); // 先載入本機
+            renderPC();
+            document.getElementById('actionArea').innerHTML = `<button class="btn-action" onclick="spawnPokemon()">尋找寶可夢</button>`;
+           
+            // 首次點擊啟用 AudioContext (for SFX & BGM)
+            document.body.addEventListener('click', function resumeAudio() {
+                if (audioCtx.state === 'suspended') audioCtx.resume();
+            }, { once: true });
+        }
+
+        function spawnPokemon() {
+            if (window.caughtPokemon.size >= 100) { showVictory(); return; }
+
+            mistakeCount = 0; updateMistakeUI();
+            let available = POKEMON_DB.filter(p => !window.caughtPokemon.has(p.id));
+            if (available.length === 0) {
+                if (window.caughtPokemon.size < 100) {
+                     available = POKEMON_DB; 
+                } else {
+                    showVictory(); return; 
+                }
+            }
+           
+            currentPokemon = available[Math.floor(Math.random() * available.length)];
+            currentProblem = generateProblem();
+
+            const img = document.getElementById('pokemonImg');
+            img.src = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${currentPokemon.id}.png`;
+            img.className = "pokemon-img silhouette bounce";
+            img.style.opacity = "1"; img.style.transform = "scale(1)";
+
+            document.getElementById('problemCard').style.display = 'none';
+            document.getElementById('dialogBox').innerHTML = `野生的 <span style="color:#FFCB05">???</span> 出現了！<br>氣場似乎很強大...`;
+           
+            document.getElementById('actionArea').innerHTML = `
+                <button class="btn-action" onclick="startBattle()">準備戰鬥</button>
+            `;
+
+            // 播放 BGM
+            if (isMusicOn) {
+                bgmAudio.currentTime = 0;
+                bgmAudio.play().catch(e => console.log("BGM play blocked", e));
+            }
+        }
+
+        function startBattle() {
+            document.getElementById('pokemonImg').classList.remove('silhouette');
+            document.getElementById('problemCard').style.display = 'flex';
+            renderProblemDisplay(currentProblem.n1, currentProblem.d1, currentProblem.n2, currentProblem.d2, currentProblem.op);
+            document.getElementById('dialogBox').innerHTML = `是 <b>${currentPokemon.name}</b>！<br>觀察題目，需要先「約分」嗎？`;
+            document.getElementById('actionArea').innerHTML = `
+                <button class="btn-action" onclick="checkSimplify(true)">需要約分</button>
+                <button class="btn-action" onclick="checkSimplify(false)">不需約分</button>
+            `;
+        }
+
+        function handleMistake(msg) {
+            Sound.playWrong(); mistakeCount++; updateMistakeUI();
+            const screen = document.querySelector('.battle-screen');
+            screen.classList.remove('shake-anim'); void screen.offsetWidth; screen.classList.add('shake-anim');
+
+            if (mistakeCount >= MAX_MISTAKES) {
+                Sound.playRunAway();
+                bgmAudio.pause(); // 停止 BGM
+                document.getElementById('pokemonImg').classList.add('run-away');
+                document.getElementById('problemCard').style.display = 'none';
+                document.getElementById('dialogBox').innerHTML = `糟糕！失誤太多次！<br><b>${currentPokemon.name}</b> 逃跑了！`;
+                document.getElementById('actionArea').innerHTML = `<button class="btn-action" onclick="spawnPokemon()">尋找下一隻</button>`;
+            } else {
+                document.getElementById('dialogBox').innerHTML = `${msg}<br>小心！再錯一次它就會逃跑！`;
+            }
+        }
+
+        function updateMistakeUI() {
+            document.getElementById('mistake1').className = mistakeCount >= 1 ? 'mistake-dot active' : 'mistake-dot';
+            document.getElementById('mistake2').className = mistakeCount >= 2 ? 'mistake-dot active' : 'mistake-dot';
+        }
+
+        function checkSimplify(userChoice) {
+            if (mistakeCount >= MAX_MISTAKES) return;
+            if (userChoice === currentProblem.needsSimplify) {
+                Sound.playCorrect();
+                if (userChoice) {
+                    document.getElementById('dialogBox').innerHTML = "判斷正確！<br>請輸入約分後的「最簡分數」：";
+                    renderInputMode('simplify');
+                } else {
+                    document.getElementById('dialogBox').innerHTML = "正確！這已經是最簡分數。<br>接著選擇通分策略！";
+                    setTimeout(renderStrategyStep, 1000);
+                }
+            } else {
+                handleMistake(userChoice ? "這題已經最簡囉，不需要約分。" : "看仔細！還有公因數可以約分喔！");
+            }
+        }
+
+        function renderStrategyStep() {
+            const p = currentProblem;
+            renderProblemDisplay(p.s_n1, p.s_d1, p.s_n2, p.s_d2, p.op);
+            document.getElementById('dialogBox').innerHTML = "請選擇通分策略：";
+            document.getElementById('actionArea').innerHTML = `
+                <button class="btn-action" onclick="checkStrategy('cross')">分母互乘<br><small>(無公因數)</small></button>
+                <button class="btn-action" onclick="checkStrategy('lcm')">找最小公倍數<br><small>(有公因數)</small></button>
+            `;
+        }
+
+        function checkStrategy(choice) {
+            if (mistakeCount >= MAX_MISTAKES) return;
+            if (choice === currentProblem.strategy) {
+                Sound.playCorrect();
+                document.getElementById('dialogBox').innerHTML = "策略正確！<br>請算出通分後的分子分母：";
+                renderInputMode('common');
+            } else {
+                let hint = currentProblem.strategy === 'cross' ? "分母沒有公因數喔，直接互乘吧！" : "分母有公因數，找最小公倍數數字比較小喔！";
+                handleMistake("策略選錯囉！<br>" + hint);
+            }
+        }
+
+        function renderInputMode(mode) {
+            const p = currentProblem;
+            document.getElementById('actionArea').innerHTML = `
+                <div class="input-mode-container">
+                    <div class="fraction"><div class="numerator"><input type="number" id="i_n1"></div><div class="denominator"><input type="number" id="i_d1"></div></div>
+                    <span style="font-size:1.5rem; margin:0 5px;">${p.op}</span>
+                    <div class="fraction"><div class="numerator"><input type="number" id="i_n2"></div><div class="denominator"><input type="number" id="i_d2"></div></div>
+                    <button class="btn-action" onclick="verifyInput('${mode}')">攻擊！</button>
+                </div>
+            `;
+        }
+
+        function verifyInput(mode) {
+            if (mistakeCount >= MAX_MISTAKES) return;
+            const n1 = parseInt(document.getElementById('i_n1').value), d1 = parseInt(document.getElementById('i_d1').value);
+            const n2 = parseInt(document.getElementById('i_n2').value), d2 = parseInt(document.getElementById('i_d2').value);
+            const p = currentProblem;
+
+            let isCorrect = false;
+            if (mode === 'simplify') isCorrect = (n1 === p.s_n1 && d1 === p.s_d1 && n2 === p.s_n2 && d2 === p.s_d2);
+            else if (mode === 'common') isCorrect = (d1 === p.commonDenom && d2 === p.commonDenom && n1 === p.c_n1 && n2 === p.c_n2);
+
+            if (isCorrect) {
+                Sound.playCorrect();
+                if (mode === 'simplify') {
+                    document.getElementById('dialogBox').innerHTML = "約分成功！防禦降低了！<br>接著選擇通分策略！";
+                    setTimeout(renderStrategyStep, 1000);
+                } else {
+                    document.getElementById('dialogBox').innerHTML = "通分成功！要害出現！<br>計算最後答案並丟出精靈球！<br><span style='font-size:0.8rem; color:#FFFF00'>(請檢察輸入的答案是否已為不能再約分的分數)</span>";
+                    setTimeout(renderFinalStep, 1000);
+                }
+            } else {
+                handleMistake("數字算錯囉！請再檢查一次計算。");
+            }
+        }
+
+        function renderFinalStep() {
+            const p = currentProblem;
+            renderProblemDisplay(p.c_n1, p.commonDenom, p.c_n2, p.commonDenom, p.op);
+            document.getElementById('actionArea').innerHTML = `
+                <div class="input-mode-container">
+                    <span style="font-weight:bold; margin-right:10px;">答案：</span>
+                    <div class="fraction"><div class="numerator"><input type="number" id="f_n"></div><div class="denominator"><input type="number" id="f_d"></div></div>
+                    <button class="btn-action" style="background:#FF3E3E; color:white;" onclick="verifyFinal()">丟球！</button>
+                </div>
+            `;
+        }
+
+        function verifyFinal() {
+            if (mistakeCount >= MAX_MISTAKES) return;
+            const n = parseInt(document.getElementById('f_n').value), d = parseInt(document.getElementById('f_d').value);
+            const p = currentProblem;
+
+            if (n === p.finalNum && d === p.finalDen) {
+                Sound.playThrow();
+                bgmAudio.pause(); // 抓到時停止 BGM
+                const ball = document.getElementById('pokeballThrow'), pkm = document.getElementById('pokemonImg');
+                ball.style.display = 'block'; ball.style.top = '50%'; ball.style.left = '50%'; ball.style.transform = 'translate(-50%, -50%) scale(0.5)';
+                ball.animate([{ top: '50%', transform: 'translate(-50%, -50%) scale(0.5)' }, { top: '30%', transform: 'translate(-50%, -50%) scale(1)' }], { duration: 500, fill: 'forwards' }).onfinish = () => {
+                    pkm.classList.add('captured');
+                    setTimeout(() => {
+                        Sound.playCaught(); ball.style.display = 'none'; 
+                        
+                        window.caughtPokemon.add(currentPokemon.id);
+                        saveGame(); // 這裡會觸發雲端存檔
+
+                        document.getElementById('dialogBox').innerHTML = `太棒了！<br>成功收服 <b>${currentPokemon.name}</b>！`;
+                        document.getElementById('problemCard').style.display = 'none';
+                        document.getElementById('actionArea').innerHTML = `<button class="btn-action" onclick="spawnPokemon()">下一隻</button>`;
+                    }, 1000);
+                };
+            } else {
+                handleMistake("答案錯誤！精靈球彈開了！<br><span style='font-size:0.9rem'>(請檢察輸入的答案是否已為不能再約分的分數)</span>");
+            }
+        }
+
+        function renderProblemDisplay(n1, d1, n2, d2, op) {
+            document.getElementById('problemCard').innerHTML = `
+                <div class="fraction"><div class="numerator">${n1}</div><div class="denominator">${d1}</div></div>
+                <div style="margin:0 5px">${op}</div>
+                <div class="fraction"><div class="numerator">${n2}</div><div class="denominator">${d2}</div></div>
+                <div style="margin-left:5px">= ?</div>
+            `;
+        }
+
+        // 將 renderPC 綁定到 window 以便雲端載入時呼叫
+        window.renderPC = function() {
+            const grid = document.getElementById('pcGrid'); 
+            grid.innerHTML = '';
+            document.getElementById('caughtCount').innerText = window.caughtPokemon.size;
+            
+            POKEMON_DB.forEach(pkm => {
+                const isCaught = window.caughtPokemon.has(pkm.id);
+                const div = document.createElement('div'); 
+                div.className = `grid-item ${isCaught ? 'caught' : 'unknown'}`;
+                div.innerHTML = `<img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pkm.id}.png" loading="lazy"><div class="name-tag">${isCaught ? pkm.name : '???'}</div>`;
+                grid.appendChild(div);
             });
         }
+
+        function showVictory() { document.getElementById('victoryModal').style.display = 'flex'; Sound.playCaught(); }
+
+        init();
     </script>
 </body>
 </html>

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>冒險旅途中的意外插曲 v8.3</title>
+    <title>冒險旅途中的意外插曲 v8.4</title>
     <!-- 引入 QRCode -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <!-- 引入 現代日系 RPG 風格字體 -->
@@ -171,10 +171,10 @@
             transition: all 0.5s;
         }
         
-        /* 惡魔/魔龍模式下的懸浮面板 (修正：確保文字為白色) */
+        /* [v8.4] 惡魔/魔龍模式下的懸浮面板 (加深底色) */
         .demon-theme .glass-panel {
-            background: rgba(0, 0, 0, 0.6);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(0, 0, 0, 0.85); /* 改為 0.85，更黑 */
+            border: 1px solid rgba(255, 255, 255, 0.15);
             color: #fff;
         }
         .demon-theme h3 { color: #ffcc00 !important; }
@@ -254,16 +254,18 @@
         input:focus, select:focus, textarea:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(78, 115, 223, 0.1); }
         label { color: #666; font-size: 1rem; margin-bottom: 6px; display: block; font-weight: 700; font-family: var(--font-header); }
         
-        /* 惡魔模式下的輸入框調色 (修正：確保有足夠對比度) */
+        /* 惡魔模式下的輸入框調色 */
         .demon-theme input {
-            background: rgba(0,0,0,0.5); border-color: #666; color: #fff;
+            background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.3); color: #fff;
         }
-        .demon-theme label { color: #ddd; }
+        .demon-theme label { color: #ccc; }
+        .demon-theme h3 { color: #ffcc00 !important; }
 
         .page { display: none; animation: fadeSlideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1); }
         .page.active { display: block; }
         @keyframes fadeSlideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
+        /* 選單 */
         .menu-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 25px; padding: 10px; }
         .menu-item {
             height: 240px; display: flex; flex-direction: column; justify-content: center; align-items: center;
@@ -283,6 +285,7 @@
         .menu-title { font-size: 1.5rem; font-weight: 900; color: var(--text-dark); margin-bottom: 5px; font-family: var(--font-header); z-index: 1; }
         .menu-sub { font-family: var(--font-eng); font-size: 0.8rem; color: #555; letter-spacing: 2px; text-transform: uppercase; z-index: 1; font-weight: bold;}
 
+        /* 抽籤門 */
         .door-container { display: flex; gap: 30px; justify-content: center; flex-wrap: wrap; margin-top: 40px; }
         .door { width: 45%; min-width: 300px; height: 420px; position: relative; cursor: pointer; transition: 0.4s; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.3); background-size: cover; background-position: center; }
         .door:hover { transform: scale(1.03); box-shadow: 0 15px 40px rgba(0,0,0,0.4); }
@@ -295,6 +298,7 @@
         .door-demon .door-title { color: #e74c3c; font-size: 2rem; font-family: var(--font-header); text-shadow: 0 2px 10px rgba(0,0,0,0.8); }
         .door-desc { font-size: 1.1rem; color: rgba(255,255,255,0.9); margin-top: 8px; font-weight: 500; font-family: var(--font-header); }
 
+        /* Switch */
         .mode-switch-container { display: flex; align-items: center; gap: 10px; margin-bottom: 0; }
         .switch-label { font-weight: bold; color: var(--primary); }
         .demon-theme .switch-label { color: #ffcc00; }
@@ -314,7 +318,12 @@
         .student-option.selected { background: #f0f4ff; border-color: var(--primary); color: var(--primary); font-weight: 700; }
         .student-option input { width: 22px; height: 22px; margin: 0 15px 0 0; accent-color: var(--primary); }
 
-        #version-info { position: fixed; bottom: 5px; right: 5px; font-size: 10px; color: rgba(0,0,0,0.3); pointer-events: none; }
+        /* Version Tag */
+        .version-tag {
+            display: inline-block; margin-left: 10px; font-size: 0.8rem; background: var(--primary); color: white; padding: 2px 8px; border-radius: 4px; vertical-align: middle;
+        }
+        /* Footer debug trigger */
+        #version-debug { position: fixed; bottom: 5px; right: 5px; font-size: 10px; color: rgba(0,0,0,0.3); cursor: pointer; z-index: 3000; }
 
         @media (max-width: 600px) { h1 { font-size: 1.8rem; } .card { padding: 1.5rem; width: 95%; } .door { height: 250px; min-width: 100%; } }
     </style>
@@ -332,7 +341,7 @@
     <!-- 首頁選單 -->
     <div id="page-home" class="page active">
         <div class="card" style="margin-top: 8vh; border-top: 5px solid var(--primary);">
-            <h1>冒險旅途中的意外插曲</h1>
+            <h1>冒險旅途中的意外插曲 <span class="version-tag">v8.4</span></h1>
             <p style="color: #666; margin-bottom: 40px;">請選擇冒險者即將遭遇的事件</p>
             
             <div class="menu-grid">
@@ -523,14 +532,42 @@
             </div>
         </div>
     </div>
-    
-    <div id="version-info">v8.3</div>
+
+    <div id="version-debug" onclick="debugUrl()">v8.4 Debug</div>
 
     <!-- Logic -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getFirestore, doc, setDoc, onSnapshot, updateDoc, increment, getDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
         import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+        // [v8.4] Universal Router - 優先檢查 Hash
+        function getUniversalParams() {
+            let mode = null, host = null;
+            const currentUrl = window.location.href;
+            
+            // 1. 優先檢查 Hash
+            if (window.location.hash.includes('mode=student')) {
+                // 移除 #, 解析
+                const hashContent = window.location.hash.substring(1);
+                const params = new URLSearchParams(hashContent);
+                mode = params.get('mode');
+                host = params.get('host');
+            } 
+            // 2. 備援檢查 Search
+            else {
+                const params = new URLSearchParams(window.location.search);
+                mode = params.get('mode');
+                host = params.get('host');
+            }
+            return { mode, host };
+        }
+        
+        // Debug Function (Hidden)
+        window.debugUrl = () => {
+            const p = getUniversalParams();
+            alert(`URL: ${window.location.href}\nMode: ${p.mode}\nHost: ${p.host}`);
+        };
 
         const firebaseConfig = {
             apiKey: "AIzaSyDJFzG3RrCkJBx5B23lBVcoOHmaqZ2dAYA",
@@ -554,27 +591,6 @@
         } catch (e) {
             console.error("Firebase Init Error:", e);
             alert("Firebase 初始化失敗，請檢查網路或金鑰設定");
-        }
-
-        // [v8.3] 萬能路由 (Universal Router)
-        function getUniversalParams() {
-            let mode = null, host = null;
-            const currentUrl = window.location.href;
-            
-            // 1. 優先檢查 Hash (GitHub Pages 友善)
-            if (window.location.hash.includes('mode=student')) {
-                const hashContent = window.location.hash.substring(1);
-                const params = new URLSearchParams(hashContent);
-                mode = params.get('mode');
-                host = params.get('host');
-            } 
-            // 2. 備援檢查 Search (本地測試友善)
-            else {
-                const params = new URLSearchParams(window.location.search);
-                mode = params.get('mode');
-                host = params.get('host');
-            }
-            return { mode, host };
         }
 
         // 頁面導航 (背景控制)
@@ -601,6 +617,7 @@
                 authBtn.style.display = 'block';
             }
 
+            // 離開抽籤頁時，清除特殊樣式
             if (pageId !== 'lottery-run') {
                 const card = document.getElementById('lotteryCard');
                 if(card) {
@@ -614,6 +631,7 @@
                 document.getElementById('lotteryCard').classList.add('transparent-mode');
             }
             
+            // 魔龍模式背景
             if(pageId.includes('timer')) {
                 document.body.style.backgroundImage = `linear-gradient(rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.75)), url('Gemini_Generated_Image_5gyjko5gyjko5gyj.jpg')`;
                 document.body.style.backgroundSize = 'cover';
@@ -657,7 +675,7 @@
             const configPanel = document.querySelector('.config-panel');
             const card = document.getElementById('lotteryCard');
             
-            // [v8.3 修正] 每次進入先清除舊樣式
+            // [v8.4] Reset styles first
             card.classList.remove('demon-theme');
             configPanel.classList.remove('demon-theme');
             card.style.backgroundColor = ''; 
@@ -670,11 +688,10 @@
                 
                 btn.className = 'btn btn-primary';
                 display.style.color = "var(--primary)";
-                // 天使模式不需要 demon-theme
 
             } else {
-                // [v8.3 修正] 惡魔模式強制覆寫背景為暗色
-                document.body.style.backgroundImage = `linear-gradient(rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.75)), url('image_4b8812.jpg')`;
+                // [v8.4] 惡魔模式：加深背景遮罩 (0.85)
+                document.body.style.backgroundImage = `linear-gradient(rgba(0, 0, 0, 0.85), rgba(0, 0, 0, 0.85)), url('image_4b8812.jpg')`;
                 document.body.style.backgroundSize = 'cover';
                 document.body.style.backgroundPosition = 'center';
                 document.body.style.backgroundAttachment = 'fixed';
@@ -682,7 +699,7 @@
                 btn.className = 'btn btn-danger';
                 display.style.color = "#e74c3c";
                 
-                // [v8.3 修正] 加上 demon-theme class 讓內部組件變色
+                // [v8.4] 惡魔模式：加上 demon-theme class (CSS 已加深面板底色)
                 card.classList.add('demon-theme');
                 configPanel.classList.add('demon-theme');
             }
@@ -795,24 +812,30 @@
             const limit = parseInt(document.getElementById('voteLimit').value);
             const classSize = parseInt(document.getElementById('voteClassSize').value);
             const options = document.getElementById('voteOptions').value.split('\n').filter(o => o.trim());
+
             if (!question || options.length < 2) return alert("資料不完整");
 
             const voteData = { active: true, question, type, limit: (type === 'multi' ? limit : 1), classSize, options, timestamp: new Date().toISOString(), votes: {}, logs: [] };
             options.forEach(opt => voteData.votes[opt] = 0);
+
             const path = `users/${user.uid}/apps/classroom_adventure_tool`;
             await setDoc(doc(db, path), voteData);
+
             document.getElementById('voteSetup').style.display = 'none';
             document.getElementById('voteResult').style.display = 'block';
             
-            // [v8.3] 使用 Hash 路由生成
+            // [v8.4] 強制使用 Hash 生成 QR Code
             let baseUrl = window.location.href.split('#')[0].split('?')[0];
             if (baseUrl.endsWith('/')) { baseUrl = baseUrl.slice(0, -1); }
             if (!baseUrl.endsWith('index.html')) { baseUrl += '/index.html'; }
             
-            const studentLink = `${baseUrl}#mode=student&host=${user.uid}`;
+            // 進行 URI 編碼確保手機瀏覽器不會截斷參數
+            const studentLink = `${baseUrl}#mode=student&host=${encodeURIComponent(user.uid)}`;
+            
             const qrDiv = document.getElementById('qrCodeArea');
             qrDiv.innerHTML = "";
             new QRCode(qrDiv, { text: studentLink, width: 160, height: 160 });
+
             startTeacherListener(user.uid);
         };
 
@@ -858,6 +881,9 @@
         };
 
         function initStudentMode(hostUid) {
+            // 解碼 hostUid (如果被編碼過)
+            hostUid = decodeURIComponent(hostUid);
+            
             currentStudentHost = hostUid;
             document.getElementById('statusBar').style.display = 'none';
             navTo('vote-student');
@@ -924,13 +950,19 @@
 
         const authBtn = document.getElementById('authBtn');
         
-        // [v8.3] 啟動時檢查路由
+        // [v8.4] 雙重檢查與萬能路由
         const p = getUniversalParams();
 
         if(p.mode === 'student' && p.host) { 
             initStudentMode(p.host); 
         } 
         else {
+            // [Backup Check] 如果 getUniversalParams 沒抓到，但在 Auth 階段發現網址其實有 hash，再次嘗試跳轉
+            if (window.location.hash.includes('mode=student')) {
+               const p2 = getUniversalParams();
+               if(p2.mode) initStudentMode(p2.host);
+            }
+
             authBtn.onclick = () => { 
                 if(user) { signOut(auth); } 
                 else {

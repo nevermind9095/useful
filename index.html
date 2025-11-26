@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>冒險旅途中的意外插曲 v7.8</title>
+    <title>冒險旅途中的意外插曲 v7.9</title>
     <!-- 引入 QRCode -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <!-- 引入 現代日系 RPG 風格字體 -->
@@ -78,8 +78,15 @@
         .btn-primary { background: linear-gradient(135deg, var(--primary), #2c52b3); color: white; }
         .btn-danger { background: linear-gradient(135deg, var(--accent-red), #962d22); color: white; }
         .btn-success { background: linear-gradient(135deg, #27ae60, #219150); color: white; }
-        .btn-ghost { background: rgba(255,255,255,0.2); color: #fff; border: 1px solid rgba(255,255,255,0.5); backdrop-filter: blur(4px); }
-        .btn-ghost:hover { background: rgba(255,255,255,0.3); }
+        
+        /* 幽靈按鈕 (透明底) */
+        .btn-ghost { 
+            background: rgba(255,255,255,0.1); 
+            color: #fff; 
+            border: 1px solid rgba(255,255,255,0.3); 
+            backdrop-filter: blur(4px); 
+        }
+        .btn-ghost:hover { background: rgba(255,255,255,0.2); }
 
         /* 魔龍挑戰專屬按鈕 */
         .btn-dragon-fight {
@@ -95,25 +102,25 @@
         .btn-dragon-reset { background: rgba(20, 20, 20, 0.8); color: #aaa; border: 1px solid #555; backdrop-filter: blur(4px); }
         .btn-dragon-reset:hover { background: rgba(50, 50, 50, 0.9); color: #fff; border-color: #fff; }
 
-        /* --- 頂部狀態列 (整合返回按鈕) --- */
+        /* --- 頂部狀態列 --- */
         #statusBar {
-            background: rgba(255,255,255,0.1); /* 極淡透明底 */
+            background: rgba(255,255,255,0.1);
             backdrop-filter: blur(10px);
             border-bottom: 1px solid rgba(255,255,255,0.1);
             padding: 10px 20px;
             display: flex;
-            justify-content: space-between; /* 左右分佈 */
+            justify-content: space-between;
             align-items: center;
             position: sticky;
             top: 0;
             z-index: 2000;
         }
-        #homeBtnContainer { display: none; } /* 預設隱藏，JS控制 */
-
-        /* 返回大廳按鈕 (高對比度修正) */
+        
+        /* 返回大廳按鈕 (高對比度) */
+        #homeBtnContainer { display: none; }
         #globalHomeBtn {
-            background: #2c3e50; /* 深色底 */
-            color: #ffffff;      /* 白色字 */
+            background: #2c3e50;
+            color: #ffffff;
             border: 1px solid rgba(255,255,255,0.3);
             box-shadow: 0 4px 10px rgba(0,0,0,0.3);
         }
@@ -155,7 +162,7 @@
         }
         .card.transparent-mode::before { display: none; }
 
-        /* --- 懸浮面板樣式 (用於透明模式下的內容) --- */
+        /* --- 懸浮面板樣式 --- */
         .glass-panel {
             background: rgba(255, 255, 255, 0.9);
             padding: 20px;
@@ -270,7 +277,6 @@
             background: #fff; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);
             cursor: pointer; transition: all 0.3s; position: relative; overflow: hidden; border: 1px solid transparent;
         }
-        /* 背景圖使用 jpg */
         .menu-item-lottery { background-image: linear-gradient(rgba(255,255,255,0.85), rgba(255,255,255,0.85)), url('image_4aa398.jpg'); background-size: cover; background-position: center; }
         .menu-item-timer { background-image: linear-gradient(rgba(255,255,255,0.85), rgba(255,255,255,0.85)), url('Gemini_Generated_Image_5gyjko5gyjko5gyj.jpg'); background-size: cover; background-position: center; }
         
@@ -316,6 +322,10 @@
         .student-option:hover { border-color: var(--primary); transform: translateX(5px); }
         .student-option.selected { background: #f0f4ff; border-color: var(--primary); color: var(--primary); font-weight: 700; }
         .student-option input { width: 22px; height: 22px; margin: 0 15px 0 0; accent-color: var(--primary); }
+
+        #version-debug {
+            position: fixed; bottom: 5px; right: 5px; font-size: 10px; color: #888; cursor: pointer; z-index: 3000;
+        }
 
         @media (max-width: 600px) { h1 { font-size: 1.8rem; } .card { padding: 1.5rem; width: 95%; } .door { height: 250px; min-width: 100%; } }
     </style>
@@ -524,6 +534,8 @@
             </div>
         </div>
     </div>
+    
+    <div id="version-debug" onclick="debugUrl()">v7.9</div>
 
     <!-- Logic -->
     <script type="module">
@@ -531,22 +543,30 @@
         import { getFirestore, doc, setDoc, onSnapshot, updateDoc, increment, getDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
         import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-        // [v7.8] 優先讀取 Hash 參數
-        function getParams() {
-            // 1. 嘗試標準 Query
-            const searchParams = new URLSearchParams(window.location.search);
-            if (searchParams.has('mode')) return searchParams;
-
-            // 2. 嘗試 Hash (移除 #)
-            if (window.location.hash) {
-                const hash = window.location.hash.substring(1); // Remove #
-                // 處理 #mode=student&host=...
-                return new URLSearchParams(hash);
+        // [v7.9] Universal Router & Param Extractor
+        // 同時檢查 Query (?) 和 Hash (#)
+        function getUniversalParams() {
+            let mode = null, host = null;
+            const currentUrl = window.location.href;
+            
+            // 1. 檢查 Hash (優先)
+            if (currentUrl.includes('mode=student')) {
+                const parts = currentUrl.split('mode=student');
+                // 簡單解析：從 mode=student 往後找 host
+                mode = 'student';
+                if (currentUrl.includes('host=')) {
+                    const hostPart = currentUrl.split('host=')[1];
+                    host = hostPart ? hostPart.split('&')[0].split('#')[0] : null;
+                }
             }
-            return new URLSearchParams();
+            return { mode, host };
         }
-
-        const params = getParams();
+        
+        // Debug Function
+        window.debugUrl = () => {
+            const p = getUniversalParams();
+            alert(`URL: ${window.location.href}\nMode: ${p.mode}\nHost: ${p.host}`);
+        };
 
         const firebaseConfig = {
             apiKey: "AIzaSyDJFzG3RrCkJBx5B23lBVcoOHmaqZ2dAYA",
@@ -569,10 +589,10 @@
             console.log("Firebase Initialized.");
         } catch (e) {
             console.error("Firebase Init Error:", e);
-            alert("Firebase 初始化失敗，請檢查網路或金鑰設定");
+            alert("Firebase 初始化失敗");
         }
 
-        // 頁面導航 (背景控制)
+        // 頁面導航
         window.navTo = (pageId) => {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             document.getElementById(`page-${pageId}`).classList.add('active');
@@ -580,7 +600,6 @@
             const homeBtn = document.getElementById('homeBtnContainer');
             const authBtn = document.getElementById('authBtn');
             
-            // 重置背景
             document.body.style.background = ''; 
             document.body.style.backgroundImage = `
                 radial-gradient(circle at 10% 20%, rgba(78, 115, 223, 0.2) 0%, transparent 20%),
@@ -590,30 +609,42 @@
 
             if(pageId === 'home') {
                 homeBtn.style.display = 'none';
-                authBtn.style.display = 'block'; 
+                authBtn.style.display = 'block';
             } else {
                 homeBtn.style.display = 'block';
-                authBtn.style.display = 'block'; 
+                authBtn.style.display = 'block';
             }
 
-            // 離開抽籤頁時，清除特殊樣式
             if (pageId !== 'lottery-run') {
                 const card = document.getElementById('lotteryCard');
-                if(card) card.classList.remove('demon-theme');
+                if(card) {
+                    card.classList.remove('demon-theme');
+                    card.classList.remove('transparent-mode'); // 防止樣式殘留
+                    card.style.backgroundImage = '';
+                    card.style.backgroundColor = '';
+                }
                 document.querySelectorAll('.lottery-display-text').forEach(el => el.style.color = '');
+            } else {
+                // 確保進入 lottery-run 時是透明模式
+                document.getElementById('lotteryCard').classList.add('transparent-mode');
             }
             
-            // 魔龍模式背景 (使用正確的原圖檔名)
             if(pageId.includes('timer')) {
                 document.body.style.backgroundImage = `linear-gradient(rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.75)), url('Gemini_Generated_Image_5gyjko5gyjko5gyj.jpg')`;
                 document.body.style.backgroundSize = 'cover';
                 document.body.style.backgroundPosition = 'center';
                 document.body.style.backgroundAttachment = 'fixed';
                 document.body.style.backgroundColor = '#000';
+                
+                const timerCard = document.getElementById('timerCard');
+                if(timerCard) timerCard.classList.add('transparent-mode');
+            } else {
+                const timerCard = document.getElementById('timerCard');
+                if(timerCard) timerCard.classList.remove('transparent-mode');
             }
         };
 
-        // --- 抽籤邏輯 ---
+        // ... Lottery Logic ...
         let currentLotteryMode = 'angel';
         let lotteryDeck = [];
         
@@ -624,9 +655,7 @@
             resetLotteryDeck();
         };
 
-        window.resetLotteryDeck = () => {
-            lotteryDeck = []; 
-        };
+        window.resetLotteryDeck = () => { lotteryDeck = []; };
 
         window.initDeck = () => {
             const start = parseInt(document.getElementById('lotRangeStart').value);
@@ -638,35 +667,26 @@
         window.enterLottery = (mode) => {
             currentLotteryMode = mode;
             navTo('lottery-run');
-            const card = document.getElementById('lotteryCard');
             const btn = document.getElementById('lotteryActionBtn');
             const display = document.getElementById('lotteryDisplay');
+            const configPanel = document.querySelector('.config-panel');
             
-            card.classList.remove('demon-theme');
-
+            // 設定背景與面板樣式
             if(mode === 'angel') {
-                // 天使模式背景
                 document.body.style.backgroundImage = `linear-gradient(rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.85)), url('image_4b8832.jpg')`;
-                document.body.style.backgroundSize = 'cover';
-                document.body.style.backgroundPosition = 'center';
-                document.body.style.backgroundAttachment = 'fixed';
-                
-                // 樣式調整
                 btn.className = 'btn btn-primary';
                 display.style.color = "var(--primary)";
+                if(configPanel) configPanel.classList.remove('demon-theme');
 
             } else {
-                // 惡魔模式背景
                 document.body.style.backgroundImage = `linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('image_4b8812.jpg')`;
-                document.body.style.backgroundSize = 'cover';
-                document.body.style.backgroundPosition = 'center';
-                document.body.style.backgroundAttachment = 'fixed';
-                
-                // 樣式調整
-                card.classList.add('demon-theme');
                 btn.className = 'btn btn-danger';
                 display.style.color = "#e74c3c";
+                if(configPanel) configPanel.classList.add('demon-theme');
             }
+            document.body.style.backgroundSize = 'cover';
+            document.body.style.backgroundPosition = 'center';
+            document.body.style.backgroundAttachment = 'fixed';
         };
 
         window.drawNumbers = () => {
@@ -676,7 +696,6 @@
             const isUnique = document.getElementById('uniqueModeCheck').checked;
             
             if(start >= end) return alert("範圍錯誤");
-            
             let pool = [];
             if (isUnique) {
                 if (lotteryDeck.length === 0) window.initDeck();
@@ -718,77 +737,46 @@
             }, 60);
         };
 
-        let timerInterval;
-        let isRunning = false;
-        let totalTimeLeft = 0;
-
+        // ... Timer Logic ...
+        let timerInterval; let isRunning = false; let totalTimeLeft = 0;
         function playBeep(freq = 440, dur = 0.1, type = 'sine') {
             if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            osc.type = type;
-            osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
-            osc.start();
-            gain.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + dur);
+            const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
+            osc.type = type; osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            osc.start(); gain.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + dur);
             osc.stop(audioCtx.currentTime + dur);
         }
-
         function updateTimerDisplay(totalSeconds) {
             const m = Math.floor(totalSeconds / 60).toString().padStart(2, '0');
             const s = (totalSeconds % 60).toString().padStart(2, '0');
             document.getElementById('timerDisplay').innerText = `${m}:${s}`;
         }
-
         function getSettingSeconds() {
             const m = parseInt(document.getElementById('timerMin').value) || 0;
             const s = parseInt(document.getElementById('timerSec').value) || 0;
             return m * 60 + s;
         }
-
         window.toggleTimer = () => {
             if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             const btn = document.getElementById('startTimerBtn');
-
             if (isRunning) {
-                clearInterval(timerInterval);
-                isRunning = false;
-                btn.innerHTML = "⚔️ 接受挑戰";
+                clearInterval(timerInterval); isRunning = false; btn.innerHTML = "⚔️ 接受挑戰";
             } else {
                 if(totalTimeLeft <= 0) totalTimeLeft = getSettingSeconds();
                 if(totalTimeLeft <= 0) return alert("請設定時間");
-
-                isRunning = true;
-                btn.innerHTML = "⏸️ 暫停";
-                
+                isRunning = true; btn.innerHTML = "⏸️ 暫停";
                 timerInterval = setInterval(() => {
-                    totalTimeLeft--;
-                    updateTimerDisplay(totalTimeLeft);
-
+                    totalTimeLeft--; updateTimerDisplay(totalTimeLeft);
                     const card = document.getElementById('timerCard');
-                    if (totalTimeLeft <= 30 && totalTimeLeft > 0) {
-                        card.classList.add('timer-urgent');
-                        if(totalTimeLeft % 1 === 0) playBeep(600, 0.1, 'square');
-                    } else {
-                        card.classList.remove('timer-urgent');
-                    }
-
-                    if (totalTimeLeft <= 0) {
-                        clearInterval(timerInterval);
-                        isRunning = false;
-                        document.getElementById('timerDisplay').innerText = "FAILED";
-                        playBeep(100, 1.5, 'sawtooth');
-                        btn.innerHTML = "重來";
-                    }
+                    if (totalTimeLeft <= 30 && totalTimeLeft > 0) { card.classList.add('timer-urgent'); if(totalTimeLeft % 1 === 0) playBeep(600, 0.1, 'square'); } 
+                    else { card.classList.remove('timer-urgent'); }
+                    if (totalTimeLeft <= 0) { clearInterval(timerInterval); isRunning = false; document.getElementById('timerDisplay').innerText = "FAILED"; playBeep(100, 1.5, 'sawtooth'); btn.innerHTML = "重來"; }
                 }, 1000);
             }
         };
-
         window.resetTimer = () => {
-            clearInterval(timerInterval);
-            isRunning = false;
-            totalTimeLeft = getSettingSeconds();
+            clearInterval(timerInterval); isRunning = false; totalTimeLeft = getSettingSeconds();
             updateTimerDisplay(totalTimeLeft);
             document.getElementById('timerCard').classList.remove('timer-urgent');
             document.getElementById('startTimerBtn').innerHTML = "⚔️ 接受挑戰";
@@ -807,26 +795,26 @@
             const limit = parseInt(document.getElementById('voteLimit').value);
             const classSize = parseInt(document.getElementById('voteClassSize').value);
             const options = document.getElementById('voteOptions').value.split('\n').filter(o => o.trim());
-
             if (!question || options.length < 2) return alert("資料不完整");
 
             const voteData = { active: true, question, type, limit: (type === 'multi' ? limit : 1), classSize, options, timestamp: new Date().toISOString(), votes: {}, logs: [] };
             options.forEach(opt => voteData.votes[opt] = 0);
-
             const path = `users/${user.uid}/apps/classroom_adventure_tool`;
             await setDoc(doc(db, path), voteData);
-
             document.getElementById('voteSetup').style.display = 'none';
             document.getElementById('voteResult').style.display = 'block';
             
-            // [v7.8] 使用 Hash 生成 QR Code
+            // [v7.9 Fix] 使用 Hash 生成 QR Code
             const baseUrl = window.location.href.split('#')[0].split('?')[0];
-            const studentLink = `${baseUrl}#mode=student&host=${user.uid}`;
+            // 確保結尾不是 .html (如果可能被省略) 但最保險是包含 index.html
+            const cleanBaseUrl = baseUrl.endsWith('/') ? baseUrl : baseUrl + '/'; 
+            // 實際上直接用目前的 href 最穩，只要去掉參數
+            const finalBase = window.location.origin + window.location.pathname;
             
+            const studentLink = `${finalBase}#mode=student&host=${user.uid}`;
             const qrDiv = document.getElementById('qrCodeArea');
             qrDiv.innerHTML = "";
             new QRCode(qrDiv, { text: studentLink, width: 160, height: 160 });
-
             startTeacherListener(user.uid);
         };
 
@@ -837,19 +825,12 @@
         }
 
         function renderVoteBars(data) {
-            const div = document.getElementById('voteBarsArea');
-            div.innerHTML = "";
-            let total = 0;
-            for(let k in data.votes) total += data.votes[k];
-
+            const div = document.getElementById('voteBarsArea'); div.innerHTML = "";
+            let total = 0; for(let k in data.votes) total += data.votes[k];
             data.options.forEach(opt => {
                 const count = data.votes[opt] || 0;
                 const pct = total === 0 ? 0 : Math.round((count/total)*100);
-                div.innerHTML += `
-                    <div class="vote-bar-row">
-                        <div class="vote-label-row"><span>${opt}</span><span>${count} 票 (${pct}%)</span></div>
-                        <div class="vote-track"><div class="vote-fill" style="width:${pct}%"></div></div>
-                    </div>`;
+                div.innerHTML += `<div class="vote-bar-row"><div class="vote-label-row"><span>${opt}</span><span>${count} 票 (${pct}%)</span></div><div class="vote-track"><div class="vote-fill" style="width:${pct}%"></div></div></div>`;
             });
         }
 
@@ -865,8 +846,7 @@
             logs.forEach(log => csv += `${log.sid},"${log.opts.join('&')}"\n`);
             const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
             const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url; a.download = `VoteRecord.csv`; a.click();
+            const a = document.createElement('a'); a.href = url; a.download = `VoteRecord.csv`; a.click();
         };
 
         window.stopVote = () => {
@@ -907,10 +887,7 @@
             container.innerHTML = "";
             const inputType = data.type === 'single' ? 'radio' : 'checkbox';
             data.options.forEach((opt, idx) => {
-                container.innerHTML += `
-                    <div class="student-option" onclick="toggleOpt(this, '${inputType}')">
-                        <input type="${inputType}" name="v_opts" value="${opt}"><span>${opt}</span>
-                    </div>`;
+                container.innerHTML += `<div class="student-option" onclick="toggleOpt(this, '${inputType}')"><input type="${inputType}" name="v_opts" value="${opt}"><span>${opt}</span></div>`;
             });
             window.currentVoteLimit = data.limit;
             window.currentVoteType = data.type;
@@ -919,9 +896,7 @@
         window.toggleOpt = (div, type) => {
             const input = div.querySelector('input');
             if(type === 'radio') {
-                document.querySelectorAll('.student-option').forEach(d => {
-                    d.classList.remove('selected'); d.querySelector('input').checked = false;
-                });
+                document.querySelectorAll('.student-option').forEach(d => { d.classList.remove('selected'); d.querySelector('input').checked = false; });
                 input.checked = true; div.classList.add('selected');
             } else {
                 input.checked = !input.checked; div.classList.toggle('selected', input.checked);
@@ -933,11 +908,8 @@
             if(!sid) return alert("請先選擇編號！");
             const inputs = document.querySelectorAll('input[name="v_opts"]:checked');
             const selected = Array.from(inputs).map(i => i.value);
-            if(window.currentVoteType === 'multi') {
-                if(selected.length !== window.currentVoteLimit) return alert(`請務必選擇 ${window.currentVoteLimit} 項`);
-            } else {
-                if(selected.length === 0) return alert("請選擇一項");
-            }
+            if(window.currentVoteType === 'multi') { if(selected.length !== window.currentVoteLimit) return alert(`請務必選擇 ${window.currentVoteLimit} 項`); } 
+            else { if(selected.length === 0) return alert("請選擇一項"); }
             const btn = document.getElementById('submitVoteBtn');
             btn.disabled = true; btn.innerText = "傳送中...";
             const updates = { logs: arrayUnion({ sid: sid, opts: selected, ts: Date.now() }) };
@@ -950,44 +922,35 @@
         };
 
         const authBtn = document.getElementById('authBtn');
-        const mode = params.get('mode');
-        const host = params.get('host');
-
-        if(mode === 'student' && host) { 
-            initStudentMode(host); 
+        
+        // --- [v7.9] 主程式入口: 萬能路由檢測 ---
+        const p = getUniversalParams();
+        
+        if(p.mode === 'student' && p.host) { 
+            // 強制進入學生模式
+            initStudentMode(p.host); 
         } 
         else {
+            // 正常老師模式
             authBtn.onclick = () => { 
                 alert("正在呼叫 Google 登入窗口...");
-                if(user) {
-                    signOut(auth);
-                } else {
+                if(user) { signOut(auth); } 
+                else {
                     const provider = new GoogleAuthProvider();
                     provider.setCustomParameters({ prompt: 'select_account' });
-                    signInWithPopup(auth, provider).then((result) => {
-                        console.log("Login success:", result.user);
-                    }).catch((error) => {
-                        console.error("Login error:", error);
-                        if (error.code === 'auth/unauthorized-domain') {
-                            alert("錯誤：此網域尚未加入 Firebase 授權清單。\n請到 Firebase Console -> Authentication -> Settings -> Authorized Domains 新增此網址。");
-                        } else if (error.code === 'auth/popup-blocked') {
-                            alert("錯誤：登入視窗被瀏覽器封鎖，請允許彈跳視窗。");
-                        } else {
-                            alert("登入失敗：" + error.message);
-                        }
+                    signInWithPopup(auth, provider).then((result) => { console.log("Login success"); })
+                    .catch((error) => {
+                        if (error.code === 'auth/unauthorized-domain') alert("網域授權錯誤：請檢查 Firebase Console");
+                        else alert("登入失敗：" + error.message);
                     });
                 }
             };
-            
             onAuthStateChanged(auth, u => {
                 user = u;
                 if(user) {
-                    authBtn.innerText = `✅ ${user.displayName}`; 
-                    authBtn.classList.replace('btn-ghost', 'btn-success'); 
-                    authBtn.style.border = "none";
+                    authBtn.innerText = `✅ ${user.displayName}`; authBtn.classList.replace('btn-ghost', 'btn-success'); authBtn.style.border = "none";
                 } else { 
-                    authBtn.innerText = "☁️ 雲端登入"; 
-                    authBtn.classList.replace('btn-success', 'btn-ghost'); 
+                    authBtn.innerText = "☁️ 雲端登入"; authBtn.classList.replace('btn-success', 'btn-ghost'); 
                 }
             });
         }

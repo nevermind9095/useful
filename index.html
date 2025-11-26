@@ -122,7 +122,7 @@
 
         /* --- 卡片容器 --- */
         .card {
-            background: var(--bg-paper); /* 恢復為純色背景 */
+            background: var(--bg-paper);
             border-radius: var(--radius-main);
             padding: 2.5rem;
             margin: 20px auto;
@@ -142,13 +142,13 @@
             border-radius: 0 0 4px 4px;
         }
 
-        /* --- 惡魔暗黑主題卡片 (文字與組件調整) --- */
+        /* --- 惡魔暗黑主題卡片 --- */
         .card.demon-theme {
-            background-color: rgba(20, 20, 25, 0.8); /* 深色半透明底，讓文字在背景圖上清晰 */
+            background-color: rgba(20, 20, 25, 0.8); /* 惡魔模式下的卡片底色 */
             border-color: #555;
             color: #ecf0f1;
             box-shadow: 0 10px 30px rgba(0,0,0,0.8);
-            backdrop-filter: blur(5px); /* 增加模糊效果，提升質感 */
+            backdrop-filter: blur(5px); 
         }
         .card.demon-theme h1, 
         .card.demon-theme h2, 
@@ -288,11 +288,12 @@
             text-align: left;
         }
         
-        .door-angel { background-image: url('image_4b8832.png'); border: 4px solid #fff; }
+        /* 使用 jpg 檔案 */
+        .door-angel { background-image: url('image_4b8832.jpg'); border: 4px solid #fff; }
         .door-angel::after { content: '✧'; position: absolute; top: 20px; right: 20px; color: rgba(255,255,255,0.8); font-size: 3rem; }
         .door-angel .door-title { color: #fff; font-size: 2rem; font-family: var(--font-header); text-shadow: 0 2px 10px rgba(255,255,255,0.5); }
         
-        .door-demon { background-image: url('image_4b8812.png'); border: 4px solid #c0392b; }
+        .door-demon { background-image: url('image_4b8812.jpg'); border: 4px solid #c0392b; }
         .door-demon::after { content: '☠'; position: absolute; top: 20px; right: 20px; color: rgba(192, 57, 43, 0.5); font-size: 3rem; }
         .door-demon .door-title { color: #e74c3c; font-size: 2rem; font-family: var(--font-header); text-shadow: 0 2px 10px rgba(0,0,0,0.8); }
         
@@ -658,14 +659,15 @@
                 display.style.color = "var(--primary)";
                 
                 // 背景：天使圖 + 亮白透明覆蓋 (刷淡效果回歸 Body)
-                document.body.style.backgroundImage = `linear-gradient(rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.85)), url('image_4b8832.png')`;
+                // 改為使用 jpg
+                document.body.style.backgroundImage = `linear-gradient(rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.85)), url('image_4b8832.jpg')`;
                 document.body.style.backgroundSize = 'cover';
                 document.body.style.backgroundPosition = 'center';
                 document.body.style.backgroundAttachment = 'fixed';
                 
-                // 卡片：恢復為半透明白底
+                // 卡片：恢復為半透明白底 (確保中間內容區塊乾淨)
                 card.style.backgroundColor = "rgba(255, 255, 255, 0.9)";
-                card.style.backgroundImage = "none";
+                card.style.backgroundImage = "none"; // 清除卡片上的圖片
 
             } else {
                 // 惡魔模式
@@ -674,14 +676,15 @@
                 display.style.color = "#e74c3c";
                 
                 // 背景：惡魔圖 + 0.6 濃度黑底 (刷淡效果回歸 Body)
-                document.body.style.backgroundImage = `linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('image_4b8812.png')`;
+                // 改為使用 jpg
+                document.body.style.backgroundImage = `linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('image_4b8812.jpg')`;
                 document.body.style.backgroundSize = 'cover';
                 document.body.style.backgroundPosition = 'center';
                 document.body.style.backgroundAttachment = 'fixed';
                 
                 // 卡片切換為暗黑模式 (維持您喜歡的亮度)
                 card.classList.add('demon-theme');
-                card.style.backgroundImage = "none";
+                card.style.backgroundImage = "none"; // 清除卡片上的圖片
             }
         };
 

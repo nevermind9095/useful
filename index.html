@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>冒險旅途中的意外插曲 v8.2</title>
+    <title>冒險旅途中的意外插曲 v8.3</title>
     <!-- 引入 QRCode -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <!-- 引入 現代日系 RPG 風格字體 -->
@@ -171,11 +171,13 @@
             transition: all 0.5s;
         }
         
+        /* 惡魔/魔龍模式下的懸浮面板 (修正：確保文字為白色) */
         .demon-theme .glass-panel {
             background: rgba(0, 0, 0, 0.6);
             border: 1px solid rgba(255, 255, 255, 0.1);
             color: #fff;
         }
+        .demon-theme h3 { color: #ffcc00 !important; }
         
         .lottery-display-text {
             font-size: 6rem;
@@ -252,9 +254,11 @@
         input:focus, select:focus, textarea:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(78, 115, 223, 0.1); }
         label { color: #666; font-size: 1rem; margin-bottom: 6px; display: block; font-weight: 700; font-family: var(--font-header); }
         
-        .demon-theme input { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.3); color: #fff; }
-        .demon-theme label { color: #ccc; }
-        .demon-theme h3 { color: #ffcc00 !important; }
+        /* 惡魔模式下的輸入框調色 (修正：確保有足夠對比度) */
+        .demon-theme input {
+            background: rgba(0,0,0,0.5); border-color: #666; color: #fff;
+        }
+        .demon-theme label { color: #ddd; }
 
         .page { display: none; animation: fadeSlideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1); }
         .page.active { display: block; }
@@ -309,6 +313,8 @@
         .student-option:hover { border-color: var(--primary); transform: translateX(5px); }
         .student-option.selected { background: #f0f4ff; border-color: var(--primary); color: var(--primary); font-weight: 700; }
         .student-option input { width: 22px; height: 22px; margin: 0 15px 0 0; accent-color: var(--primary); }
+
+        #version-info { position: fixed; bottom: 5px; right: 5px; font-size: 10px; color: rgba(0,0,0,0.3); pointer-events: none; }
 
         @media (max-width: 600px) { h1 { font-size: 1.8rem; } .card { padding: 1.5rem; width: 95%; } .door { height: 250px; min-width: 100%; } }
     </style>
@@ -372,7 +378,7 @@
         </div>
     </div>
 
-    <!-- 1-2. 抽籤系統：執行畫面 -->
+    <!-- 1-2. 抽籤系統：執行畫面 (全透明佈局) -->
     <div id="page-lottery-run" class="page">
         <div class="card transparent-mode" id="lotteryCard">
             
@@ -414,7 +420,7 @@
         </div>
     </div>
 
-    <!-- 2. 計時器：魔龍挑戰 -->
+    <!-- 2. 計時器：魔龍挑戰 (全透明 + 史詩文字) -->
     <div id="page-timer" class="page">
         <div class="card transparent-mode" id="timerCard">
             <div style="text-align: center; margin-bottom: 30px;">
@@ -517,6 +523,8 @@
             </div>
         </div>
     </div>
+    
+    <div id="version-info">v8.3</div>
 
     <!-- Logic -->
     <script type="module">
@@ -524,9 +532,6 @@
         import { getFirestore, doc, setDoc, onSnapshot, updateDoc, increment, getDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
         import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-        // 1. Imports done
-        
-        // 2. Config
         const firebaseConfig = {
             apiKey: "AIzaSyDJFzG3RrCkJBx5B23lBVcoOHmaqZ2dAYA",
             authDomain: "forgemini-7349a.firebaseapp.com",
@@ -548,23 +553,31 @@
             console.log("Firebase Initialized.");
         } catch (e) {
             console.error("Firebase Init Error:", e);
-            alert("Firebase 初始化失敗");
+            alert("Firebase 初始化失敗，請檢查網路或金鑰設定");
         }
 
-        // 3. Hash Params Logic (Defined only once)
-        function getHashParams() {
-            if (window.location.hash) {
+        // [v8.3] 萬能路由 (Universal Router)
+        function getUniversalParams() {
+            let mode = null, host = null;
+            const currentUrl = window.location.href;
+            
+            // 1. 優先檢查 Hash (GitHub Pages 友善)
+            if (window.location.hash.includes('mode=student')) {
                 const hashContent = window.location.hash.substring(1);
                 const params = new URLSearchParams(hashContent);
-                return {
-                    mode: params.get('mode'),
-                    host: params.get('host')
-                };
+                mode = params.get('mode');
+                host = params.get('host');
+            } 
+            // 2. 備援檢查 Search (本地測試友善)
+            else {
+                const params = new URLSearchParams(window.location.search);
+                mode = params.get('mode');
+                host = params.get('host');
             }
-            return { mode: null, host: null };
+            return { mode, host };
         }
 
-        // 4. Navigation
+        // 頁面導航 (背景控制)
         window.navTo = (pageId) => {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             document.getElementById(`page-${pageId}`).classList.add('active');
@@ -572,6 +585,7 @@
             const homeBtn = document.getElementById('homeBtnContainer');
             const authBtn = document.getElementById('authBtn');
             
+            // 重置背景
             document.body.style.background = ''; 
             document.body.style.backgroundImage = `
                 radial-gradient(circle at 10% 20%, rgba(78, 115, 223, 0.2) 0%, transparent 20%),
@@ -581,10 +595,10 @@
 
             if(pageId === 'home') {
                 homeBtn.style.display = 'none';
-                authBtn.style.display = 'block'; 
+                authBtn.style.display = 'block';
             } else {
                 homeBtn.style.display = 'block';
-                authBtn.style.display = 'block'; 
+                authBtn.style.display = 'block';
             }
 
             if (pageId !== 'lottery-run') {
@@ -641,7 +655,13 @@
             const btn = document.getElementById('lotteryActionBtn');
             const display = document.getElementById('lotteryDisplay');
             const configPanel = document.querySelector('.config-panel');
+            const card = document.getElementById('lotteryCard');
             
+            // [v8.3 修正] 每次進入先清除舊樣式
+            card.classList.remove('demon-theme');
+            configPanel.classList.remove('demon-theme');
+            card.style.backgroundColor = ''; 
+
             if(mode === 'angel') {
                 document.body.style.backgroundImage = `linear-gradient(rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.85)), url('image_4b8832.jpg')`;
                 document.body.style.backgroundSize = 'cover';
@@ -650,17 +670,21 @@
                 
                 btn.className = 'btn btn-primary';
                 display.style.color = "var(--primary)";
-                if(configPanel) configPanel.classList.remove('demon-theme');
+                // 天使模式不需要 demon-theme
 
             } else {
-                document.body.style.backgroundImage = `linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('image_4b8812.jpg')`;
+                // [v8.3 修正] 惡魔模式強制覆寫背景為暗色
+                document.body.style.backgroundImage = `linear-gradient(rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.75)), url('image_4b8812.jpg')`;
                 document.body.style.backgroundSize = 'cover';
                 document.body.style.backgroundPosition = 'center';
                 document.body.style.backgroundAttachment = 'fixed';
                 
                 btn.className = 'btn btn-danger';
                 display.style.color = "#e74c3c";
-                if(configPanel) configPanel.classList.add('demon-theme');
+                
+                // [v8.3 修正] 加上 demon-theme class 讓內部組件變色
+                card.classList.add('demon-theme');
+                configPanel.classList.add('demon-theme');
             }
         };
 
@@ -780,6 +804,7 @@
             document.getElementById('voteSetup').style.display = 'none';
             document.getElementById('voteResult').style.display = 'block';
             
+            // [v8.3] 使用 Hash 路由生成
             let baseUrl = window.location.href.split('#')[0].split('?')[0];
             if (baseUrl.endsWith('/')) { baseUrl = baseUrl.slice(0, -1); }
             if (!baseUrl.endsWith('index.html')) { baseUrl += '/index.html'; }
@@ -899,15 +924,14 @@
 
         const authBtn = document.getElementById('authBtn');
         
-        // Main Execution
-        const p = getHashParams();
+        // [v8.3] 啟動時檢查路由
+        const p = getUniversalParams();
 
         if(p.mode === 'student' && p.host) { 
             initStudentMode(p.host); 
         } 
         else {
             authBtn.onclick = () => { 
-                // Removed debug alert to make it cleaner
                 if(user) { signOut(auth); } 
                 else {
                     const provider = new GoogleAuthProvider();

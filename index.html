@@ -164,7 +164,10 @@
             color: #e74c3c; text-shadow: 0 2px 4px rgba(0,0,0,0.8);
         }
         .card.demon-theme label { color: #ddd; }
+        
+        /* 暗黑模式下的輸入框 (抽籤) */
         .card.demon-theme input { background: rgba(0, 0, 0, 0.6); color: #fff; border-color: #666; }
+        
         .card.demon-theme .lottery-result-area {
             background: rgba(0, 0, 0, 0.7); border-color: #c0392b; color: #e74c3c;
             box-shadow: inset 0 0 30px rgba(192, 57, 43, 0.3);
@@ -176,7 +179,7 @@
         h1 span { color: var(--gold); font-family: var(--font-eng); font-size: 1.8rem; margin-left: 10px; }
         h2 { font-size: 1.8rem; border-bottom: 2px solid rgba(0,0,0,0.05); padding-bottom: 10px; margin-bottom: 25px; }
         
-        /* --- 輸入框 --- */
+        /* --- 輸入框 (通用) --- */
         input, select, textarea {
             background: #fff;
             border: 2px solid #e0e0e0;
@@ -239,15 +242,13 @@
             border: 1px solid transparent;
         }
         
-        /* 新增：選單項目的背景圖設定 */
+        /* 選單背景圖 (確保使用 .jpg) */
         .menu-item-lottery {
-            /* 天使與惡魔各半圖，刷淡 */
             background-image: linear-gradient(rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.85)), url('image_4aa398.jpg');
             background-size: cover;
             background-position: center;
         }
         .menu-item-timer {
-            /* 魔龍圖，刷淡 */
             background-image: linear-gradient(rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.85)), url('Gemini_Generated_Image_5gyjko5gyjko5gyj.jpg');
             background-size: cover;
             background-position: center;
@@ -258,7 +259,6 @@
             box-shadow: 0 12px 24px rgba(78, 115, 223, 0.15); 
             border-color: var(--primary);
         }
-        /* 調整 hover 效果，讓圖片稍微清晰一點點 */
         .menu-item-lottery:hover {
             background-image: linear-gradient(rgba(255, 255, 255, 0.7), rgba(255, 255, 255, 0.7)), url('image_4aa398.jpg');
         }
@@ -267,7 +267,6 @@
         }
 
         .menu-item::before {
-            /* 原本的裝飾圈圈保留，疊加在背景圖上 */
             content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
             background: radial-gradient(circle, rgba(78, 115, 223, 0.03) 0%, transparent 70%);
             transition: 0.5s;
@@ -305,7 +304,7 @@
             text-align: left;
         }
         
-        /* 單張天使與惡魔圖 */
+        /* 確保使用 .jpg */
         .door-angel { background-image: url('image_4b8832.jpg'); border: 4px solid #fff; }
         .door-angel::after { content: '✧'; position: absolute; top: 20px; right: 20px; color: rgba(255,255,255,0.8); font-size: 3rem; }
         .door-angel .door-title { color: #fff; font-size: 2rem; font-family: var(--font-header); text-shadow: 0 2px 10px rgba(255,255,255,0.5); }
@@ -345,7 +344,6 @@
             display: flex; align-items: center; gap: 10px; margin-bottom: 15px;
         }
         .switch-label { font-weight: bold; color: var(--primary); }
-        /* 簡單的 Toggle Switch */
         .switch {
             position: relative; display: inline-block; width: 60px; height: 30px;
         }
@@ -361,9 +359,8 @@
         input:checked + .slider { background-color: var(--primary); }
         input:checked + .slider:before { transform: translateX(30px); }
 
-        /* --- 計時：魔龍降臨 --- */
+        /* --- 計時：魔龍降臨 (字體優化) --- */
         #timerCard { border: none; overflow: hidden; background: #fff; }
-        /* 魔龍背景，不再此處設定，改為 body 全背景 */
         
         .timer-header-box { text-align: center; margin-bottom: 20px; }
         .timer-title-text { 
@@ -372,12 +369,28 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
+        /* 魔龍模式下的副標題優化 */
+        .demon-theme .timer-header-box div:last-child {
+            color: #fff !important; /* 強制亮白 */
+            text-shadow: 0 2px 4px rgba(0,0,0,0.9); /* 強陰影 */
+            font-size: 1.1rem;
+            letter-spacing: 1px;
+        }
+
         .timer-circle {
             width: 280px; height: 280px; border-radius: 50%; border: 6px solid #f0f0f0; margin: 20px auto;
             display: flex; align-items: center; justify-content: center; position: relative;
             background: #fff; box-shadow: 0 10px 30px rgba(0,0,0,0.1); transition: 0.3s;
         }
         .timer-display { font-size: 4.5rem; font-family: 'Cinzel', serif; font-weight: 700; color: var(--text-dark); }
+        
+        /* 魔龍計時輸入框優化 */
+        .timer-input-group input {
+            font-family: 'Cinzel', serif;
+            font-weight: bold;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+        }
+
         .timer-urgent .timer-circle {
             border-color: var(--accent-red); box-shadow: 0 0 40px rgba(192, 57, 43, 0.3); animation: pulse-red 1s infinite;
         }
@@ -425,13 +438,13 @@
             <p style="color: #666; margin-bottom: 40px;">請選擇您要發布的任務類型</p>
             
             <div class="menu-grid">
-                <!-- 1. 命運徵召按鈕：使用各半圖刷淡 -->
+                <!-- 1. 命運徵召按鈕 -->
                 <div class="menu-item menu-item-lottery" onclick="navTo('lottery-gate')">
                     <div class="menu-icon">⚔️</div>
                     <div class="menu-title">命運徵召</div>
                     <div class="menu-sub">Summoning</div>
                 </div>
-                <!-- 2. 魔龍挑戰按鈕：使用魔龍圖刷淡 -->
+                <!-- 2. 魔龍挑戰按鈕 -->
                 <div class="menu-item menu-item-timer" onclick="navTo('timer')">
                     <div class="menu-icon">🐲</div>
                     <div class="menu-title">魔龍挑戰</div>
@@ -515,23 +528,25 @@
         </div>
     </div>
 
-    <!-- 2. 計時器：魔龍挑戰 (更新：全螢幕背景) -->
+    <!-- 2. 計時器：魔龍挑戰 (高對比度字體優化) -->
     <div id="page-timer" class="page">
         <div class="card demon-theme" id="timerCard" style="margin-top: 50px;">
             <div class="timer-header-box">
                 <div class="timer-title-text">🐲 魔龍挑戰 🐲</div>
-                <div style="color: #ddd; margin-top: 5px; font-weight: bold;">魔龍對冒險者發起了挑戰，請在時限內克服！</div>
+                <div style="color: #fff; margin-top: 5px; font-weight: bold; text-shadow: 0 2px 4px #000;">魔龍對冒險者發起了挑戰，請在時限內克服！</div>
             </div>
             
             <div class="timer-circle">
                 <div id="timerDisplay" class="timer-display">03:00</div>
             </div>
             
-            <!-- 輸入時間 -->
-            <div style="display: flex; justify-content: center; gap: 10px; align-items: center; margin-bottom: 30px;">
-                <input type="number" id="timerMin" value="3" min="0" style="width: 80px; text-align: center; font-size: 1.5rem; background:rgba(0,0,0,0.5); border-color:#555; color: white;"> 
-                <span style="font-size: 1.5rem; color: #aaa;">:</span>
-                <input type="number" id="timerSec" value="0" min="0" max="59" style="width: 80px; text-align: center; font-size: 1.5rem; background:rgba(0,0,0,0.5); border-color:#555; color: white;">
+            <!-- 輸入時間：金字黑底，高辨識度 -->
+            <div class="timer-input-group" style="display: flex; justify-content: center; gap: 10px; align-items: center; margin-bottom: 30px;">
+                <input type="number" id="timerMin" value="3" min="0" 
+                       style="width: 80px; text-align: center; font-size: 1.5rem; background:rgba(0,0,0,0.7); border-color:#666; color: #ffd700; font-weight:bold;"> 
+                <span style="font-size: 1.5rem; color: #fff; font-weight: bold; text-shadow: 0 1px 2px #000;">:</span>
+                <input type="number" id="timerSec" value="0" min="0" max="59" 
+                       style="width: 80px; text-align: center; font-size: 1.5rem; background:rgba(0,0,0,0.7); border-color:#666; color: #ffd700; font-weight:bold;">
             </div>
 
             <div style="text-align: center;">

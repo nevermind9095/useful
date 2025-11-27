@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>冒險旅途中的意外插曲 v9.1</title>
+    <title>冒險旅途中的意外插曲 v9.2</title>
     <!-- 引入 QRCode -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <!-- 引入 現代日系 RPG 風格字體 -->
@@ -97,14 +97,14 @@
         .btn-dragon-reset { background: rgba(20, 20, 20, 0.8); color: #aaa; border: 1px solid #555; backdrop-filter: blur(4px); }
         .btn-dragon-reset:hover { background: rgba(50, 50, 50, 0.9); color: #fff; border-color: #fff; }
 
-        /* --- 頂部狀態列 (整合返回按鈕) --- */
+        /* --- 頂部狀態列 --- */
         #statusBar {
-            background: rgba(255,255,255,0.1); /* 極淡透明底 */
+            background: rgba(255,255,255,0.1);
             backdrop-filter: blur(10px);
             border-bottom: 1px solid rgba(255,255,255,0.1);
             padding: 10px 20px;
             display: flex;
-            justify-content: space-between; /* 左右分佈 */
+            justify-content: space-between;
             align-items: center;
             position: sticky;
             top: 0;
@@ -147,7 +147,7 @@
             border-radius: 0 0 4px 4px;
         }
 
-        /* --- 通用透明模式 (用於魔龍與抽籤) --- */
+        /* --- 通用透明模式 --- */
         .card.transparent-mode {
             background: transparent !important;
             box-shadow: none !important;
@@ -159,7 +159,7 @@
         }
         .card.transparent-mode::before { display: none; }
 
-        /* --- 懸浮面板樣式 (用於透明模式下的內容) --- */
+        /* --- 懸浮面板樣式 --- */
         .glass-panel {
             background: rgba(255, 255, 255, 0.9);
             padding: 20px;
@@ -181,7 +181,6 @@
         .demon-theme h3 { color: #ffcc00 !important; }
         .demon-theme .switch-label { color: #ffcc00; }
         
-        /* 抽籤結果大字 */
         .lottery-display-text {
             font-size: 6rem;
             font-weight: 700;
@@ -227,7 +226,7 @@
             width: 100%;
         }
 
-        /* 計時器數字 (魔龍版) */
+        /* 計時器數字 */
         .dragon-timer-display {
             font-family: 'Cinzel', serif;
             font-size: 8rem;
@@ -252,7 +251,6 @@
             text-align: center; width: 90px; border-radius: 8px; box-shadow: 0 0 15px rgba(0,0,0,0.5) !important;
         }
 
-        /* 輸入框 (通用) */
         input, select, textarea {
             background: #fff; border: 2px solid #e0e0e0; border-radius: 8px; color: var(--text-dark);
             padding: 12px; font-size: 1.1rem; width: 100%; margin-bottom: 15px; transition: 0.3s; font-family: var(--font-ui);
@@ -278,12 +276,13 @@
             background: #fff; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);
             cursor: pointer; transition: all 0.3s; position: relative; overflow: hidden; border: 1px solid transparent;
         }
+        /* [v9.2 Fix] 確保使用正確的檔名 */
         .menu-item-lottery { background-image: linear-gradient(rgba(255,255,255,0.85), rgba(255,255,255,0.85)), url('image_4aa398.jpg'); background-size: cover; background-position: center; }
-        .menu-item-timer { background-image: linear-gradient(rgba(255,255,255,0.85), rgba(255,255,255,0.85)), url('image_48dd5d.jpg'); background-size: cover; background-position: center; }
+        .menu-item-timer { background-image: linear-gradient(rgba(255,255,255,0.85), rgba(255,255,255,0.85)), url('Gemini_Generated_Image_5gyjko5gyjko5gyj.jpg'); background-size: cover; background-position: center; }
         
         .menu-item:hover { transform: translateY(-8px); box-shadow: 0 12px 24px rgba(78, 115, 223, 0.15); border-color: var(--primary); }
         .menu-item-lottery:hover { background-image: linear-gradient(rgba(255,255,255,0.7), rgba(255,255,255,0.7)), url('image_4aa398.jpg'); }
-        .menu-item-timer:hover { background-image: linear-gradient(rgba(255,255,255,0.7), rgba(255,255,255,0.7)), url('image_48dd5d.jpg'); }
+        .menu-item-timer:hover { background-image: linear-gradient(rgba(255,255,255,0.7), rgba(255,255,255,0.7)), url('Gemini_Generated_Image_5gyjko5gyjko5gyj.jpg'); }
         
         .menu-item::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(78, 115, 223, 0.03) 0%, transparent 70%); transition: 0.5s; }
         .menu-item:hover::before { transform: scale(1.1); }
@@ -315,15 +314,10 @@
         input:checked + .slider { background-color: var(--primary); }
         input:checked + .slider:before { transform: translateX(30px); }
 
-        /* 投票圖表樣式 - 可點擊 */
-        .vote-bar-row { 
-            margin-bottom: 24px; position: relative; cursor: pointer; transition: transform 0.2s;
-        }
-        .vote-bar-row:hover { transform: translateX(5px); }
+        .vote-bar-row { margin-bottom: 24px; position: relative; }
         .vote-label-row { display: flex; justify-content: space-between; margin-bottom: 8px; font-weight: 700; color: #555; }
         .vote-track { height: 16px; background: #f0f0f0; width: 100%; border-radius: 8px; overflow: hidden; }
         .vote-fill { height: 100%; background: var(--primary); width: 0%; transition: width 0.8s cubic-bezier(0.22, 1, 0.36, 1); border-radius: 8px; background-image: linear-gradient(45deg,rgba(255,255,255,.15) 25%,transparent 25%,transparent 50%,rgba(255,255,255,.15) 50%,rgba(255,255,255,.15) 75%,transparent 75%,transparent); background-size: 1rem 1rem; }
-        
         .student-option { background: #fff; padding: 20px; margin: 12px 0; border: 2px solid #eee; border-radius: 12px; cursor: pointer; display: flex; align-items: center; font-size: 1.1rem; transition: 0.2s; position: relative; }
         .student-option:hover { border-color: var(--primary); transform: translateX(5px); }
         .student-option.selected { background: #f0f4ff; border-color: var(--primary); color: var(--primary); font-weight: 700; }
@@ -367,7 +361,7 @@
     <!-- 首頁選單 -->
     <div id="page-home" class="page active">
         <div class="card" style="margin-top: 8vh; border-top: 5px solid var(--primary);">
-            <h1>冒險旅途中的意外插曲 <span class="version-tag" style="font-size: 0.8rem; background: #ddd; color: #333; padding: 2px 6px; border-radius: 4px;">v9.1</span></h1>
+            <h1>冒險旅途中的意外插曲 <span class="version-tag" style="font-size: 0.8rem; background: #ddd; color: #333; padding: 2px 6px; border-radius: 4px;">v9.2</span></h1>
             <p style="color: #666; margin-bottom: 40px;">請選擇冒險者即將遭遇的事件</p>
             
             <div class="menu-grid">
@@ -544,7 +538,6 @@
 
         // Global variables
         let app, db, auth, user;
-        // [v9.1 Fix] 補回全域變數，用於儲存學生端目前的目標 Host UID
         let currentStudentHost = null;
 
         // Audio Context
@@ -593,7 +586,8 @@
                 document.querySelectorAll('.lottery-display-text').forEach(el => { el.style.color = ''; el.classList.remove('lottery-rolling'); });
             } else { document.getElementById('lotteryCard').classList.add('transparent-mode'); }
             if(pageId.includes('timer')) {
-                document.body.style.backgroundImage = `linear-gradient(rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.75)), url('image_48dd5d.jpg')`;
+                // [v9.2 Fix] Use correct Gemini Dragon Image
+                document.body.style.backgroundImage = `linear-gradient(rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.75)), url('Gemini_Generated_Image_5gyjko5gyjko5gyj.jpg')`;
                 document.body.style.backgroundSize = 'cover'; document.body.style.backgroundPosition = 'center'; document.body.style.backgroundAttachment = 'fixed'; document.body.style.backgroundColor = '#000';
                 const timerCard = document.getElementById('timerCard'); if(timerCard) timerCard.classList.add('transparent-mode');
             } else { const timerCard = document.getElementById('timerCard'); if(timerCard) timerCard.classList.remove('transparent-mode'); }
@@ -815,7 +809,6 @@
         function initStudentMode(hostUid) {
             // [v9.1 Fix] Decode ID if encoded
             hostUid = decodeURIComponent(hostUid);
-            // [v9.1 Fix] Assign global variable
             currentStudentHost = hostUid;
 
             document.getElementById('statusBar').style.display = 'none';
@@ -891,7 +884,6 @@
             const updates = { logs: arrayUnion({ sid: sid, opts: selected, ts: Date.now() }) };
             selected.forEach(val => { updates[`votes.${val}`] = increment(1); });
             
-            // [v9.1 Fix] Ensure correct host variable is used
             if (!currentStudentHost) {
                  alert("錯誤：無法識別目標主機，請重新掃描 QR Code");
                  btn.disabled = false;
@@ -904,7 +896,6 @@
                 document.getElementById('studentDone').style.display = 'block';
             } catch(e) { 
                 console.error(e);
-                // Detailed error message
                 if(e.code === 'permission-denied') alert("傳送失敗：權限不足 (可能是 Firebase 規則阻擋)");
                 else alert("傳送失敗：" + e.message); 
                 btn.disabled = false; 

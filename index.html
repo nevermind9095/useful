@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>冒險旅途中的意外插曲 v8.7</title>
+    <title>冒險旅途中的意外插曲 v8.8</title>
     <!-- 引入 QRCode -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <!-- 引入 現代日系 RPG 風格字體 -->
@@ -176,11 +176,11 @@
             background: rgba(0, 0, 0, 0.85);
             border: 1px solid rgba(255, 255, 255, 0.15);
             color: #fff;
-            box-shadow: 0 0 20px rgba(255, 0, 0, 0.2);
         }
         .demon-theme h3 { color: #ffcc00 !important; }
         .demon-theme .switch-label { color: #ffcc00; }
         
+        /* 抽籤結果大字 */
         .lottery-display-text {
             font-size: 6rem;
             font-weight: 700;
@@ -188,6 +188,11 @@
             text-align: center;
             min-height: 120px;
             line-height: 1.2;
+            /* 增加一點動畫 */
+            transition: transform 0.1s;
+        }
+        .lottery-rolling {
+            transform: scale(1.1);
         }
 
         h1 { font-size: 2.2rem; margin-bottom: 0.5rem; font-family: var(--font-header); color: #1a1c29; font-weight: 900; }
@@ -341,7 +346,7 @@
     <!-- 首頁選單 -->
     <div id="page-home" class="page active">
         <div class="card" style="margin-top: 8vh; border-top: 5px solid var(--primary);">
-            <h1>冒險旅途中的意外插曲 <span class="version-tag" style="font-size: 0.8rem; background: #ddd; color: #333; padding: 2px 6px; border-radius: 4px;">v8.7</span></h1>
+            <h1>冒險旅途中的意外插曲 <span class="version-tag" style="font-size: 0.8rem; background: #ddd; color: #333; padding: 2px 6px; border-radius: 4px;">v8.8</span></h1>
             <p style="color: #666; margin-bottom: 40px;">請選擇冒險者即將遭遇的事件</p>
             
             <div class="menu-grid">
@@ -387,7 +392,7 @@
         </div>
     </div>
 
-    <!-- 1-2. 抽籤系統：執行畫面 (全透明佈局) -->
+    <!-- 1-2. 抽籤系統：執行畫面 -->
     <div id="page-lottery-run" class="page">
         <div class="card transparent-mode" id="lotteryCard">
             
@@ -429,7 +434,7 @@
         </div>
     </div>
 
-    <!-- 2. 計時器：魔龍挑戰 (全透明 + 史詩文字) -->
+    <!-- 2. 計時器：魔龍挑戰 -->
     <div id="page-timer" class="page">
         <div class="card transparent-mode" id="timerCard">
             <div style="text-align: center; margin-bottom: 30px;">
@@ -537,20 +542,65 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getFirestore, doc, setDoc, onSnapshot, updateDoc, increment, getDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-        // [v8.7] 引入 signInAnonymously
+        // 引入匿名登入
         import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-        // Universal Params (v8.5 Logic)
+        // Audio Context
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+        // Helper: Generate Sound
+        function playSound(type) {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            if (type === 'tick') {
+                // 抽籤滾動音效 (短促的木魚聲/機械聲)
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(800, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(400, audioCtx.currentTime + 0.05);
+                gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.05);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.05);
+            } else if (type === 'win') {
+                // 中獎音效 (清脆的和弦)
+                const now = audioCtx.currentTime;
+                // C Major Arpeggio
+                [523.25, 659.25, 783.99, 1046.50].forEach((freq, i) => {
+                    const o = audioCtx.createOscillator();
+                    const g = audioCtx.createGain();
+                    o.connect(g);
+                    g.connect(audioCtx.destination);
+                    o.type = 'sine';
+                    o.frequency.value = freq;
+                    g.gain.setValueAtTime(0, now + i * 0.05);
+                    g.gain.linearRampToValueAtTime(0.2, now + i * 0.05 + 0.05);
+                    g.gain.exponentialRampToValueAtTime(0.01, now + i * 0.05 + 0.5);
+                    o.start(now + i * 0.05);
+                    o.stop(now + i * 0.05 + 0.6);
+                });
+            }
+        }
+
+        // Universal Router
         function getUniversalParams() {
-            const url = window.location.href;
             let mode = null, host = null;
-
-            const modeMatch = url.match(/[?&#]mode=student/);
-            if (modeMatch) mode = 'student';
-
-            const hostMatch = url.match(/[?&#]host=([^&#]+)/);
-            if (hostMatch) host = hostMatch[1];
-
+            const currentUrl = window.location.href;
+            
+            if (window.location.hash.includes('mode=student')) {
+                const hashContent = window.location.hash.substring(1);
+                const params = new URLSearchParams(hashContent);
+                mode = params.get('mode');
+                host = params.get('host');
+            } else {
+                const params = new URLSearchParams(window.location.search);
+                mode = params.get('mode');
+                host = params.get('host');
+            }
             return { mode, host };
         }
 
@@ -562,7 +612,6 @@
             const homeBtn = document.getElementById('homeBtnContainer');
             const authBtn = document.getElementById('authBtn');
             
-            // Reset Background
             document.body.style.background = ''; 
             document.body.style.backgroundImage = `
                 radial-gradient(circle at 10% 20%, rgba(78, 115, 223, 0.2) 0%, transparent 20%),
@@ -578,7 +627,6 @@
                 authBtn.style.display = 'block';
             }
 
-            // Clear Lottery Styles
             if (pageId !== 'lottery-run') {
                 const card = document.getElementById('lotteryCard');
                 if(card) {
@@ -586,12 +634,14 @@
                     card.style.backgroundImage = '';
                     card.style.backgroundColor = '';
                 }
-                document.querySelectorAll('.lottery-display-text').forEach(el => el.style.color = '');
+                document.querySelectorAll('.lottery-display-text').forEach(el => {
+                    el.style.color = '';
+                    el.classList.remove('lottery-rolling');
+                });
             } else {
                 document.getElementById('lotteryCard').classList.add('transparent-mode');
             }
             
-            // Dragon Styles
             if(pageId.includes('timer')) {
                 document.body.style.backgroundImage = `linear-gradient(rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.75)), url('Gemini_Generated_Image_5gyjko5gyjko5gyj.jpg')`;
                 document.body.style.backgroundSize = 'cover';
@@ -666,19 +716,16 @@
                 document.body.style.backgroundSize = 'cover';
                 document.body.style.backgroundPosition = 'center';
                 document.body.style.backgroundAttachment = 'fixed';
-                
                 btn.className = 'btn btn-primary';
                 display.style.color = "var(--primary)";
 
             } else {
-                document.body.style.backgroundImage = `linear-gradient(rgba(0, 0, 0, 0.85), rgba(0, 0, 0, 0.85)), url('image_4b8812.jpg')`;
+                document.body.style.backgroundImage = `linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('image_4b8812.jpg')`;
                 document.body.style.backgroundSize = 'cover';
                 document.body.style.backgroundPosition = 'center';
                 document.body.style.backgroundAttachment = 'fixed';
-                
                 btn.className = 'btn btn-danger';
                 display.style.color = "#e74c3c";
-                
                 card.classList.add('demon-theme');
                 configPanel.classList.add('demon-theme');
             }
@@ -691,7 +738,6 @@
             const isUnique = document.getElementById('uniqueModeCheck').checked;
             
             if(start >= end) return alert("範圍錯誤");
-            
             let pool = [];
             if (isUnique) {
                 if (lotteryDeck.length === 0) window.initDeck();
@@ -703,12 +749,42 @@
             } else {
                 for(let i=start; i<=end; i++) pool.push(i);
             }
-            // Animation
-            const randomVal = pool[Math.floor(Math.random() * pool.length)];
-            document.getElementById('lotteryDisplay').innerText = randomVal; 
+
+            const display = document.getElementById('lotteryDisplay');
+            // Add animation class
+            display.classList.add('lottery-rolling');
+            
+            let counter = 0;
+            const interval = setInterval(() => {
+                // 滾動邏輯
+                const randomVal = pool[Math.floor(Math.random() * pool.length)];
+                display.innerText = randomVal.toString().padStart(2, '0');
+                playSound('tick'); // 播放音效
+                counter++;
+                if(counter > 25) { // 增加滾動次數
+                    clearInterval(interval);
+                    display.classList.remove('lottery-rolling');
+                    
+                    let winners = [];
+                    if (isUnique) {
+                        for(let k=0; k<count; k++) {
+                            const idx = Math.floor(Math.random() * lotteryDeck.length);
+                            winners.push(lotteryDeck[idx]);
+                            lotteryDeck.splice(idx, 1);
+                        }
+                    } else {
+                        for(let k=0; k<count; k++) {
+                            winners.push(pool[Math.floor(Math.random() * pool.length)]);
+                        }
+                    }
+                    display.innerText = winners.map(n => n.toString().padStart(2,'0')).join(' , ');
+                    playSound('win'); // 播放中獎音效
+                }
+            }, 60); // 速度稍微加快
         };
 
         // --- Timer Logic ---
+        // (Code omitted for brevity, same as before)
         let timerInterval; let isRunning = false; let totalTimeLeft = 0;
         function updateTimerDisplay(totalSeconds) {
             const m = Math.floor(totalSeconds / 60).toString().padStart(2, '0');
@@ -723,7 +799,6 @@
                 const m = parseInt(document.getElementById('timerMin').value) || 0;
                 const s = parseInt(document.getElementById('timerSec').value) || 0;
                 if(totalTimeLeft <= 0) totalTimeLeft = m * 60 + s;
-                
                 isRunning = true; btn.innerHTML = "⏸️ 暫停";
                 timerInterval = setInterval(() => {
                     totalTimeLeft--; updateTimerDisplay(totalTimeLeft);
@@ -759,14 +834,11 @@
 
             const voteData = { active: true, question, type, limit: (type === 'multi' ? limit : 1), classSize, options, timestamp: new Date().toISOString(), votes: {}, logs: [] };
             options.forEach(opt => voteData.votes[opt] = 0);
-
             const path = `users/${user.uid}/apps/classroom_adventure_tool`;
             await setDoc(doc(db, path), voteData);
-
             document.getElementById('voteSetup').style.display = 'none';
             document.getElementById('voteResult').style.display = 'block';
             
-            // Generate QR Code with Hash
             let baseUrl = window.location.href.split('#')[0].split('?')[0];
             if (baseUrl.endsWith('/')) baseUrl = baseUrl.slice(0, -1);
             if (!baseUrl.endsWith('index.html')) baseUrl += '/index.html';
@@ -775,7 +847,6 @@
             const qrDiv = document.getElementById('qrCodeArea');
             qrDiv.innerHTML = "";
             new QRCode(qrDiv, { text: studentLink, width: 160, height: 160 });
-
             startTeacherListener(user.uid);
         };
 
@@ -820,13 +891,15 @@
              }
         };
 
+        // [v8.8 修復] 學生模式：新增匿名登入
         function initStudentMode(hostUid) {
             document.getElementById('statusBar').style.display = 'none';
             navTo('vote-student');
             
-            // [v8.7 Fix] 匿名登入以確保寫入權限
+            // 嘗試匿名登入
             signInAnonymously(auth).then(() => {
-                console.log("Student anon login success");
+                console.log("Student Anonymous Login Success");
+                // 登入成功後才監聽資料
                 onSnapshot(doc(db, `users/${hostUid}/apps/classroom_adventure_tool`), (snap) => {
                     const data = snap.data();
                     if(snap.exists() && data.active) {
@@ -839,8 +912,12 @@
                     }
                 });
             }).catch((error) => {
-                console.error("Anon login failed", error);
-                alert("無法連接伺服器，請稍後再試");
+                console.error("Anon Auth Failed:", error);
+                if (error.code === 'auth/admin-restricted-operation' || error.code === 'auth/operation-not-allowed') {
+                    alert("⚠️ 連線失敗：\n請老師檢查 Firebase 後台設定，\n是否已開啟「匿名登入 (Anonymous)」功能。");
+                } else {
+                    alert("無法連結伺服器，請確認網路連線。\n錯誤代碼：" + error.code);
+                }
             });
         }
 
@@ -889,11 +966,7 @@
                 await updateDoc(doc(db, `users/${currentStudentHost}/apps/classroom_adventure_tool`), updates);
                 document.getElementById('studentVotingForm').style.display = 'none';
                 document.getElementById('studentDone').style.display = 'block';
-            } catch(e) { 
-                console.error(e);
-                alert("傳送失敗，請確認網路連線"); 
-                btn.disabled = false; 
-            }
+            } catch(e) { alert("傳送失敗"); btn.disabled = false; }
         };
 
         const authBtn = document.getElementById('authBtn');

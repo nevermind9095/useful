@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>冒險旅途中的意外插曲 v8.9</title>
+    <title>冒險旅途中的意外插曲 v9.0</title>
     <!-- 引入 QRCode -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <!-- 引入 現代日系 RPG 風格字體 -->
@@ -258,6 +258,7 @@
         input:focus, select:focus, textarea:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(78, 115, 223, 0.1); }
         label { color: #666; font-size: 1rem; margin-bottom: 6px; display: block; font-weight: 700; font-family: var(--font-header); }
         
+        /* 惡魔模式下的輸入框調色 */
         .demon-theme input {
             background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.3); color: #fff;
         }
@@ -276,11 +277,11 @@
             cursor: pointer; transition: all 0.3s; position: relative; overflow: hidden; border: 1px solid transparent;
         }
         .menu-item-lottery { background-image: linear-gradient(rgba(255,255,255,0.85), rgba(255,255,255,0.85)), url('image_4aa398.jpg'); background-size: cover; background-position: center; }
-        .menu-item-timer { background-image: linear-gradient(rgba(255,255,255,0.85), rgba(255,255,255,0.85)), url('Gemini_Generated_Image_5gyjko5gyjko5gyj.jpg'); background-size: cover; background-position: center; }
+        .menu-item-timer { background-image: linear-gradient(rgba(255,255,255,0.85), rgba(255,255,255,0.85)), url('image_48dd5d.jpg'); background-size: cover; background-position: center; }
         
         .menu-item:hover { transform: translateY(-8px); box-shadow: 0 12px 24px rgba(78, 115, 223, 0.15); border-color: var(--primary); }
         .menu-item-lottery:hover { background-image: linear-gradient(rgba(255,255,255,0.7), rgba(255,255,255,0.7)), url('image_4aa398.jpg'); }
-        .menu-item-timer:hover { background-image: linear-gradient(rgba(255,255,255,0.7), rgba(255,255,255,0.7)), url('Gemini_Generated_Image_5gyjko5gyjko5gyj.jpg'); }
+        .menu-item-timer:hover { background-image: linear-gradient(rgba(255,255,255,0.7), rgba(255,255,255,0.7)), url('image_48dd5d.jpg'); }
         
         .menu-item::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(78, 115, 223, 0.03) 0%, transparent 70%); transition: 0.5s; }
         .menu-item:hover::before { transform: scale(1.1); }
@@ -312,7 +313,7 @@
         input:checked + .slider { background-color: var(--primary); }
         input:checked + .slider:before { transform: translateX(30px); }
 
-        /* 投票圖表樣式 */
+        /* 投票圖表樣式 - 可點擊 */
         .vote-bar-row { 
             margin-bottom: 24px; position: relative; cursor: pointer; transition: transform 0.2s;
         }
@@ -364,7 +365,7 @@
     <!-- 首頁選單 -->
     <div id="page-home" class="page active">
         <div class="card" style="margin-top: 8vh; border-top: 5px solid var(--primary);">
-            <h1>冒險旅途中的意外插曲 <span class="version-tag" style="font-size: 0.8rem; background: #ddd; color: #333; padding: 2px 6px; border-radius: 4px;">v8.9</span></h1>
+            <h1>冒險旅途中的意外插曲 <span class="version-tag" style="font-size: 0.8rem; background: #ddd; color: #333; padding: 2px 6px; border-radius: 4px;">v9.0</span></h1>
             <p style="color: #666; margin-bottom: 40px;">請選擇冒險者即將遭遇的事件</p>
             
             <div class="menu-grid">
@@ -524,7 +525,7 @@
         </div>
     </div>
 
-    <!-- 投票明細 Modal -->
+    <!-- 投票明細 Modal (v9.0 新增) -->
     <div id="detailModal" class="modal">
         <div class="modal-content">
             <span class="close-modal" onclick="closeModal()">&times;</span>
@@ -821,7 +822,7 @@
              }
         };
 
-        // [v8.9 Update] Auto Anonymous Auth for Student
+        // [v9.0 Update] Auto Anonymous Auth for Student
         function initStudentMode(hostUid) {
             document.getElementById('statusBar').style.display = 'none';
             navTo('vote-student');
@@ -846,14 +847,18 @@
                 }, (error) => {
                     console.error("Listen failed: ", error);
                     if (error.code === 'permission-denied') {
-                         alert("連線失敗：權限不足。\n請老師檢查 Firebase 後台是否開啟「匿名登入」功能。");
+                         alert("⚠️ 連線失敗：權限不足。\n請老師務必到 Firebase 後台開啟「匿名登入 (Anonymous)」功能。");
                     } else {
                          alert("連線中斷：" + error.message);
                     }
                 });
             }).catch((error) => {
                 console.error("Anon Auth Error", error);
-                alert("無法建立連線 (身份驗證失敗)\n錯誤代碼: " + error.code);
+                if (error.code === 'auth/admin-restricted-operation' || error.code === 'auth/operation-not-allowed') {
+                    alert("⚠️ 嚴重錯誤：\n老師尚未在 Firebase 後台開啟「匿名登入」功能，導致學生無法投票。");
+                } else {
+                    alert("無法建立連線 (身份驗證失敗)\n錯誤代碼: " + error.code);
+                }
             });
         }
 

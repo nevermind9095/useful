@@ -3,10 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>冒險旅途中的意外插曲 v8.8</title>
-    <!-- 引入 QRCode -->
+    <title>冒險旅途中的意外插曲 v8.3 (穩定修復版)</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-    <!-- 引入 現代日系 RPG 風格字體 -->
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@600;900&family=Cinzel:wght@700&display=swap" rel="stylesheet">
     
     <style>
@@ -51,7 +49,6 @@
             position: fixed; top: 0; left: 0; width: 100%; height: 6px;
             background: linear-gradient(90deg, var(--primary), var(--gold), var(--primary));
             z-index: 1000;
-            pointer-events: none;
         }
 
         /* --- 按鈕元件 --- */
@@ -72,7 +69,6 @@
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
             overflow: hidden;
             letter-spacing: 1px;
-            pointer-events: auto !important;
         }
         .btn:hover { transform: translateY(-2px); box-shadow: 0 6px 12px rgba(0,0,0,0.2); }
         .btn:active { transform: scale(0.96); }
@@ -80,6 +76,7 @@
         .btn-primary { background: linear-gradient(135deg, var(--primary), #2c52b3); color: white; }
         .btn-danger { background: linear-gradient(135deg, var(--accent-red), #962d22); color: white; }
         .btn-success { background: linear-gradient(135deg, #27ae60, #219150); color: white; }
+        .btn-info { background: linear-gradient(135deg, #17a2b8, #138496); color: white; }
         .btn-ghost { background: rgba(255,255,255,0.2); color: #fff; border: 1px solid rgba(255,255,255,0.5); backdrop-filter: blur(4px); }
         .btn-ghost:hover { background: rgba(255,255,255,0.3); }
 
@@ -104,26 +101,63 @@
             border-bottom: 1px solid rgba(255,255,255,0.1);
             padding: 10px 20px;
             display: flex;
+            align-items: flex-start;
             justify-content: space-between;
-            align-items: center;
             position: sticky;
             top: 0;
             z-index: 2000;
-            pointer-events: none; 
+            min-height: 60px;
         }
-        #statusBar > * { pointer-events: auto; } 
-        
-        #homeBtnContainer { display: none; }
+        #homeBtnContainer { display: none; padding-top: 5px; }
+
+        /* 返回大廳按鈕 */
         #globalHomeBtn {
-            background: #2c3e50;
-            color: #ffffff;
+            background: #2c3e50; color: #ffffff;
             border: 1px solid rgba(255,255,255,0.3);
             box-shadow: 0 4px 10px rgba(0,0,0,0.3);
         }
-        #globalHomeBtn:hover {
-            background: #34495e;
-            transform: scale(1.05);
+        #globalHomeBtn:hover { background: #34495e; transform: scale(1.05); }
+
+        /* 右上角控制區群組 (保持垂直排列) */
+        .top-right-group {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 10px;
+            margin-top: 5px;
         }
+
+        /* 雲端狀態列 */
+        .cloud-status {
+            font-size: 0.75rem; color: white;
+            display: flex; align-items: center; gap: 8px;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 6px 10px;
+            border-radius: 5px;
+            border: 1px solid rgba(255,255,255,0.3);
+            width: fit-content;
+        }
+        .status-dot { width: 8px; height: 8px; border-radius: 50%; background: #999; }
+        .status-dot.online { background: #00FF00; box-shadow: 0 0 5px #00FF00; }
+
+        /* 雲端登入按鈕 */
+        .auth-btn {
+            background: #444; color: white; border: 1px solid #fff;
+            border-radius: 3px; padding: 2px 6px; font-size: 0.7rem;
+            cursor: pointer; margin-left: 4px;
+        }
+        .auth-btn.logged-in { background: #4caf50; border-color: #81c784; }
+
+        /* 音樂按鈕 */
+        .music-btn {
+            background: #222; color: #4DEEEE;
+            border: 2px solid #444; border-radius: 20px;
+            padding: 6px 12px; font-size: 0.8rem;
+            cursor: pointer; display: flex; align-items: center; justify-content: center;
+            gap: 5px; box-shadow: inset 0 0 5px #000;
+            white-space: nowrap; width: fit-content;
+        }
+        .music-btn.active { background: #4DEEEE; color: #222; box-shadow: 0 0 10px #4DEEEE; }
 
         /* --- 卡片容器 --- */
         .card {
@@ -137,7 +171,6 @@
             box-shadow: var(--shadow-card);
             border: 1px solid #e0e0e0;
             transition: all 0.5s;
-            pointer-events: auto !important;
         }
         .card::before {
             content: '';
@@ -170,84 +203,44 @@
             margin-bottom: 20px;
             transition: all 0.5s;
         }
-        
-        /* 惡魔/魔龍模式下的懸浮面板 */
         .demon-theme .glass-panel {
-            background: rgba(0, 0, 0, 0.85);
-            border: 1px solid rgba(255, 255, 255, 0.15);
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             color: #fff;
         }
-        .demon-theme h3 { color: #ffcc00 !important; }
-        .demon-theme .switch-label { color: #ffcc00; }
         
-        /* 抽籤結果大字 */
         .lottery-display-text {
-            font-size: 6rem;
-            font-weight: 700;
-            font-family: 'Cinzel', serif;
-            text-align: center;
-            min-height: 120px;
-            line-height: 1.2;
-            /* 增加一點動畫 */
-            transition: transform 0.1s;
-        }
-        .lottery-rolling {
-            transform: scale(1.1);
+            font-size: 6rem; font-weight: 700; font-family: 'Cinzel', serif;
+            text-align: center; min-height: 120px; line-height: 1.2;
         }
 
         h1 { font-size: 2.2rem; margin-bottom: 0.5rem; font-family: var(--font-header); color: #1a1c29; font-weight: 900; }
         h1 span { color: var(--gold); font-family: var(--font-eng); font-size: 1.8rem; margin-left: 10px; }
         h2 { font-size: 1.8rem; border-bottom: 2px solid rgba(0,0,0,0.05); padding-bottom: 10px; margin-bottom: 25px; font-family: var(--font-header); color: #1a1c29; }
         
-        /* 魔龍標題特效 */
+        /* 魔龍 */
         .dragon-title {
-            font-family: var(--font-header);
-            font-size: 4rem;
-            font-weight: 900;
+            font-family: var(--font-header); font-size: 4rem; font-weight: 900;
             background: linear-gradient(to bottom, #ffeb3b 0%, #ff5722 60%, #b71c1c 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            filter: drop-shadow(0 0 15px rgba(255, 69, 0, 0.8));
-            letter-spacing: 8px;
-            margin-bottom: 15px;
-            text-transform: uppercase;
-            line-height: 1.2;
-            text-align: center;
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 0 15px rgba(255, 69, 0, 0.8)); letter-spacing: 8px;
+            margin-bottom: 15px; text-transform: uppercase; line-height: 1.2; text-align: center;
         }
-        
         .dragon-subtitle {
-            font-family: var(--font-ui);
-            color: #fff;
-            font-weight: bold;
-            font-size: 1.2rem;
-            text-shadow: 0 2px 4px #000;
-            background: linear-gradient(90deg, transparent, rgba(0,0,0,0.8), transparent);
-            padding: 8px 40px;
-            display: inline-block;
-            letter-spacing: 1px;
-            text-align: center;
-            width: 100%;
+            font-family: var(--font-ui); color: #fff; font-weight: bold; font-size: 1.2rem;
+            text-shadow: 0 2px 4px #000; background: linear-gradient(90deg, transparent, rgba(0,0,0,0.8), transparent);
+            padding: 8px 40px; display: inline-block; letter-spacing: 1px; text-align: center; width: 100%;
         }
-
-        /* 計時器數字 */
         .dragon-timer-display {
-            font-family: 'Cinzel', serif;
-            font-size: 8rem;
-            font-weight: 700;
-            color: #fff;
-            text-shadow: 0 0 10px rgba(255, 215, 0, 0.8), 0 4px 4px #000;
-            margin: 30px 0;
-            background: radial-gradient(closest-side, rgba(0,0,0,0.4), transparent);
-            padding: 10px;
-            line-height: 1;
-            text-align: center;
+            font-family: 'Cinzel', serif; font-size: 8rem; font-weight: 700; color: #fff;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.8), 0 4px 4px #000; margin: 30px 0;
+            background: radial-gradient(closest-side, rgba(0,0,0,0.4), transparent); padding: 10px; line-height: 1; text-align: center;
         }
         .timer-urgent .dragon-timer-display {
             color: #ff4d4d; text-shadow: 0 0 30px red, 0 4px 8px black;
             animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both infinite;
         }
         @keyframes shake { 10%, 90% { transform: translate3d(-1px, 0, 0); } 20%, 80% { transform: translate3d(2px, 0, 0); } }
-
         .dragon-input {
             background: rgba(0,0,0,0.7) !important; border: 1px solid #888 !important; color: #ffcc00 !important;
             font-family: 'Cinzel', serif !important; font-size: 1.8rem !important; font-weight: bold !important;
@@ -261,10 +254,7 @@
         input:focus, select:focus, textarea:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(78, 115, 223, 0.1); }
         label { color: #666; font-size: 1rem; margin-bottom: 6px; display: block; font-weight: 700; font-family: var(--font-header); }
         
-        /* 惡魔模式下的輸入框調色 */
-        .demon-theme input {
-            background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.3); color: #fff;
-        }
+        .demon-theme input { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.3); color: #fff; }
         .demon-theme label { color: #ccc; }
         .demon-theme h3 { color: #ffcc00 !important; }
 
@@ -272,7 +262,7 @@
         .page.active { display: block; }
         @keyframes fadeSlideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* 選單 */
+        /* Menu */
         .menu-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 25px; padding: 10px; }
         .menu-item {
             height: 240px; display: flex; flex-direction: column; justify-content: center; align-items: center;
@@ -280,11 +270,11 @@
             cursor: pointer; transition: all 0.3s; position: relative; overflow: hidden; border: 1px solid transparent;
         }
         .menu-item-lottery { background-image: linear-gradient(rgba(255,255,255,0.85), rgba(255,255,255,0.85)), url('image_4aa398.jpg'); background-size: cover; background-position: center; }
-        .menu-item-timer { background-image: linear-gradient(rgba(255,255,255,0.85), rgba(255,255,255,0.85)), url('Gemini_Generated_Image_5gyjko5gyjko5gyj.jpg'); background-size: cover; background-position: center; }
+        .menu-item-timer { background-image: linear-gradient(rgba(255,255,255,0.85), rgba(255,255,255,0.85)), url('image_48dd5d.jpg'); background-size: cover; background-position: center; }
         
         .menu-item:hover { transform: translateY(-8px); box-shadow: 0 12px 24px rgba(78, 115, 223, 0.15); border-color: var(--primary); }
         .menu-item-lottery:hover { background-image: linear-gradient(rgba(255,255,255,0.7), rgba(255,255,255,0.7)), url('image_4aa398.jpg'); }
-        .menu-item-timer:hover { background-image: linear-gradient(rgba(255,255,255,0.7), rgba(255,255,255,0.7)), url('Gemini_Generated_Image_5gyjko5gyjko5gyj.jpg'); }
+        .menu-item-timer:hover { background-image: linear-gradient(rgba(255,255,255,0.7), rgba(255,255,255,0.7)), url('image_48dd5d.jpg'); }
         
         .menu-item::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(78, 115, 223, 0.03) 0%, transparent 70%); transition: 0.5s; }
         .menu-item:hover::before { transform: scale(1.1); }
@@ -292,7 +282,7 @@
         .menu-title { font-size: 1.5rem; font-weight: 900; color: var(--text-dark); margin-bottom: 5px; font-family: var(--font-header); z-index: 1; }
         .menu-sub { font-family: var(--font-eng); font-size: 0.8rem; color: #555; letter-spacing: 2px; text-transform: uppercase; z-index: 1; font-weight: bold;}
 
-        /* 抽籤門 */
+        /* Doors */
         .door-container { display: flex; gap: 30px; justify-content: center; flex-wrap: wrap; margin-top: 40px; }
         .door { width: 45%; min-width: 300px; height: 420px; position: relative; cursor: pointer; transition: 0.4s; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.3); background-size: cover; background-position: center; }
         .door:hover { transform: scale(1.03); box-shadow: 0 15px 40px rgba(0,0,0,0.4); }
@@ -325,30 +315,81 @@
         .student-option.selected { background: #f0f4ff; border-color: var(--primary); color: var(--primary); font-weight: 700; }
         .student-option input { width: 22px; height: 22px; margin: 0 15px 0 0; accent-color: var(--primary); }
 
-        /* Version Tag */
-        .version-tag {
-            display: inline-block; margin-left: 10px; font-size: 0.8rem; background: var(--primary); color: white; padding: 2px 8px; border-radius: 4px; vertical-align: middle;
+        /* --- [v8.3 新增] 投票明細彈窗 --- */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5); backdrop-filter: blur(4px);
+            z-index: 3000; display: none; justify-content: center; align-items: center;
         }
+        .modal-content {
+            background: #fff; width: 90%; max-width: 600px;
+            border-radius: 16px; padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            max-height: 80vh; display: flex; flex-direction: column;
+        }
+        .modal-header {
+            display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 1px solid #eee; padding-bottom: 15px; margin-bottom: 15px;
+        }
+        .modal-close { font-size: 1.5rem; cursor: pointer; color: #888; }
+        .modal-close:hover { color: #333; }
+        .log-table-container { overflow-y: auto; flex: 1; }
+        .log-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+        .log-table th { background: #f8f9fa; padding: 10px; text-align: left; position: sticky; top: 0; }
+        .log-table td { padding: 10px; border-bottom: 1px solid #eee; }
+        .log-table tr:nth-child(even) { background: #fcfcfc; }
 
         @media (max-width: 600px) { h1 { font-size: 1.8rem; } .card { padding: 1.5rem; width: 95%; } .door { height: 250px; min-width: 100%; } }
     </style>
 </head>
 <body>
 
-    <!-- 頂部狀態列 -->
     <div id="statusBar">
         <div id="homeBtnContainer">
             <button id="globalHomeBtn" class="btn" onclick="navTo('home')">↩ 返回大廳</button>
         </div>
-        <button id="authBtn" class="btn btn-ghost" style="font-size: 0.9rem;">☁️ 雲端登入</button>
+        <div class="top-right-group">
+            <div class="cloud-status">
+                <div class="status-dot" id="cloudStatusDot"></div>
+                <span id="cloudStatusText">離線</span>
+                <button id="authBtn" class="auth-btn" onclick="toggleAuth()">登入</button>
+            </div>
+            <div class="music-btn" id="musicToggle" onclick="toggleMusic()">
+                🎵 BGM: OFF
+            </div>
+        </div>
     </div>
 
-    <!-- 首頁選單 -->
+    <div id="detailModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 style="margin:0; border:none;">📊 投票詳細名單</h2>
+                <div class="modal-close" onclick="closeDetailModal()">×</div>
+            </div>
+            <div class="log-table-container">
+                <table class="log-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 30%;">座號</th>
+                            <th>選擇項目</th>
+                            <th style="width: 30%;">時間</th>
+                        </tr>
+                    </thead>
+                    <tbody id="logTableBody">
+                        </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="victory-modal" id="victoryModal" style="display:none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 3000; flex-direction: column; justify-content: center; align-items: center; color: white;">
+        <h1>👑 恭喜！</h1>
+    </div>
+
     <div id="page-home" class="page active">
         <div class="card" style="margin-top: 8vh; border-top: 5px solid var(--primary);">
-            <h1>冒險旅途中的意外插曲 <span class="version-tag" style="font-size: 0.8rem; background: #ddd; color: #333; padding: 2px 6px; border-radius: 4px;">v8.8</span></h1>
+            <h1>冒險旅途中的意外插曲</h1>
             <p style="color: #666; margin-bottom: 40px;">請選擇冒險者即將遭遇的事件</p>
-            
             <div class="menu-grid">
                 <div class="menu-item menu-item-lottery" onclick="navTo('lottery-gate')">
                     <div class="menu-icon">⚔️</div>
@@ -369,37 +410,25 @@
         </div>
     </div>
 
-    <!-- 1. 抽籤系統：大門選擇 -->
     <div id="page-lottery-gate" class="page">
         <div style="padding: 20px; text-align: center; margin-top: 50px;">
             <h1 style="color: #fff; text-shadow: 0 2px 5px rgba(0,0,0,0.5);">命運的抉擇</h1>
-            <p style="color: rgba(255,255,255,0.8);">請選擇召喚的途徑</p>
-            
             <div class="door-container">
                 <div class="door door-angel" onclick="enterLottery('angel')">
-                    <div class="door-overlay">
-                        <div class="door-title">天使的祝福</div>
-                        <div class="door-desc">獲得女神的恩典與獎勵</div>
-                    </div>
+                    <div class="door-overlay"><div class="door-title">天使的祝福</div></div>
                 </div>
                 <div class="door door-demon" onclick="enterLottery('demon')">
-                    <div class="door-overlay">
-                        <div class="door-title">惡魔的試煉</div>
-                        <div class="door-desc">面對深淵的艱難挑戰</div>
-                    </div>
+                    <div class="door-overlay"><div class="door-title">惡魔的試煉</div></div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- 1-2. 抽籤系統：執行畫面 -->
     <div id="page-lottery-run" class="page">
         <div class="card transparent-mode" id="lotteryCard">
-            
             <div class="glass-panel lottery-result-area">
                 <div id="lotteryDisplay" class="lottery-display-text">READY</div>
             </div>
-            
             <div class="glass-panel config-panel">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
                     <h3 style="font-size: 1rem; color: #555; margin:0; border:none;">⚙️ 徵召設定</h3>
@@ -411,47 +440,32 @@
                         </label>
                     </div>
                 </div>
-
                 <div style="display: flex; gap: 20px; align-items: flex-end; flex-wrap: wrap;">
-                    <div style="flex: 1;">
-                        <label>號碼起始</label>
-                        <input type="number" id="lotRangeStart" value="1" style="text-align: center;" onchange="resetLotteryDeck()">
-                    </div>
-                    <div style="flex: 1;">
-                        <label>號碼結束</label>
-                        <input type="number" id="lotRangeEnd" value="30" style="text-align: center;" onchange="resetLotteryDeck()">
-                    </div>
-                    <div style="flex: 1;">
-                        <label>抽取人數</label>
-                        <input type="number" id="lotCount" value="1" max="10" style="text-align: center;">
-                    </div>
+                    <div style="flex: 1;"><label>起始</label><input type="number" id="lotRangeStart" value="1" style="text-align: center;" onchange="resetLotteryDeck()"></div>
+                    <div style="flex: 1;"><label>結束</label><input type="number" id="lotRangeEnd" value="30" style="text-align: center;" onchange="resetLotteryDeck()"></div>
+                    <div style="flex: 1;"><label>人數</label><input type="number" id="lotCount" value="1" max="10" style="text-align: center;"></div>
                 </div>
             </div>
-            
             <div style="margin-top: 30px; text-align: center;">
                 <button id="lotteryActionBtn" class="btn btn-primary" style="width: 100%; padding: 15px; font-size: 1.3rem;" onclick="drawNumbers()">✨ 開始召喚 ✨</button>
             </div>
         </div>
     </div>
 
-    <!-- 2. 計時器：魔龍挑戰 -->
     <div id="page-timer" class="page">
         <div class="card transparent-mode" id="timerCard">
             <div style="text-align: center; margin-bottom: 30px;">
                 <div class="dragon-title">魔龍挑戰</div>
-                <div class="dragon-subtitle">魔龍對冒險者發起了挑戰，請在時限內克服！</div>
+                <div class="dragon-subtitle">請在時限內克服挑戰！</div>
             </div>
-            
             <div style="text-align: center;">
                 <div id="timerDisplay" class="dragon-timer-display">03:00</div>
             </div>
-            
             <div style="display: flex; justify-content: center; gap: 10px; align-items: center; margin-bottom: 40px;">
                 <input type="number" id="timerMin" value="3" min="0" class="dragon-input"> 
                 <span style="font-size: 2rem; color: #fff; font-weight: bold; text-shadow: 0 2px 4px #000;">:</span>
                 <input type="number" id="timerSec" value="0" min="0" max="59" class="dragon-input">
             </div>
-
             <div style="text-align: center; display: flex; gap: 20px; justify-content: center;">
                 <button class="btn btn-dragon-fight" id="startTimerBtn" onclick="toggleTimer()">⚔️ 接受挑戰</button>
                 <button class="btn btn-dragon-reset" onclick="resetTimer()">🔄 重置挑戰</button>
@@ -459,33 +473,29 @@
         </div>
     </div>
 
-    <!-- 3. 投票系統 (教師端) -->
     <div id="page-vote-teacher" class="page">
         <div class="card" id="voteSetup" style="border-top: 5px solid var(--gold); margin-top: 50px;">
             <h2>發布戰略決策</h2>
             <div style="text-align: left;">
                 <label>決策目標 (題目)</label>
                 <input type="text" id="voteQuestion" placeholder="例如：我們要先攻略哪一座迷宮？">
-                
                 <div style="display: flex; gap: 20px; flex-wrap: wrap;">
                     <div style="flex: 1;">
-                        <label>公會人數 (名冊上限)</label>
+                        <label>公會人數</label>
                         <input type="number" id="voteClassSize" value="30" min="1">
                     </div>
                     <div style="flex: 1;">
                         <label>投票模式</label>
                         <select id="voteType" onchange="toggleVoteLimit()">
-                            <option value="single">單選 (一人一票)</option>
-                            <option value="multi">複選 (一人多票)</option>
+                            <option value="single">單選</option>
+                            <option value="multi">複選</option>
                         </select>
                     </div>
                 </div>
-
                 <div id="voteLimitContainer" style="display: none; background: #fff3cd; padding: 10px; border-radius: 8px; margin-bottom: 15px;">
                     <label style="color: #856404; margin-bottom: 0;">⚠️ 複選限制：每人必須投幾票？</label>
                     <input type="number" id="voteLimit" value="2" min="2" style="margin-top: 5px; margin-bottom: 0;">
                 </div>
-                
                 <label>戰略選項 (每行一個)</label>
                 <textarea id="voteOptions" rows="5" placeholder="火焰山脈&#10;寒冰洞窟&#10;精靈之森"></textarea>
             </div>
@@ -501,7 +511,13 @@
                     <div style="font-size: 0.9rem; color: #888;">STATUS: ACTIVE</div>
                 </div>
             </div>
+            
             <div id="voteBarsArea" style="text-align: left; min-height: 200px;"></div>
+            
+            <div style="text-align: center; margin-top: 20px;">
+                <button class="btn btn-info" onclick="viewVoteDetails()">🔍 查看詳細名單</button>
+            </div>
+
             <div style="margin-top: 40px; border-top: 1px solid #eee; padding-top: 20px;">
                 <button class="btn btn-danger" onclick="stopVote()">結束決策</button>
                 <button class="btn btn-success" onclick="exportToCSV()">📥 下載紀錄 (CSV)</button>
@@ -509,14 +525,12 @@
         </div>
     </div>
 
-    <!-- 4. 投票系統 (學生端) -->
     <div id="page-vote-student" class="page">
         <div class="card" style="margin-top: 5vh; border-top: 5px solid var(--primary);">
             <div id="studentWaiting">
                 <h2 style="color: #888;">等待公會長指令...</h2>
                 <div style="font-size: 3rem; margin-top: 20px; animation: bounce 2s infinite;">📩</div>
             </div>
-
             <div id="studentVotingForm" style="display: none;">
                 <h2 id="studentQTitle" style="color: var(--primary);">任務目標</h2>
                 <div style="text-align: left; margin-bottom: 25px; padding: 20px; background: #f8f9fa; border-radius: 12px;">
@@ -529,7 +543,6 @@
                 <div id="studentOptionsArea"></div>
                 <button class="btn btn-primary" onclick="submitVote()" id="submitVoteBtn" style="width: 100%; margin-top: 30px; font-size: 1.2rem;">🚀 提交決策</button>
             </div>
-
             <div id="studentDone" style="display: none; text-align: center; padding: 40px 0;">
                 <div style="font-size: 5rem; color: #27ae60; margin-bottom: 20px;">✓</div>
                 <h2>決策已送達</h2>
@@ -538,85 +551,57 @@
         </div>
     </div>
 
-    <!-- Logic -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getFirestore, doc, setDoc, onSnapshot, updateDoc, increment, getDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-        // 引入匿名登入
         import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-        // Audio Context
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-
-        // Helper: Generate Sound
-        function playSound(type) {
-            if (audioCtx.state === 'suspended') audioCtx.resume();
-            
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
-
-            if (type === 'tick') {
-                // 抽籤滾動音效 (短促的木魚聲/機械聲)
-                osc.type = 'square';
-                osc.frequency.setValueAtTime(800, audioCtx.currentTime);
-                osc.frequency.exponentialRampToValueAtTime(400, audioCtx.currentTime + 0.05);
-                gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.05);
-                osc.start();
-                osc.stop(audioCtx.currentTime + 0.05);
-            } else if (type === 'win') {
-                // 中獎音效 (清脆的和弦)
-                const now = audioCtx.currentTime;
-                // C Major Arpeggio
-                [523.25, 659.25, 783.99, 1046.50].forEach((freq, i) => {
-                    const o = audioCtx.createOscillator();
-                    const g = audioCtx.createGain();
-                    o.connect(g);
-                    g.connect(audioCtx.destination);
-                    o.type = 'sine';
-                    o.frequency.value = freq;
-                    g.gain.setValueAtTime(0, now + i * 0.05);
-                    g.gain.linearRampToValueAtTime(0.2, now + i * 0.05 + 0.05);
-                    g.gain.exponentialRampToValueAtTime(0.01, now + i * 0.05 + 0.5);
-                    o.start(now + i * 0.05);
-                    o.stop(now + i * 0.05 + 0.6);
-                });
-            }
-        }
-
-        // Universal Router
         function getUniversalParams() {
-            let mode = null, host = null;
-            const currentUrl = window.location.href;
-            
-            if (window.location.hash.includes('mode=student')) {
-                const hashContent = window.location.hash.substring(1);
-                const params = new URLSearchParams(hashContent);
-                mode = params.get('mode');
-                host = params.get('host');
-            } else {
-                const params = new URLSearchParams(window.location.search);
-                mode = params.get('mode');
-                host = params.get('host');
+            const searchParams = new URLSearchParams(window.location.search);
+            let mode = searchParams.get('mode');
+            let host = searchParams.get('host');
+            if (!mode || !host) {
+                const hash = window.location.hash.substring(1);
+                const hashParams = new URLSearchParams(hash);
+                if (!mode) mode = hashParams.get('mode');
+                if (!host) host = hashParams.get('host');
             }
             return { mode, host };
         }
 
-        // Navigation
+        const firebaseConfig = {
+            apiKey: "AIzaSyDJFzG3RrCkJBx5B23lBVcoOHmaqZ2dAYA",
+            authDomain: "forgemini-7349a.firebaseapp.com",
+            projectId: "forgemini-7349a",
+            storageBucket: "forgemini-7349a.firebasestorage.app",
+            messagingSenderId: "865250968546",
+            appId: "1:865250968546:web:fc3ded71179b709d422fbb"
+        };
+
+        let app, db, auth, user;
+        let currentStudentHost = null;
+        let currentVoteData = null; // 暫存投票資料供明細使用
+        let audioCtx = null;
+
+        try {
+            app = initializeApp(firebaseConfig);
+            db = getFirestore(app);
+            auth = getAuth(app);
+            console.log("Firebase Initialized.");
+        } catch (e) {
+            console.error("Firebase Init Error:", e);
+            alert("Firebase 初始化失敗");
+        }
+
+        // 頁面導航
         window.navTo = (pageId) => {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             document.getElementById(`page-${pageId}`).classList.add('active');
-            
             const homeBtn = document.getElementById('homeBtnContainer');
             const authBtn = document.getElementById('authBtn');
             
             document.body.style.background = ''; 
-            document.body.style.backgroundImage = `
-                radial-gradient(circle at 10% 20%, rgba(78, 115, 223, 0.2) 0%, transparent 20%),
-                radial-gradient(circle at 90% 80%, rgba(212, 175, 55, 0.1) 0%, transparent 20%)
-            `;
+            document.body.style.backgroundImage = `radial-gradient(circle at 10% 20%, rgba(78, 115, 223, 0.2) 0%, transparent 20%), radial-gradient(circle at 90% 80%, rgba(212, 175, 55, 0.1) 0%, transparent 20%)`;
             document.body.style.backgroundColor = '#1a1c29';
 
             if(pageId === 'home') {
@@ -630,14 +615,12 @@
             if (pageId !== 'lottery-run') {
                 const card = document.getElementById('lotteryCard');
                 if(card) {
-                    card.classList.remove('demon-theme', 'transparent-mode');
+                    card.classList.remove('demon-theme');
+                    card.classList.remove('transparent-mode');
                     card.style.backgroundImage = '';
                     card.style.backgroundColor = '';
                 }
-                document.querySelectorAll('.lottery-display-text').forEach(el => {
-                    el.style.color = '';
-                    el.classList.remove('lottery-rolling');
-                });
+                document.querySelectorAll('.lottery-display-text').forEach(el => el.style.color = '');
             } else {
                 document.getElementById('lotteryCard').classList.add('transparent-mode');
             }
@@ -656,115 +639,71 @@
             }
         };
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyDJFzG3RrCkJBx5B23lBVcoOHmaqZ2dAYA",
-            authDomain: "forgemini-7349a.firebaseapp.com",
-            projectId: "forgemini-7349a",
-            storageBucket: "forgemini-7349a.firebasestorage.app",
-            messagingSenderId: "865250968546",
-            appId: "1:865250968546:web:fc3ded71179b709d422fbb"
-        };
-
-        let app, db, auth, user;
-        let isOnline = false;
-
-        try {
-            app = initializeApp(firebaseConfig);
-            db = getFirestore(app);
-            auth = getAuth(app);
-            isOnline = true;
-            console.log("Firebase Initialized.");
-        } catch (e) {
-            console.error("Firebase Init Error:", e);
-            alert("Firebase 初始化失敗");
-        }
-
-        // --- Lottery Logic ---
+        // ... Lottery & Timer Logic (保持原樣) ...
         let currentLotteryMode = 'angel';
         let lotteryDeck = [];
-        
         window.toggleLotteryMode = () => {
             const isUnique = document.getElementById('uniqueModeCheck').checked;
-            const label = document.getElementById('modeLabel');
-            label.innerText = isUnique ? "不重複" : "可重複";
+            document.getElementById('modeLabel').innerText = isUnique ? "不重複" : "可重複";
             resetLotteryDeck();
         };
-
         window.resetLotteryDeck = () => { lotteryDeck = []; };
-
         window.initDeck = () => {
             const start = parseInt(document.getElementById('lotRangeStart').value);
             const end = parseInt(document.getElementById('lotRangeEnd').value);
             lotteryDeck = [];
             for(let i=start; i<=end; i++) lotteryDeck.push(i);
         };
-        
         window.enterLottery = (mode) => {
             currentLotteryMode = mode;
             navTo('lottery-run');
             const btn = document.getElementById('lotteryActionBtn');
             const display = document.getElementById('lotteryDisplay');
             const configPanel = document.querySelector('.config-panel');
-            const card = document.getElementById('lotteryCard');
-            
-            card.classList.remove('demon-theme');
-            configPanel.classList.remove('demon-theme');
-            card.style.backgroundColor = ''; 
-
             if(mode === 'angel') {
                 document.body.style.backgroundImage = `linear-gradient(rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.85)), url('image_4b8832.jpg')`;
-                document.body.style.backgroundSize = 'cover';
-                document.body.style.backgroundPosition = 'center';
-                document.body.style.backgroundAttachment = 'fixed';
                 btn.className = 'btn btn-primary';
                 display.style.color = "var(--primary)";
-
+                if(configPanel) configPanel.classList.remove('demon-theme');
             } else {
                 document.body.style.backgroundImage = `linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('image_4b8812.jpg')`;
-                document.body.style.backgroundSize = 'cover';
-                document.body.style.backgroundPosition = 'center';
-                document.body.style.backgroundAttachment = 'fixed';
                 btn.className = 'btn btn-danger';
                 display.style.color = "#e74c3c";
-                card.classList.add('demon-theme');
-                configPanel.classList.add('demon-theme');
+                if(configPanel) configPanel.classList.add('demon-theme');
             }
+            document.body.style.backgroundSize = 'cover';
+            document.body.style.backgroundPosition = 'center';
+            document.body.style.backgroundAttachment = 'fixed';
         };
-
+        function playBeep(freq=440, dur=0.1, type='sine') {
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
+            osc.type = type; osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            osc.start(); gain.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + dur);
+            osc.stop(audioCtx.currentTime + dur);
+        }
         window.drawNumbers = () => {
             const start = parseInt(document.getElementById('lotRangeStart').value);
             const end = parseInt(document.getElementById('lotRangeEnd').value);
             const count = parseInt(document.getElementById('lotCount').value);
             const isUnique = document.getElementById('uniqueModeCheck').checked;
-            
             if(start >= end) return alert("範圍錯誤");
             let pool = [];
             if (isUnique) {
                 if (lotteryDeck.length === 0) window.initDeck();
-                if (lotteryDeck.length < count) {
-                    alert("號碼已全數抽完！將重新洗牌。");
-                    window.initDeck();
-                }
+                if (lotteryDeck.length < count) { alert("號碼已全數抽完！將重新洗牌。"); window.initDeck(); }
                 pool = [...lotteryDeck];
-            } else {
-                for(let i=start; i<=end; i++) pool.push(i);
-            }
-
+            } else { for(let i=start; i<=end; i++) pool.push(i); }
+            if(audioCtx) playBeep(800, 0.05, 'sine');
             const display = document.getElementById('lotteryDisplay');
-            // Add animation class
-            display.classList.add('lottery-rolling');
-            
             let counter = 0;
             const interval = setInterval(() => {
-                // 滾動邏輯
                 const randomVal = pool[Math.floor(Math.random() * pool.length)];
                 display.innerText = randomVal.toString().padStart(2, '0');
-                playSound('tick'); // 播放音效
                 counter++;
-                if(counter > 25) { // 增加滾動次數
+                if(counter > 20) {
                     clearInterval(interval);
-                    display.classList.remove('lottery-rolling');
-                    
                     let winners = [];
                     if (isUnique) {
                         for(let k=0; k<count; k++) {
@@ -772,51 +711,51 @@
                             winners.push(lotteryDeck[idx]);
                             lotteryDeck.splice(idx, 1);
                         }
-                    } else {
-                        for(let k=0; k<count; k++) {
-                            winners.push(pool[Math.floor(Math.random() * pool.length)]);
-                        }
-                    }
+                    } else { for(let k=0; k<count; k++) winners.push(pool[Math.floor(Math.random() * pool.length)]); }
                     display.innerText = winners.map(n => n.toString().padStart(2,'0')).join(' , ');
-                    playSound('win'); // 播放中獎音效
+                    if(currentLotteryMode === 'angel') playBeep(1200, 0.5, 'sine'); else playBeep(150, 0.8, 'sawtooth');
                 }
-            }, 60); // 速度稍微加快
+            }, 60);
         };
-
-        // --- Timer Logic ---
-        // (Code omitted for brevity, same as before)
+        
         let timerInterval; let isRunning = false; let totalTimeLeft = 0;
-        function updateTimerDisplay(totalSeconds) {
-            const m = Math.floor(totalSeconds / 60).toString().padStart(2, '0');
-            const s = (totalSeconds % 60).toString().padStart(2, '0');
+        function updateTimerDisplay(t) {
+            const m = Math.floor(t/60).toString().padStart(2,'0');
+            const s = (t%60).toString().padStart(2,'0');
             document.getElementById('timerDisplay').innerText = `${m}:${s}`;
         }
         window.toggleTimer = () => {
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             const btn = document.getElementById('startTimerBtn');
-            if (isRunning) {
-                clearInterval(timerInterval); isRunning = false; btn.innerHTML = "⚔️ 接受挑戰";
-            } else {
-                const m = parseInt(document.getElementById('timerMin').value) || 0;
-                const s = parseInt(document.getElementById('timerSec').value) || 0;
-                if(totalTimeLeft <= 0) totalTimeLeft = m * 60 + s;
+            if (isRunning) { clearInterval(timerInterval); isRunning = false; btn.innerHTML = "⚔️ 接受挑戰"; } 
+            else {
+                if(totalTimeLeft <= 0) {
+                    const m = parseInt(document.getElementById('timerMin').value)||0;
+                    const s = parseInt(document.getElementById('timerSec').value)||0;
+                    totalTimeLeft = m*60+s;
+                }
+                if(totalTimeLeft <= 0) return alert("請設定時間");
                 isRunning = true; btn.innerHTML = "⏸️ 暫停";
                 timerInterval = setInterval(() => {
                     totalTimeLeft--; updateTimerDisplay(totalTimeLeft);
                     const card = document.getElementById('timerCard');
-                    if (totalTimeLeft <= 30 && totalTimeLeft > 0) { card.classList.add('timer-urgent'); } 
+                    if (totalTimeLeft <= 30 && totalTimeLeft > 0) { card.classList.add('timer-urgent'); if(totalTimeLeft % 1 === 0) playBeep(600, 0.1, 'square'); } 
                     else { card.classList.remove('timer-urgent'); }
-                    if (totalTimeLeft <= 0) { clearInterval(timerInterval); isRunning = false; document.getElementById('timerDisplay').innerText = "FAILED"; btn.innerHTML = "重來"; }
+                    if (totalTimeLeft <= 0) { clearInterval(timerInterval); isRunning = false; document.getElementById('timerDisplay').innerText = "FAILED"; playBeep(100, 1.5, 'sawtooth'); btn.innerHTML = "重來"; }
                 }, 1000);
             }
         };
         window.resetTimer = () => {
-             clearInterval(timerInterval); isRunning = false; totalTimeLeft = 0;
-             updateTimerDisplay(0);
-             document.getElementById('timerCard').classList.remove('timer-urgent');
-             document.getElementById('startTimerBtn').innerHTML = "⚔️ 接受挑戰";
+            clearInterval(timerInterval); isRunning = false; totalTimeLeft = 0;
+            const m = parseInt(document.getElementById('timerMin').value)||0;
+            const s = parseInt(document.getElementById('timerSec').value)||0;
+            totalTimeLeft = m*60+s;
+            updateTimerDisplay(totalTimeLeft);
+            document.getElementById('timerCard').classList.remove('timer-urgent');
+            document.getElementById('startTimerBtn').innerHTML = "⚔️ 接受挑戰";
         };
 
-        // --- Vote Logic ---
+        // --- 投票系統 ---
         window.toggleVoteLimit = () => {
             const type = document.getElementById('voteType').value;
             document.getElementById('voteLimitContainer').style.display = (type === 'multi') ? 'block' : 'none';
@@ -834,37 +773,76 @@
 
             const voteData = { active: true, question, type, limit: (type === 'multi' ? limit : 1), classSize, options, timestamp: new Date().toISOString(), votes: {}, logs: [] };
             options.forEach(opt => voteData.votes[opt] = 0);
+
             const path = `users/${user.uid}/apps/classroom_adventure_tool`;
             await setDoc(doc(db, path), voteData);
+
             document.getElementById('voteSetup').style.display = 'none';
             document.getElementById('voteResult').style.display = 'block';
             
             let baseUrl = window.location.href.split('#')[0].split('?')[0];
-            if (baseUrl.endsWith('/')) baseUrl = baseUrl.slice(0, -1);
-            if (!baseUrl.endsWith('index.html')) baseUrl += '/index.html';
+            if (!baseUrl.endsWith('.html') && !baseUrl.endsWith('/')) { baseUrl += '/'; }
             
-            const studentLink = `${baseUrl}#mode=student&host=${user.uid}`;
+            const studentLink = `${baseUrl}?mode=student&host=${user.uid}`;
             const qrDiv = document.getElementById('qrCodeArea');
             qrDiv.innerHTML = "";
             new QRCode(qrDiv, { text: studentLink, width: 160, height: 160 });
+
             startTeacherListener(user.uid);
         };
 
         function startTeacherListener(uid) {
             onSnapshot(doc(db, `users/${uid}/apps/classroom_adventure_tool`), (snap) => {
-                if(snap.exists()) renderVoteBars(snap.data());
+                if(snap.exists()) {
+                    currentVoteData = snap.data(); // 存起來給明細用
+                    renderVoteBars(currentVoteData);
+                }
             });
         }
 
         function renderVoteBars(data) {
-            const div = document.getElementById('voteBarsArea'); div.innerHTML = "";
-            let total = 0; for(let k in data.votes) total += data.votes[k];
+            const div = document.getElementById('voteBarsArea');
+            div.innerHTML = "";
+            let total = 0;
+            for(let k in data.votes) total += data.votes[k];
+
             data.options.forEach(opt => {
                 const count = data.votes[opt] || 0;
                 const pct = total === 0 ? 0 : Math.round((count/total)*100);
-                div.innerHTML += `<div class="vote-bar-row"><div class="vote-label-row"><span>${opt}</span><span>${count} 票 (${pct}%)</span></div><div class="vote-track"><div class="vote-fill" style="width:${pct}%"></div></div></div>`;
+                div.innerHTML += `
+                    <div class="vote-bar-row">
+                        <div class="vote-label-row"><span>${opt}</span><span>${count} 票 (${pct}%)</span></div>
+                        <div class="vote-track"><div class="vote-fill" style="width:${pct}%"></div></div>
+                    </div>`;
             });
         }
+
+        // [v8.3] 投票明細彈窗功能
+        window.viewVoteDetails = () => {
+            if (!currentVoteData || !currentVoteData.logs) return alert("目前沒有投票紀錄");
+            const tbody = document.getElementById('logTableBody');
+            tbody.innerHTML = "";
+            
+            // 複製一份並排序
+            const logs = [...currentVoteData.logs].sort((a, b) => parseInt(a.sid) - parseInt(b.sid));
+            
+            logs.forEach(log => {
+                const timeStr = new Date(log.ts).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td style="font-weight:bold;">${log.sid} 號</td>
+                    <td>${log.opts.join(', ')}</td>
+                    <td style="color:#888; font-size:0.8rem;">${timeStr}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+            
+            document.getElementById('detailModal').style.display = 'flex';
+        };
+
+        window.closeDetailModal = () => {
+            document.getElementById('detailModal').style.display = 'none';
+        };
 
         window.exportToCSV = async () => {
             const snap = await getDoc(doc(db, `users/${user.uid}/apps/classroom_adventure_tool`));
@@ -878,28 +856,29 @@
             logs.forEach(log => csv += `${log.sid},"${log.opts.join('&')}"\n`);
             const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
             const url = URL.createObjectURL(blob);
-            const a = document.createElement('a'); a.href = url; a.download = `VoteRecord.csv`; a.click();
+            const a = document.createElement('a');
+            a.href = url; a.download = `VoteRecord.csv`; a.click();
         };
 
         window.stopVote = () => {
              if(confirm("確定結束投票？")) {
                  document.getElementById('voteResult').style.display = 'none';
                  document.getElementById('voteSetup').style.display = 'block';
-                 document.getElementById('voteBarsArea').innerHTML = '';
-                 document.getElementById('qrCodeArea').innerHTML = '';
-                 window.scrollTo(0, 0);
              }
         };
 
-        // [v8.8 修復] 學生模式：新增匿名登入
-        function initStudentMode(hostUid) {
+        // [v8.3 修復] 學生端初始化：加入匿名登入
+        async function initStudentMode(hostUid) {
+            currentStudentHost = hostUid;
             document.getElementById('statusBar').style.display = 'none';
             navTo('vote-student');
             
-            // 嘗試匿名登入
-            signInAnonymously(auth).then(() => {
-                console.log("Student Anonymous Login Success");
-                // 登入成功後才監聽資料
+            try {
+                // 關鍵修復：先匿名登入，取得 Firebase 連線權限
+                await signInAnonymously(auth);
+                console.log("學生端：匿名登入成功");
+                
+                // 登入成功後再開始監聽
                 onSnapshot(doc(db, `users/${hostUid}/apps/classroom_adventure_tool`), (snap) => {
                     const data = snap.data();
                     if(snap.exists() && data.active) {
@@ -911,14 +890,10 @@
                         document.getElementById('studentVotingForm').style.display = 'none';
                     }
                 });
-            }).catch((error) => {
-                console.error("Anon Auth Failed:", error);
-                if (error.code === 'auth/admin-restricted-operation' || error.code === 'auth/operation-not-allowed') {
-                    alert("⚠️ 連線失敗：\n請老師檢查 Firebase 後台設定，\n是否已開啟「匿名登入 (Anonymous)」功能。");
-                } else {
-                    alert("無法連結伺服器，請確認網路連線。\n錯誤代碼：" + error.code);
-                }
-            });
+            } catch (e) {
+                console.error("學生登入失敗", e);
+                alert("連線錯誤：無法連接投票伺服器，請重新掃描或檢查網路。");
+            }
         }
 
         function renderStudentForm(data) {
@@ -935,7 +910,10 @@
             container.innerHTML = "";
             const inputType = data.type === 'single' ? 'radio' : 'checkbox';
             data.options.forEach((opt, idx) => {
-                container.innerHTML += `<div class="student-option" onclick="toggleOpt(this, '${inputType}')"><input type="${inputType}" name="v_opts" value="${opt}"><span>${opt}</span></div>`;
+                container.innerHTML += `
+                    <div class="student-option" onclick="toggleOpt(this, '${inputType}')">
+                        <input type="${inputType}" name="v_opts" value="${opt}"><span>${opt}</span>
+                    </div>`;
             });
             window.currentVoteLimit = data.limit;
             window.currentVoteType = data.type;
@@ -944,7 +922,9 @@
         window.toggleOpt = (div, type) => {
             const input = div.querySelector('input');
             if(type === 'radio') {
-                document.querySelectorAll('.student-option').forEach(d => { d.classList.remove('selected'); d.querySelector('input').checked = false; });
+                document.querySelectorAll('.student-option').forEach(d => {
+                    d.classList.remove('selected'); d.querySelector('input').checked = false;
+                });
                 input.checked = true; div.classList.add('selected');
             } else {
                 input.checked = !input.checked; div.classList.toggle('selected', input.checked);
@@ -956,8 +936,11 @@
             if(!sid) return alert("請先選擇編號！");
             const inputs = document.querySelectorAll('input[name="v_opts"]:checked');
             const selected = Array.from(inputs).map(i => i.value);
-            if(window.currentVoteType === 'multi') { if(selected.length !== window.currentVoteLimit) return alert(`請務必選擇 ${window.currentVoteLimit} 項`); } 
-            else { if(selected.length === 0) return alert("請選擇一項"); }
+            if(window.currentVoteType === 'multi') {
+                if(selected.length !== window.currentVoteLimit) return alert(`請務必選擇 ${window.currentVoteLimit} 項`);
+            } else {
+                if(selected.length === 0) return alert("請選擇一項");
+            }
             const btn = document.getElementById('submitVoteBtn');
             btn.disabled = true; btn.innerText = "傳送中...";
             const updates = { logs: arrayUnion({ sid: sid, opts: selected, ts: Date.now() }) };
@@ -970,32 +953,38 @@
         };
 
         const authBtn = document.getElementById('authBtn');
-        
-        // Main execution
         const p = getUniversalParams();
 
         if(p.mode === 'student' && p.host) { 
             initStudentMode(p.host); 
-        } 
-        else {
+        } else {
             authBtn.onclick = () => { 
-                if(user) { signOut(auth); } 
-                else {
+                if(user) {
+                    signOut(auth);
+                } else {
                     const provider = new GoogleAuthProvider();
                     provider.setCustomParameters({ prompt: 'select_account' });
-                    signInWithPopup(auth, provider).then((result) => { console.log("Login success"); })
+                    signInWithPopup(auth, provider)
+                    .then((result) => { console.log("Login success:", result.user); })
                     .catch((error) => {
-                        if (error.code === 'auth/unauthorized-domain') alert("網域授權錯誤");
-                        else alert("登入失敗：" + error.message);
+                        console.error("Login error:", error);
+                        if (error.code === 'auth/unauthorized-domain') {
+                            alert("錯誤：此網域尚未加入 Firebase 授權清單。\n請到 Firebase Console -> Authentication -> Settings -> Authorized Domains 新增此網址。");
+                        } else {
+                            alert("登入失敗：" + error.message);
+                        }
                     });
                 }
             };
             onAuthStateChanged(auth, u => {
                 user = u;
                 if(user) {
-                    authBtn.innerText = `✅ ${user.displayName}`; authBtn.classList.replace('btn-ghost', 'btn-success'); authBtn.style.border = "none";
+                    authBtn.innerText = `✅ ${user.displayName}`; 
+                    authBtn.classList.replace('btn-ghost', 'btn-success'); 
+                    authBtn.style.border = "none";
                 } else { 
-                    authBtn.innerText = "☁️ 雲端登入"; authBtn.classList.replace('btn-success', 'btn-ghost'); 
+                    authBtn.innerText = "☁️ 雲端登入"; 
+                    authBtn.classList.replace('btn-success', 'btn-ghost'); 
                 }
             });
         }

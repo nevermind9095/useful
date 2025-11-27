@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>冒險旅途中的意外插曲 v9.0</title>
+    <title>冒險旅途中的意外插曲 v9.1</title>
     <!-- 引入 QRCode -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <!-- 引入 現代日系 RPG 風格字體 -->
@@ -97,14 +97,14 @@
         .btn-dragon-reset { background: rgba(20, 20, 20, 0.8); color: #aaa; border: 1px solid #555; backdrop-filter: blur(4px); }
         .btn-dragon-reset:hover { background: rgba(50, 50, 50, 0.9); color: #fff; border-color: #fff; }
 
-        /* --- 頂部狀態列 --- */
+        /* --- 頂部狀態列 (整合返回按鈕) --- */
         #statusBar {
-            background: rgba(255,255,255,0.1);
+            background: rgba(255,255,255,0.1); /* 極淡透明底 */
             backdrop-filter: blur(10px);
             border-bottom: 1px solid rgba(255,255,255,0.1);
             padding: 10px 20px;
             display: flex;
-            justify-content: space-between;
+            justify-content: space-between; /* 左右分佈 */
             align-items: center;
             position: sticky;
             top: 0;
@@ -147,7 +147,7 @@
             border-radius: 0 0 4px 4px;
         }
 
-        /* --- 通用透明模式 --- */
+        /* --- 通用透明模式 (用於魔龍與抽籤) --- */
         .card.transparent-mode {
             background: transparent !important;
             box-shadow: none !important;
@@ -159,7 +159,7 @@
         }
         .card.transparent-mode::before { display: none; }
 
-        /* --- 懸浮面板樣式 --- */
+        /* --- 懸浮面板樣式 (用於透明模式下的內容) --- */
         .glass-panel {
             background: rgba(255, 255, 255, 0.9);
             padding: 20px;
@@ -181,6 +181,7 @@
         .demon-theme h3 { color: #ffcc00 !important; }
         .demon-theme .switch-label { color: #ffcc00; }
         
+        /* 抽籤結果大字 */
         .lottery-display-text {
             font-size: 6rem;
             font-weight: 700;
@@ -226,7 +227,7 @@
             width: 100%;
         }
 
-        /* 計時器數字 */
+        /* 計時器數字 (魔龍版) */
         .dragon-timer-display {
             font-family: 'Cinzel', serif;
             font-size: 8rem;
@@ -251,6 +252,7 @@
             text-align: center; width: 90px; border-radius: 8px; box-shadow: 0 0 15px rgba(0,0,0,0.5) !important;
         }
 
+        /* 輸入框 (通用) */
         input, select, textarea {
             background: #fff; border: 2px solid #e0e0e0; border-radius: 8px; color: var(--text-dark);
             padding: 12px; font-size: 1.1rem; width: 100%; margin-bottom: 15px; transition: 0.3s; font-family: var(--font-ui);
@@ -365,7 +367,7 @@
     <!-- 首頁選單 -->
     <div id="page-home" class="page active">
         <div class="card" style="margin-top: 8vh; border-top: 5px solid var(--primary);">
-            <h1>冒險旅途中的意外插曲 <span class="version-tag" style="font-size: 0.8rem; background: #ddd; color: #333; padding: 2px 6px; border-radius: 4px;">v9.0</span></h1>
+            <h1>冒險旅途中的意外插曲 <span class="version-tag" style="font-size: 0.8rem; background: #ddd; color: #333; padding: 2px 6px; border-radius: 4px;">v9.1</span></h1>
             <p style="color: #666; margin-bottom: 40px;">請選擇冒險者即將遭遇的事件</p>
             
             <div class="menu-grid">
@@ -525,7 +527,7 @@
         </div>
     </div>
 
-    <!-- 投票明細 Modal (v9.0 新增) -->
+    <!-- 投票明細 Modal -->
     <div id="detailModal" class="modal">
         <div class="modal-content">
             <span class="close-modal" onclick="closeModal()">&times;</span>
@@ -540,7 +542,12 @@
         import { getFirestore, doc, setDoc, onSnapshot, updateDoc, increment, getDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
         import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-        // Audio Context & Sound
+        // Global variables
+        let app, db, auth, user;
+        // [v9.1 Fix] 補回全域變數，用於儲存學生端目前的目標 Host UID
+        let currentStudentHost = null;
+
+        // Audio Context
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         function playSound(type) {
             if (audioCtx.state === 'suspended') audioCtx.resume();
@@ -586,7 +593,7 @@
                 document.querySelectorAll('.lottery-display-text').forEach(el => { el.style.color = ''; el.classList.remove('lottery-rolling'); });
             } else { document.getElementById('lotteryCard').classList.add('transparent-mode'); }
             if(pageId.includes('timer')) {
-                document.body.style.backgroundImage = `linear-gradient(rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.75)), url('Gemini_Generated_Image_5gyjko5gyjko5gyj.jpg')`;
+                document.body.style.backgroundImage = `linear-gradient(rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.75)), url('image_48dd5d.jpg')`;
                 document.body.style.backgroundSize = 'cover'; document.body.style.backgroundPosition = 'center'; document.body.style.backgroundAttachment = 'fixed'; document.body.style.backgroundColor = '#000';
                 const timerCard = document.getElementById('timerCard'); if(timerCard) timerCard.classList.add('transparent-mode');
             } else { const timerCard = document.getElementById('timerCard'); if(timerCard) timerCard.classList.remove('transparent-mode'); }
@@ -600,8 +607,6 @@
             messagingSenderId: "865250968546",
             appId: "1:865250968546:web:fc3ded71179b709d422fbb"
         };
-
-        let app, db, auth, user;
 
         try {
             app = initializeApp(firebaseConfig);
@@ -676,8 +681,9 @@
         }
         window.toggleTimer = () => {
             const btn = document.getElementById('startTimerBtn');
-            if (isRunning) { clearInterval(timerInterval); isRunning = false; btn.innerHTML = "⚔️ 接受挑戰"; } 
-            else {
+            if (isRunning) {
+                clearInterval(timerInterval); isRunning = false; btn.innerHTML = "⚔️ 接受挑戰";
+            } else {
                 const m = parseInt(document.getElementById('timerMin').value) || 0; const s = parseInt(document.getElementById('timerSec').value) || 0;
                 if(totalTimeLeft <= 0) totalTimeLeft = m * 60 + s;
                 isRunning = true; btn.innerHTML = "⏸️ 暫停";
@@ -693,7 +699,6 @@
              clearInterval(timerInterval); isRunning = false; totalTimeLeft = 0; updateTimerDisplay(0);
              document.getElementById('timerCard').classList.remove('timer-urgent'); document.getElementById('startTimerBtn').innerHTML = "⚔️ 接受挑戰";
         };
-        // Needed for timer sound
         function playBeep(freq = 440, dur = 0.1, type = 'sine') {
             if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
@@ -733,13 +738,13 @@
             startTeacherListener(user.uid);
         };
 
-        let currentVoteLogs = []; // Store logs globally
+        let currentVoteLogs = []; 
 
         function startTeacherListener(uid) {
             onSnapshot(doc(db, `users/${uid}/apps/classroom_adventure_tool`), (snap) => {
                 if(snap.exists()) {
                     const data = snap.data();
-                    currentVoteLogs = data.logs || []; // Save logs
+                    currentVoteLogs = data.logs || [];
                     renderVoteBars(data);
                 }
             });
@@ -751,7 +756,6 @@
             data.options.forEach(opt => {
                 const count = data.votes[opt] || 0;
                 const pct = total === 0 ? 0 : Math.round((count/total)*100);
-                // Add onclick to show details
                 div.innerHTML += `
                     <div class="vote-bar-row" onclick="showVoteDetails('${opt}')">
                         <div class="vote-label-row"><span>${opt}</span><span>${count} 票 (${pct}%)</span></div>
@@ -760,7 +764,6 @@
             });
         }
 
-        // New function to show details
         window.showVoteDetails = (optionName) => {
             const modal = document.getElementById('detailModal');
             const title = document.getElementById('modalTitle');
@@ -768,33 +771,20 @@
             
             title.innerText = `投給「${optionName}」的冒險者`;
             list.innerHTML = '';
-            
-            // Filter logs
             const voters = currentVoteLogs.filter(log => log.opts.includes(optionName));
-            
             if (voters.length === 0) {
                 list.innerHTML = '<p style="text-align:center; color:#888;">暫無資料</p>';
             } else {
-                // Sort by ID
                 voters.sort((a, b) => parseInt(a.sid) - parseInt(b.sid));
-                voters.forEach(v => {
-                    list.innerHTML += `<span class="voter-tag">${v.sid} 號</span>`;
-                });
+                voters.forEach(v => { list.innerHTML += `<span class="voter-tag">${v.sid} 號</span>`; });
             }
-            
             modal.style.display = "block";
         };
 
-        window.closeModal = () => {
-            document.getElementById('detailModal').style.display = "none";
-        }
-        
-        // Close modal on outside click
+        window.closeModal = () => { document.getElementById('detailModal').style.display = "none"; }
         window.onclick = function(event) {
             const modal = document.getElementById('detailModal');
-            if (event.target == modal) {
-                modal.style.display = "none";
-            }
+            if (event.target == modal) { modal.style.display = "none"; }
         }
 
         window.exportToCSV = async () => {
@@ -822,19 +812,19 @@
              }
         };
 
-        // [v9.0 Update] Auto Anonymous Auth for Student
         function initStudentMode(hostUid) {
+            // [v9.1 Fix] Decode ID if encoded
+            hostUid = decodeURIComponent(hostUid);
+            // [v9.1 Fix] Assign global variable
+            currentStudentHost = hostUid;
+
             document.getElementById('statusBar').style.display = 'none';
             navTo('vote-student');
             
-            // Auto sign-in anonymously
             signInAnonymously(auth).then(() => {
-                console.log("Auto-login as anonymous student success");
+                console.log("Student Anonymous Login Success");
                 onSnapshot(doc(db, `users/${hostUid}/apps/classroom_adventure_tool`), (snap) => {
-                    if (!snap.exists()) {
-                         alert("找不到此投票活動，請確認老師是否已開啟。");
-                         return;
-                    }
+                    if (!snap.exists()) { alert("找不到此投票活動，請確認老師是否已開啟。"); return; }
                     const data = snap.data();
                     if(data.active) {
                         document.getElementById('studentWaiting').style.display = 'none';
@@ -846,11 +836,8 @@
                     }
                 }, (error) => {
                     console.error("Listen failed: ", error);
-                    if (error.code === 'permission-denied') {
-                         alert("⚠️ 連線失敗：權限不足。\n請老師務必到 Firebase 後台開啟「匿名登入 (Anonymous)」功能。");
-                    } else {
-                         alert("連線中斷：" + error.message);
-                    }
+                    if (error.code === 'permission-denied') { alert("⚠️ 連線失敗：權限不足。\n請老師務必到 Firebase 後台開啟「匿名登入 (Anonymous)」功能。"); } 
+                    else { alert("連線中斷：" + error.message); }
                 });
             }).catch((error) => {
                 console.error("Anon Auth Error", error);
@@ -903,16 +890,29 @@
             btn.disabled = true; btn.innerText = "傳送中...";
             const updates = { logs: arrayUnion({ sid: sid, opts: selected, ts: Date.now() }) };
             selected.forEach(val => { updates[`votes.${val}`] = increment(1); });
+            
+            // [v9.1 Fix] Ensure correct host variable is used
+            if (!currentStudentHost) {
+                 alert("錯誤：無法識別目標主機，請重新掃描 QR Code");
+                 btn.disabled = false;
+                 return;
+            }
+
             try {
                 await updateDoc(doc(db, `users/${currentStudentHost}/apps/classroom_adventure_tool`), updates);
                 document.getElementById('studentVotingForm').style.display = 'none';
                 document.getElementById('studentDone').style.display = 'block';
-            } catch(e) { alert("傳送失敗"); btn.disabled = false; }
+            } catch(e) { 
+                console.error(e);
+                // Detailed error message
+                if(e.code === 'permission-denied') alert("傳送失敗：權限不足 (可能是 Firebase 規則阻擋)");
+                else alert("傳送失敗：" + e.message); 
+                btn.disabled = false; 
+            }
         };
 
         const authBtn = document.getElementById('authBtn');
         
-        // Main execution
         const p = getUniversalParams();
 
         if(p.mode === 'student' && p.host) { 

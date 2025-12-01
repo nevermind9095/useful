@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>冒險旅途中的意外插曲 v9.2</title>
+    <title>冒險旅途中的意外插曲 v9.4</title>
     <!-- 引入 QRCode -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <!-- 引入 現代日系 RPG 風格字體 -->
@@ -251,6 +251,7 @@
             text-align: center; width: 90px; border-radius: 8px; box-shadow: 0 0 15px rgba(0,0,0,0.5) !important;
         }
 
+        /* 輸入框 (通用) */
         input, select, textarea {
             background: #fff; border: 2px solid #e0e0e0; border-radius: 8px; color: var(--text-dark);
             padding: 12px; font-size: 1.1rem; width: 100%; margin-bottom: 15px; transition: 0.3s; font-family: var(--font-ui);
@@ -276,7 +277,6 @@
             background: #fff; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);
             cursor: pointer; transition: all 0.3s; position: relative; overflow: hidden; border: 1px solid transparent;
         }
-        /* [v9.2 Fix] 確保使用正確的檔名 */
         .menu-item-lottery { background-image: linear-gradient(rgba(255,255,255,0.85), rgba(255,255,255,0.85)), url('image_4aa398.jpg'); background-size: cover; background-position: center; }
         .menu-item-timer { background-image: linear-gradient(rgba(255,255,255,0.85), rgba(255,255,255,0.85)), url('Gemini_Generated_Image_5gyjko5gyjko5gyj.jpg'); background-size: cover; background-position: center; }
         
@@ -350,6 +350,9 @@
 </head>
 <body>
 
+    <!-- 隱藏的音效播放器 (使用 .m4a 檔案) -->
+    <audio id="dragonRoarAudio" src="Produce.m4a" style="display:none;"></audio>
+
     <!-- 頂部狀態列 -->
     <div id="statusBar">
         <div id="homeBtnContainer">
@@ -361,7 +364,7 @@
     <!-- 首頁選單 -->
     <div id="page-home" class="page active">
         <div class="card" style="margin-top: 8vh; border-top: 5px solid var(--primary);">
-            <h1>冒險旅途中的意外插曲 <span class="version-tag" style="font-size: 0.8rem; background: #ddd; color: #333; padding: 2px 6px; border-radius: 4px;">v9.2</span></h1>
+            <h1>冒險旅途中的意外插曲 <span class="version-tag" style="font-size: 0.8rem; background: #ddd; color: #333; padding: 2px 6px; border-radius: 4px;">v9.4</span></h1>
             <p style="color: #666; margin-bottom: 40px;">請選擇冒險者即將遭遇的事件</p>
             
             <div class="menu-grid">
@@ -586,7 +589,6 @@
                 document.querySelectorAll('.lottery-display-text').forEach(el => { el.style.color = ''; el.classList.remove('lottery-rolling'); });
             } else { document.getElementById('lotteryCard').classList.add('transparent-mode'); }
             if(pageId.includes('timer')) {
-                // [v9.2 Fix] Use correct Gemini Dragon Image
                 document.body.style.backgroundImage = `linear-gradient(rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.75)), url('Gemini_Generated_Image_5gyjko5gyjko5gyj.jpg')`;
                 document.body.style.backgroundSize = 'cover'; document.body.style.backgroundPosition = 'center'; document.body.style.backgroundAttachment = 'fixed'; document.body.style.backgroundColor = '#000';
                 const timerCard = document.getElementById('timerCard'); if(timerCard) timerCard.classList.add('transparent-mode');
@@ -684,15 +686,30 @@
                 timerInterval = setInterval(() => {
                     totalTimeLeft--; updateTimerDisplay(totalTimeLeft);
                     const card = document.getElementById('timerCard');
-                    if (totalTimeLeft <= 30 && totalTimeLeft > 0) { card.classList.add('timer-urgent'); if(totalTimeLeft % 1 === 0) playBeep(600, 0.1, 'square'); } else { card.classList.remove('timer-urgent'); }
-                    if (totalTimeLeft <= 0) { clearInterval(timerInterval); isRunning = false; document.getElementById('timerDisplay').innerText = "FAILED"; btn.innerHTML = "重來"; playBeep(100, 1.5, 'sawtooth'); }
+                    if (totalTimeLeft <= 30 && totalTimeLeft > 0) { card.classList.add('timer-urgent'); if(totalTimeLeft % 1 === 0) playBeep(600, 0.1, 'square'); } 
+                    else { card.classList.remove('timer-urgent'); }
+                    if (totalTimeLeft <= 0) {
+                         clearInterval(timerInterval); isRunning = false; 
+                         document.getElementById('timerDisplay').innerText = "FAILED"; btn.innerHTML = "重來"; 
+                         
+                         // [v9.4 Update] Play audio file
+                         const audio = document.getElementById('dragonRoarAudio');
+                         if(audio) {
+                             audio.volume = 1.0;
+                             audio.play().catch(e => console.warn("Audio play block:", e));
+                         }
+                    }
                 }, 1000);
             }
         };
         window.resetTimer = () => {
              clearInterval(timerInterval); isRunning = false; totalTimeLeft = 0; updateTimerDisplay(0);
              document.getElementById('timerCard').classList.remove('timer-urgent'); document.getElementById('startTimerBtn').innerHTML = "⚔️ 接受挑戰";
+             // Stop audio if playing
+             const audio = document.getElementById('dragonRoarAudio');
+             if(audio) { audio.pause(); audio.currentTime = 0; }
         };
+        // Also needed for tick sound
         function playBeep(freq = 440, dur = 0.1, type = 'sine') {
             if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
@@ -715,32 +732,33 @@
             const limit = parseInt(document.getElementById('voteLimit').value);
             const classSize = parseInt(document.getElementById('voteClassSize').value);
             const options = document.getElementById('voteOptions').value.split('\n').filter(o => o.trim());
+
             if (!question || options.length < 2) return alert("資料不完整");
 
             const voteData = { active: true, question, type, limit: (type === 'multi' ? limit : 1), classSize, options, timestamp: new Date().toISOString(), votes: {}, logs: [] };
             options.forEach(opt => voteData.votes[opt] = 0);
+
             const path = `users/${user.uid}/apps/classroom_adventure_tool`;
             await setDoc(doc(db, path), voteData);
-            document.getElementById('voteSetup').style.display = 'none'; document.getElementById('voteResult').style.display = 'block';
+
+            document.getElementById('voteSetup').style.display = 'none';
+            document.getElementById('voteResult').style.display = 'block';
             
             let baseUrl = window.location.href.split('#')[0].split('?')[0];
             if (baseUrl.endsWith('/')) baseUrl = baseUrl.slice(0, -1);
             if (!baseUrl.endsWith('index.html')) baseUrl += '/index.html';
+            
             const studentLink = `${baseUrl}#mode=student&host=${user.uid}`;
-            const qrDiv = document.getElementById('qrCodeArea'); qrDiv.innerHTML = "";
+            const qrDiv = document.getElementById('qrCodeArea');
+            qrDiv.innerHTML = "";
             new QRCode(qrDiv, { text: studentLink, width: 160, height: 160 });
+
             startTeacherListener(user.uid);
         };
 
-        let currentVoteLogs = []; 
-
         function startTeacherListener(uid) {
             onSnapshot(doc(db, `users/${uid}/apps/classroom_adventure_tool`), (snap) => {
-                if(snap.exists()) {
-                    const data = snap.data();
-                    currentVoteLogs = data.logs || [];
-                    renderVoteBars(data);
-                }
+                if(snap.exists()) renderVoteBars(snap.data());
             });
         }
 
@@ -756,29 +774,6 @@
                         <div class="vote-track"><div class="vote-fill" style="width:${pct}%"></div></div>
                     </div>`;
             });
-        }
-
-        window.showVoteDetails = (optionName) => {
-            const modal = document.getElementById('detailModal');
-            const title = document.getElementById('modalTitle');
-            const list = document.getElementById('modalList');
-            
-            title.innerText = `投給「${optionName}」的冒險者`;
-            list.innerHTML = '';
-            const voters = currentVoteLogs.filter(log => log.opts.includes(optionName));
-            if (voters.length === 0) {
-                list.innerHTML = '<p style="text-align:center; color:#888;">暫無資料</p>';
-            } else {
-                voters.sort((a, b) => parseInt(a.sid) - parseInt(b.sid));
-                voters.forEach(v => { list.innerHTML += `<span class="voter-tag">${v.sid} 號</span>`; });
-            }
-            modal.style.display = "block";
-        };
-
-        window.closeModal = () => { document.getElementById('detailModal').style.display = "none"; }
-        window.onclick = function(event) {
-            const modal = document.getElementById('detailModal');
-            if (event.target == modal) { modal.style.display = "none"; }
         }
 
         window.exportToCSV = async () => {
@@ -807,7 +802,7 @@
         };
 
         function initStudentMode(hostUid) {
-            // [v9.1 Fix] Decode ID if encoded
+            // Decode ID
             hostUid = decodeURIComponent(hostUid);
             currentStudentHost = hostUid;
 

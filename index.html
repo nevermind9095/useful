@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>冒險旅途中的意外插曲 v9.4</title>
+    <title>冒險旅途中的意外插曲 v9.5</title>
     <!-- 引入 QRCode -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <!-- 引入 現代日系 RPG 風格字體 -->
@@ -251,7 +251,6 @@
             text-align: center; width: 90px; border-radius: 8px; box-shadow: 0 0 15px rgba(0,0,0,0.5) !important;
         }
 
-        /* 輸入框 (通用) */
         input, select, textarea {
             background: #fff; border: 2px solid #e0e0e0; border-radius: 8px; color: var(--text-dark);
             padding: 12px; font-size: 1.1rem; width: 100%; margin-bottom: 15px; transition: 0.3s; font-family: var(--font-ui);
@@ -344,14 +343,24 @@
         #modalTitle { color: var(--primary); border-bottom: 2px solid #eee; padding-bottom: 10px; margin-bottom: 20px; }
         #modalList { max-height: 300px; overflow-y: auto; font-size: 1.2rem; line-height: 1.8; }
         .voter-tag { display: inline-block; background: #f0f4ff; padding: 5px 10px; border-radius: 20px; margin: 5px; border: 1px solid #dbe4ff; }
+        
+        /* Video Overlay */
+        #videoOverlay {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 9999; background: black;
+        }
+        #videoOverlay video {
+            width: 100%; height: 100%; object-fit: cover;
+        }
+        .close-video-btn {
+            position: absolute; top: 20px; right: 20px; z-index: 10000; 
+            background: rgba(0,0,0,0.5); color: white; border: 1px solid white;
+            padding: 10px 20px; border-radius: 50%; cursor: pointer;
+        }
 
         @media (max-width: 600px) { h1 { font-size: 1.8rem; } .card { padding: 1.5rem; width: 95%; } .door { height: 250px; min-width: 100%; } }
     </style>
 </head>
 <body>
-
-    <!-- 隱藏的音效播放器 (使用 .m4a 檔案) -->
-    <audio id="dragonRoarAudio" src="Produce.m4a" style="display:none;"></audio>
 
     <!-- 頂部狀態列 -->
     <div id="statusBar">
@@ -361,10 +370,16 @@
         <button id="authBtn" class="btn btn-ghost" style="font-size: 0.9rem;">☁️ 雲端登入</button>
     </div>
 
+    <!-- 影片覆蓋層 -->
+    <div id="videoOverlay">
+        <video id="dragonVideo" src="dragon.mp4" playsinline></video>
+        <button class="close-video-btn" onclick="closeVideo()">X</button>
+    </div>
+
     <!-- 首頁選單 -->
     <div id="page-home" class="page active">
         <div class="card" style="margin-top: 8vh; border-top: 5px solid var(--primary);">
-            <h1>冒險旅途中的意外插曲 <span class="version-tag" style="font-size: 0.8rem; background: #ddd; color: #333; padding: 2px 6px; border-radius: 4px;">v9.4</span></h1>
+            <h1>冒險旅途中的意外插曲 <span class="version-tag" style="font-size: 0.8rem; background: #ddd; color: #333; padding: 2px 6px; border-radius: 4px;">v9.5</span></h1>
             <p style="color: #666; margin-bottom: 40px;">請選擇冒險者即將遭遇的事件</p>
             
             <div class="menu-grid">
@@ -543,7 +558,7 @@
         let app, db, auth, user;
         let currentStudentHost = null;
 
-        // Audio Context
+        // Audio Context (Used for lottery sound)
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         function playSound(type) {
             if (audioCtx.state === 'suspended') audioCtx.resume();
@@ -593,6 +608,15 @@
                 document.body.style.backgroundSize = 'cover'; document.body.style.backgroundPosition = 'center'; document.body.style.backgroundAttachment = 'fixed'; document.body.style.backgroundColor = '#000';
                 const timerCard = document.getElementById('timerCard'); if(timerCard) timerCard.classList.add('transparent-mode');
             } else { const timerCard = document.getElementById('timerCard'); if(timerCard) timerCard.classList.remove('transparent-mode'); }
+        };
+
+        // Video Control
+        window.closeVideo = () => {
+            const overlay = document.getElementById('videoOverlay');
+            const vid = document.getElementById('dragonVideo');
+            overlay.style.display = 'none';
+            vid.pause();
+            vid.currentTime = 0;
         };
 
         const firebaseConfig = {
@@ -686,18 +710,19 @@
                 timerInterval = setInterval(() => {
                     totalTimeLeft--; updateTimerDisplay(totalTimeLeft);
                     const card = document.getElementById('timerCard');
-                    if (totalTimeLeft <= 30 && totalTimeLeft > 0) { card.classList.add('timer-urgent'); if(totalTimeLeft % 1 === 0) playBeep(600, 0.1, 'square'); } 
+                    if (totalTimeLeft <= 30 && totalTimeLeft > 0) { card.classList.add('timer-urgent'); if(totalTimeLeft % 1 === 0) { /* playSound('tick'); optional tick */ } } 
                     else { card.classList.remove('timer-urgent'); }
                     if (totalTimeLeft <= 0) {
                          clearInterval(timerInterval); isRunning = false; 
                          document.getElementById('timerDisplay').innerText = "FAILED"; btn.innerHTML = "重來"; 
                          
-                         // [v9.4 Update] Play audio file
-                         const audio = document.getElementById('dragonRoarAudio');
-                         if(audio) {
-                             audio.volume = 1.0;
-                             audio.play().catch(e => console.warn("Audio play block:", e));
-                         }
+                         // [v9.5 Update] Play video
+                         const overlay = document.getElementById('videoOverlay');
+                         const vid = document.getElementById('dragonVideo');
+                         overlay.style.display = 'block';
+                         vid.currentTime = 0;
+                         vid.play().catch(e => console.warn("Video play block:", e));
+                         vid.onended = () => { overlay.style.display = 'none'; };
                     }
                 }, 1000);
             }
@@ -705,19 +730,10 @@
         window.resetTimer = () => {
              clearInterval(timerInterval); isRunning = false; totalTimeLeft = 0; updateTimerDisplay(0);
              document.getElementById('timerCard').classList.remove('timer-urgent'); document.getElementById('startTimerBtn').innerHTML = "⚔️ 接受挑戰";
-             // Stop audio if playing
-             const audio = document.getElementById('dragonRoarAudio');
-             if(audio) { audio.pause(); audio.currentTime = 0; }
+             const overlay = document.getElementById('videoOverlay');
+             const vid = document.getElementById('dragonVideo');
+             overlay.style.display = 'none'; vid.pause(); vid.currentTime = 0;
         };
-        // Also needed for tick sound
-        function playBeep(freq = 440, dur = 0.1, type = 'sine') {
-            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
-            osc.type = type; osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-            osc.connect(gain); gain.connect(audioCtx.destination);
-            osc.start(); gain.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + dur);
-            osc.stop(audioCtx.currentTime + dur);
-        }
 
         // --- Vote Logic ---
         window.toggleVoteLimit = () => {
@@ -732,33 +748,32 @@
             const limit = parseInt(document.getElementById('voteLimit').value);
             const classSize = parseInt(document.getElementById('voteClassSize').value);
             const options = document.getElementById('voteOptions').value.split('\n').filter(o => o.trim());
-
             if (!question || options.length < 2) return alert("資料不完整");
 
             const voteData = { active: true, question, type, limit: (type === 'multi' ? limit : 1), classSize, options, timestamp: new Date().toISOString(), votes: {}, logs: [] };
             options.forEach(opt => voteData.votes[opt] = 0);
-
             const path = `users/${user.uid}/apps/classroom_adventure_tool`;
             await setDoc(doc(db, path), voteData);
-
-            document.getElementById('voteSetup').style.display = 'none';
-            document.getElementById('voteResult').style.display = 'block';
+            document.getElementById('voteSetup').style.display = 'none'; document.getElementById('voteResult').style.display = 'block';
             
             let baseUrl = window.location.href.split('#')[0].split('?')[0];
             if (baseUrl.endsWith('/')) baseUrl = baseUrl.slice(0, -1);
             if (!baseUrl.endsWith('index.html')) baseUrl += '/index.html';
-            
             const studentLink = `${baseUrl}#mode=student&host=${user.uid}`;
-            const qrDiv = document.getElementById('qrCodeArea');
-            qrDiv.innerHTML = "";
+            const qrDiv = document.getElementById('qrCodeArea'); qrDiv.innerHTML = "";
             new QRCode(qrDiv, { text: studentLink, width: 160, height: 160 });
-
             startTeacherListener(user.uid);
         };
 
+        let currentVoteLogs = []; 
+
         function startTeacherListener(uid) {
             onSnapshot(doc(db, `users/${uid}/apps/classroom_adventure_tool`), (snap) => {
-                if(snap.exists()) renderVoteBars(snap.data());
+                if(snap.exists()) {
+                    const data = snap.data();
+                    currentVoteLogs = data.logs || [];
+                    renderVoteBars(data);
+                }
             });
         }
 
@@ -774,6 +789,29 @@
                         <div class="vote-track"><div class="vote-fill" style="width:${pct}%"></div></div>
                     </div>`;
             });
+        }
+
+        window.showVoteDetails = (optionName) => {
+            const modal = document.getElementById('detailModal');
+            const title = document.getElementById('modalTitle');
+            const list = document.getElementById('modalList');
+            
+            title.innerText = `投給「${optionName}」的冒險者`;
+            list.innerHTML = '';
+            const voters = currentVoteLogs.filter(log => log.opts.includes(optionName));
+            if (voters.length === 0) {
+                list.innerHTML = '<p style="text-align:center; color:#888;">暫無資料</p>';
+            } else {
+                voters.sort((a, b) => parseInt(a.sid) - parseInt(b.sid));
+                voters.forEach(v => { list.innerHTML += `<span class="voter-tag">${v.sid} 號</span>`; });
+            }
+            modal.style.display = "block";
+        };
+
+        window.closeModal = () => { document.getElementById('detailModal').style.display = "none"; }
+        window.onclick = function(event) {
+            const modal = document.getElementById('detailModal');
+            if (event.target == modal) { modal.style.display = "none"; }
         }
 
         window.exportToCSV = async () => {
@@ -899,6 +937,7 @@
 
         const authBtn = document.getElementById('authBtn');
         
+        // Main execution
         const p = getUniversalParams();
 
         if(p.mode === 'student' && p.host) { 

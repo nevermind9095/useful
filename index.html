@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>冒險旅途中的意外插曲 v9.5</title>
+    <title>冒險旅途中的意外插曲 v9.6</title>
     <!-- 引入 QRCode -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <!-- 引入 現代日系 RPG 風格字體 -->
@@ -97,14 +97,14 @@
         .btn-dragon-reset { background: rgba(20, 20, 20, 0.8); color: #aaa; border: 1px solid #555; backdrop-filter: blur(4px); }
         .btn-dragon-reset:hover { background: rgba(50, 50, 50, 0.9); color: #fff; border-color: #fff; }
 
-        /* --- 頂部狀態列 --- */
+        /* --- 頂部狀態列 (整合返回按鈕) --- */
         #statusBar {
-            background: rgba(255,255,255,0.1);
+            background: rgba(255,255,255,0.1); /* 極淡透明底 */
             backdrop-filter: blur(10px);
             border-bottom: 1px solid rgba(255,255,255,0.1);
             padding: 10px 20px;
             display: flex;
-            justify-content: space-between;
+            justify-content: space-between; /* 左右分佈 */
             align-items: center;
             position: sticky;
             top: 0;
@@ -251,6 +251,7 @@
             text-align: center; width: 90px; border-radius: 8px; box-shadow: 0 0 15px rgba(0,0,0,0.5) !important;
         }
 
+        /* 輸入框 (通用) */
         input, select, textarea {
             background: #fff; border: 2px solid #e0e0e0; border-radius: 8px; color: var(--text-dark);
             padding: 12px; font-size: 1.1rem; width: 100%; margin-bottom: 15px; transition: 0.3s; font-family: var(--font-ui);
@@ -362,6 +363,12 @@
 </head>
 <body>
 
+    <!-- 隱藏的影片覆蓋層 -->
+    <div id="videoOverlay">
+        <video id="dragonVideo" src="dragon.mp4" playsinline preload="auto" controls></video>
+        <button class="close-video-btn" onclick="closeVideo()">X</button>
+    </div>
+
     <!-- 頂部狀態列 -->
     <div id="statusBar">
         <div id="homeBtnContainer">
@@ -370,16 +377,10 @@
         <button id="authBtn" class="btn btn-ghost" style="font-size: 0.9rem;">☁️ 雲端登入</button>
     </div>
 
-    <!-- 影片覆蓋層 -->
-    <div id="videoOverlay">
-        <video id="dragonVideo" src="dragon.mp4" playsinline></video>
-        <button class="close-video-btn" onclick="closeVideo()">X</button>
-    </div>
-
     <!-- 首頁選單 -->
     <div id="page-home" class="page active">
         <div class="card" style="margin-top: 8vh; border-top: 5px solid var(--primary);">
-            <h1>冒險旅途中的意外插曲 <span class="version-tag" style="font-size: 0.8rem; background: #ddd; color: #333; padding: 2px 6px; border-radius: 4px;">v9.5</span></h1>
+            <h1>冒險旅途中的意外插曲 <span class="version-tag" style="font-size: 0.8rem; background: #ddd; color: #333; padding: 2px 6px; border-radius: 4px;">v9.6</span></h1>
             <p style="color: #666; margin-bottom: 40px;">請選擇冒險者即將遭遇的事件</p>
             
             <div class="menu-grid">
@@ -558,7 +559,7 @@
         let app, db, auth, user;
         let currentStudentHost = null;
 
-        // Audio Context (Used for lottery sound)
+        // Audio Context
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         function playSound(type) {
             if (audioCtx.state === 'suspended') audioCtx.resume();
@@ -707,18 +708,28 @@
                 const m = parseInt(document.getElementById('timerMin').value) || 0; const s = parseInt(document.getElementById('timerSec').value) || 0;
                 if(totalTimeLeft <= 0) totalTimeLeft = m * 60 + s;
                 isRunning = true; btn.innerHTML = "⏸️ 暫停";
+                
+                // [v9.6] Prime video first
+                const vid = document.getElementById('dragonVideo');
+                if(vid) {
+                    vid.muted = true;
+                    vid.play().then(() => { vid.pause(); vid.muted = false; }).catch(e => console.warn("Priming failed", e));
+                }
+
                 timerInterval = setInterval(() => {
                     totalTimeLeft--; updateTimerDisplay(totalTimeLeft);
                     const card = document.getElementById('timerCard');
-                    if (totalTimeLeft <= 30 && totalTimeLeft > 0) { card.classList.add('timer-urgent'); if(totalTimeLeft % 1 === 0) { /* playSound('tick'); optional tick */ } } 
+                    if (totalTimeLeft <= 30 && totalTimeLeft > 0) { 
+                        card.classList.add('timer-urgent'); 
+                        if(totalTimeLeft % 1 === 0) playSound('tick'); // Restore warning sound
+                    } 
                     else { card.classList.remove('timer-urgent'); }
                     if (totalTimeLeft <= 0) {
                          clearInterval(timerInterval); isRunning = false; 
                          document.getElementById('timerDisplay').innerText = "FAILED"; btn.innerHTML = "重來"; 
                          
-                         // [v9.5 Update] Play video
+                         // Play video
                          const overlay = document.getElementById('videoOverlay');
-                         const vid = document.getElementById('dragonVideo');
                          overlay.style.display = 'block';
                          vid.currentTime = 0;
                          vid.play().catch(e => console.warn("Video play block:", e));
@@ -734,6 +745,15 @@
              const vid = document.getElementById('dragonVideo');
              overlay.style.display = 'none'; vid.pause(); vid.currentTime = 0;
         };
+        // Also needed for tick sound
+        function playBeep(freq = 440, dur = 0.1, type = 'sine') {
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
+            osc.type = type; osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            osc.start(); gain.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + dur);
+            osc.stop(audioCtx.currentTime + dur);
+        }
 
         // --- Vote Logic ---
         window.toggleVoteLimit = () => {
@@ -748,20 +768,27 @@
             const limit = parseInt(document.getElementById('voteLimit').value);
             const classSize = parseInt(document.getElementById('voteClassSize').value);
             const options = document.getElementById('voteOptions').value.split('\n').filter(o => o.trim());
+
             if (!question || options.length < 2) return alert("資料不完整");
 
             const voteData = { active: true, question, type, limit: (type === 'multi' ? limit : 1), classSize, options, timestamp: new Date().toISOString(), votes: {}, logs: [] };
             options.forEach(opt => voteData.votes[opt] = 0);
+
             const path = `users/${user.uid}/apps/classroom_adventure_tool`;
             await setDoc(doc(db, path), voteData);
-            document.getElementById('voteSetup').style.display = 'none'; document.getElementById('voteResult').style.display = 'block';
+
+            document.getElementById('voteSetup').style.display = 'none';
+            document.getElementById('voteResult').style.display = 'block';
             
             let baseUrl = window.location.href.split('#')[0].split('?')[0];
             if (baseUrl.endsWith('/')) baseUrl = baseUrl.slice(0, -1);
             if (!baseUrl.endsWith('index.html')) baseUrl += '/index.html';
+            
             const studentLink = `${baseUrl}#mode=student&host=${user.uid}`;
-            const qrDiv = document.getElementById('qrCodeArea'); qrDiv.innerHTML = "";
+            const qrDiv = document.getElementById('qrCodeArea');
+            qrDiv.innerHTML = "";
             new QRCode(qrDiv, { text: studentLink, width: 160, height: 160 });
+
             startTeacherListener(user.uid);
         };
 
@@ -937,7 +964,6 @@
 
         const authBtn = document.getElementById('authBtn');
         
-        // Main execution
         const p = getUniversalParams();
 
         if(p.mode === 'student' && p.host) { 

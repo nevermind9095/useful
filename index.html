@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>冒險旅途中的意外插曲 v9.6</title>
+    <title>冒險旅途中的意外插曲 v9.7</title>
     <!-- 引入 QRCode -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <!-- 引入 現代日系 RPG 風格字體 -->
@@ -97,14 +97,14 @@
         .btn-dragon-reset { background: rgba(20, 20, 20, 0.8); color: #aaa; border: 1px solid #555; backdrop-filter: blur(4px); }
         .btn-dragon-reset:hover { background: rgba(50, 50, 50, 0.9); color: #fff; border-color: #fff; }
 
-        /* --- 頂部狀態列 (整合返回按鈕) --- */
+        /* --- 頂部狀態列 --- */
         #statusBar {
-            background: rgba(255,255,255,0.1); /* 極淡透明底 */
+            background: rgba(255,255,255,0.1);
             backdrop-filter: blur(10px);
             border-bottom: 1px solid rgba(255,255,255,0.1);
             padding: 10px 20px;
             display: flex;
-            justify-content: space-between; /* 左右分佈 */
+            justify-content: space-between;
             align-items: center;
             position: sticky;
             top: 0;
@@ -380,7 +380,7 @@
     <!-- 首頁選單 -->
     <div id="page-home" class="page active">
         <div class="card" style="margin-top: 8vh; border-top: 5px solid var(--primary);">
-            <h1>冒險旅途中的意外插曲 <span class="version-tag" style="font-size: 0.8rem; background: #ddd; color: #333; padding: 2px 6px; border-radius: 4px;">v9.6</span></h1>
+            <h1>冒險旅途中的意外插曲 <span class="version-tag" style="font-size: 0.8rem; background: #ddd; color: #333; padding: 2px 6px; border-radius: 4px;">v9.7</span></h1>
             <p style="color: #666; margin-bottom: 40px;">請選擇冒險者即將遭遇的事件</p>
             
             <div class="menu-grid">
@@ -403,27 +403,37 @@
         </div>
     </div>
 
-    <!-- 1. 抽籤系統 -->
+    <!-- 1. 抽籤系統：大門選擇 -->
     <div id="page-lottery-gate" class="page">
         <div style="padding: 20px; text-align: center; margin-top: 50px;">
             <h1 style="color: #fff; text-shadow: 0 2px 5px rgba(0,0,0,0.5);">命運的抉擇</h1>
             <p style="color: rgba(255,255,255,0.8);">請選擇召喚的途徑</p>
+            
             <div class="door-container">
                 <div class="door door-angel" onclick="enterLottery('angel')">
-                    <div class="door-overlay"><div class="door-title">天使的祝福</div><div class="door-desc">獲得女神的恩典與獎勵</div></div>
+                    <div class="door-overlay">
+                        <div class="door-title">天使的祝福</div>
+                        <div class="door-desc">獲得女神的恩典與獎勵</div>
+                    </div>
                 </div>
                 <div class="door door-demon" onclick="enterLottery('demon')">
-                    <div class="door-overlay"><div class="door-title">惡魔的試煉</div><div class="door-desc">面對深淵的艱難挑戰</div></div>
+                    <div class="door-overlay">
+                        <div class="door-title">惡魔的試煉</div>
+                        <div class="door-desc">面對深淵的艱難挑戰</div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- 1-2. 抽籤系統：執行畫面 -->
     <div id="page-lottery-run" class="page">
         <div class="card transparent-mode" id="lotteryCard">
+            
             <div class="glass-panel lottery-result-area">
                 <div id="lotteryDisplay" class="lottery-display-text">READY</div>
             </div>
+            
             <div class="glass-panel config-panel">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
                     <h3 style="font-size: 1rem; color: #555; margin:0; border:none;">⚙️ 徵召設定</h3>
@@ -435,31 +445,47 @@
                         </label>
                     </div>
                 </div>
+
                 <div style="display: flex; gap: 20px; align-items: flex-end; flex-wrap: wrap;">
-                    <div style="flex: 1;"><label>號碼起始</label><input type="number" id="lotRangeStart" value="1" style="text-align: center;" onchange="resetLotteryDeck()"></div>
-                    <div style="flex: 1;"><label>號碼結束</label><input type="number" id="lotRangeEnd" value="30" style="text-align: center;" onchange="resetLotteryDeck()"></div>
-                    <div style="flex: 1;"><label>抽取人數</label><input type="number" id="lotCount" value="1" max="10" style="text-align: center;"></div>
+                    <div style="flex: 1;">
+                        <label>號碼起始</label>
+                        <input type="number" id="lotRangeStart" value="1" style="text-align: center;" onchange="resetLotteryDeck()">
+                    </div>
+                    <div style="flex: 1;">
+                        <label>號碼結束</label>
+                        <input type="number" id="lotRangeEnd" value="30" style="text-align: center;" onchange="resetLotteryDeck()">
+                    </div>
+                    <div style="flex: 1;">
+                        <label>抽取人數</label>
+                        <input type="number" id="lotCount" value="1" max="10" style="text-align: center;">
+                    </div>
                 </div>
             </div>
+            
             <div style="margin-top: 30px; text-align: center;">
                 <button id="lotteryActionBtn" class="btn btn-primary" style="width: 100%; padding: 15px; font-size: 1.3rem;" onclick="drawNumbers()">✨ 開始召喚 ✨</button>
             </div>
         </div>
     </div>
 
-    <!-- 2. 計時器 -->
+    <!-- 2. 計時器：魔龍挑戰 -->
     <div id="page-timer" class="page">
         <div class="card transparent-mode" id="timerCard">
             <div style="text-align: center; margin-bottom: 30px;">
                 <div class="dragon-title">魔龍挑戰</div>
                 <div class="dragon-subtitle">魔龍對冒險者發起了挑戰，請在時限內克服！</div>
             </div>
-            <div style="text-align: center;"><div id="timerDisplay" class="dragon-timer-display">03:00</div></div>
+            
+            <div style="text-align: center;">
+                <div id="timerDisplay" class="dragon-timer-display">03:00</div>
+            </div>
+            
             <div style="display: flex; justify-content: center; gap: 10px; align-items: center; margin-bottom: 40px;">
                 <input type="number" id="timerMin" value="3" min="0" class="dragon-input"> 
                 <span style="font-size: 2rem; color: #fff; font-weight: bold; text-shadow: 0 2px 4px #000;">:</span>
                 <input type="number" id="timerSec" value="0" min="0" max="59" class="dragon-input">
             </div>
+
             <div style="text-align: center; display: flex; gap: 20px; justify-content: center;">
                 <button class="btn btn-dragon-fight" id="startTimerBtn" onclick="toggleTimer()">⚔️ 接受挑戰</button>
                 <button class="btn btn-dragon-reset" onclick="resetTimer()">🔄 重置挑戰</button>
@@ -474,8 +500,12 @@
             <div style="text-align: left;">
                 <label>決策目標 (題目)</label>
                 <input type="text" id="voteQuestion" placeholder="例如：我們要先攻略哪一座迷宮？">
+                
                 <div style="display: flex; gap: 20px; flex-wrap: wrap;">
-                    <div style="flex: 1;"><label>公會人數 (名冊上限)</label><input type="number" id="voteClassSize" value="30" min="1"></div>
+                    <div style="flex: 1;">
+                        <label>公會人數 (名冊上限)</label>
+                        <input type="number" id="voteClassSize" value="30" min="1">
+                    </div>
                     <div style="flex: 1;">
                         <label>投票模式</label>
                         <select id="voteType" onchange="toggleVoteLimit()">
@@ -484,10 +514,12 @@
                         </select>
                     </div>
                 </div>
+
                 <div id="voteLimitContainer" style="display: none; background: #fff3cd; padding: 10px; border-radius: 8px; margin-bottom: 15px;">
                     <label style="color: #856404; margin-bottom: 0;">⚠️ 複選限制：每人必須投幾票？</label>
                     <input type="number" id="voteLimit" value="2" min="2" style="margin-top: 5px; margin-bottom: 0;">
                 </div>
+                
                 <label>戰略選項 (每行一個)</label>
                 <textarea id="voteOptions" rows="5" placeholder="火焰山脈&#10;寒冰洞窟&#10;精靈之森"></textarea>
             </div>

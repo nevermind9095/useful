@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>冒險旅途中的意外插曲 v9.8</title>
+    <title>冒險旅途中的意外插曲 v9.9</title>
     <!-- 引入 QRCode -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <!-- 引入 現代日系 RPG 風格字體 -->
@@ -98,7 +98,7 @@
         .btn-dragon-reset { background: rgba(20, 20, 20, 0.8); color: #aaa; border: 1px solid #555; backdrop-filter: blur(4px); }
         .btn-dragon-reset:hover { background: rgba(50, 50, 50, 0.9); color: #fff; border-color: #fff; }
 
-        /* --- 頂部狀態列 --- */
+        /* --- 頂部狀態列 (整合返回按鈕) --- */
         #statusBar {
             background: rgba(255,255,255,0.1);
             backdrop-filter: blur(10px);
@@ -385,7 +385,7 @@
     <!-- 首頁選單 -->
     <div id="page-home" class="page active">
         <div class="card" style="margin-top: 8vh; border-top: 5px solid var(--primary);">
-            <h1>冒險旅途中的意外插曲 <span class="version-tag" style="font-size: 0.8rem; background: #ddd; color: #333; padding: 2px 6px; border-radius: 4px;">v9.8</span></h1>
+            <h1>冒險旅途中的意外插曲 <span class="version-tag" style="font-size: 0.8rem; background: #ddd; color: #333; padding: 2px 6px; border-radius: 4px;">v9.9</span></h1>
             <p style="color: #666; margin-bottom: 40px;">請選擇冒險者即將遭遇的事件</p>
             
             <div class="menu-grid">
@@ -838,7 +838,12 @@
 
             } catch (e) {
                 console.error("Create Vote Error:", e);
-                alert("建立失敗：\n" + e.message + "\n\n(若為權限錯誤，請檢查 Firebase Rules)");
+                // [v9.9 Improved Error Message]
+                if(e.code === 'permission-denied') {
+                    alert("⚠️ 建立失敗：權限不足\n請至 Firebase Console > Firestore Database > Rules\n將規則修改為 allow read, write: if request.auth != null;");
+                } else {
+                    alert("建立失敗：\n" + e.message);
+                }
             } finally {
                 btn.disabled = false;
                 btn.innerText = "📜 生成任務卷軸 (QR Code)";
@@ -922,6 +927,7 @@
         function initStudentMode(hostUid) {
             // Decode ID
             hostUid = decodeURIComponent(hostUid);
+            // [v9.1 Fix] Assign global variable
             currentStudentHost = hostUid;
 
             document.getElementById('statusBar').style.display = 'none';

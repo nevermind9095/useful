@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>冒險旅途中的意外插曲 v9.7</title>
+    <title>冒險旅途中的意外插曲 v9.8</title>
     <!-- 引入 QRCode -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <!-- 引入 現代日系 RPG 風格字體 -->
@@ -76,6 +76,7 @@
         }
         .btn:hover { transform: translateY(-2px); box-shadow: 0 6px 12px rgba(0,0,0,0.2); }
         .btn:active { transform: scale(0.96); }
+        .btn:disabled { opacity: 0.6; cursor: not-allowed; filter: grayscale(1); }
 
         .btn-primary { background: linear-gradient(135deg, var(--primary), #2c52b3); color: white; }
         .btn-danger { background: linear-gradient(135deg, var(--accent-red), #962d22); color: white; }
@@ -314,7 +315,11 @@
         input:checked + .slider { background-color: var(--primary); }
         input:checked + .slider:before { transform: translateX(30px); }
 
-        .vote-bar-row { margin-bottom: 24px; position: relative; }
+        /* 投票圖表樣式 - 可點擊 */
+        .vote-bar-row { 
+            margin-bottom: 24px; position: relative; cursor: pointer; transition: transform 0.2s;
+        }
+        .vote-bar-row:hover { transform: translateX(5px); }
         .vote-label-row { display: flex; justify-content: space-between; margin-bottom: 8px; font-weight: 700; color: #555; }
         .vote-track { height: 16px; background: #f0f0f0; width: 100%; border-radius: 8px; overflow: hidden; }
         .vote-fill { height: 100%; background: var(--primary); width: 0%; transition: width 0.8s cubic-bezier(0.22, 1, 0.36, 1); border-radius: 8px; background-image: linear-gradient(45deg,rgba(255,255,255,.15) 25%,transparent 25%,transparent 50%,rgba(255,255,255,.15) 50%,rgba(255,255,255,.15) 75%,transparent 75%,transparent); background-size: 1rem 1rem; }
@@ -380,7 +385,7 @@
     <!-- 首頁選單 -->
     <div id="page-home" class="page active">
         <div class="card" style="margin-top: 8vh; border-top: 5px solid var(--primary);">
-            <h1>冒險旅途中的意外插曲 <span class="version-tag" style="font-size: 0.8rem; background: #ddd; color: #333; padding: 2px 6px; border-radius: 4px;">v9.7</span></h1>
+            <h1>冒險旅途中的意外插曲 <span class="version-tag" style="font-size: 0.8rem; background: #ddd; color: #333; padding: 2px 6px; border-radius: 4px;">v9.8</span></h1>
             <p style="color: #666; margin-bottom: 40px;">請選擇冒險者即將遭遇的事件</p>
             
             <div class="menu-grid">
@@ -426,7 +431,7 @@
         </div>
     </div>
 
-    <!-- 1-2. 抽籤系統：執行畫面 -->
+    <!-- 1-2. 抽籤系統：執行畫面 (全透明佈局) -->
     <div id="page-lottery-run" class="page">
         <div class="card transparent-mode" id="lotteryCard">
             
@@ -468,7 +473,7 @@
         </div>
     </div>
 
-    <!-- 2. 計時器：魔龍挑戰 -->
+    <!-- 2. 計時器：魔龍挑戰 (全透明 + 史詩文字) -->
     <div id="page-timer" class="page">
         <div class="card transparent-mode" id="timerCard">
             <div style="text-align: center; margin-bottom: 30px;">
@@ -523,7 +528,8 @@
                 <label>戰略選項 (每行一個)</label>
                 <textarea id="voteOptions" rows="5" placeholder="火焰山脈&#10;寒冰洞窟&#10;精靈之森"></textarea>
             </div>
-            <button class="btn btn-primary" style="width: 100%; margin: 20px 0;" onclick="createVote()">📜 生成任務卷軸 (QR Code)</button>
+            <!-- [v9.8] 修改 onclick -->
+            <button id="createVoteBtn" class="btn btn-primary" style="width: 100%; margin: 20px 0;" onclick="createVote()">📜 生成任務卷軸 (QR Code)</button>
         </div>
 
         <div class="card" id="voteResult" style="display: none; border-top: 5px solid var(--primary); margin-top: 50px;">
@@ -741,7 +747,7 @@
                 if(totalTimeLeft <= 0) totalTimeLeft = m * 60 + s;
                 isRunning = true; btn.innerHTML = "⏸️ 暫停";
                 
-                // [v9.6] Prime video first
+                // Prime video first
                 const vid = document.getElementById('dragonVideo');
                 if(vid) {
                     vid.muted = true;
@@ -793,6 +799,7 @@
             document.getElementById('voteLimitContainer').style.display = (type === 'multi') ? 'block' : 'none';
         };
 
+        // [v9.8 Fix] Added try-catch and loading state
         window.createVote = async () => {
             if (!user) return alert("請先登入");
             const question = document.getElementById('voteQuestion').value;
@@ -801,27 +808,41 @@
             const classSize = parseInt(document.getElementById('voteClassSize').value);
             const options = document.getElementById('voteOptions').value.split('\n').filter(o => o.trim());
 
-            if (!question || options.length < 2) return alert("資料不完整");
+            if (!question || options.length < 2) return alert("資料不完整：請檢查問題或選項");
 
-            const voteData = { active: true, question, type, limit: (type === 'multi' ? limit : 1), classSize, options, timestamp: new Date().toISOString(), votes: {}, logs: [] };
-            options.forEach(opt => voteData.votes[opt] = 0);
+            const btn = document.getElementById('createVoteBtn');
+            btn.disabled = true;
+            btn.innerText = "🔄 正在建立任務...";
 
-            const path = `users/${user.uid}/apps/classroom_adventure_tool`;
-            await setDoc(doc(db, path), voteData);
+            try {
+                const voteData = { active: true, question, type, limit: (type === 'multi' ? limit : 1), classSize, options, timestamp: new Date().toISOString(), votes: {}, logs: [] };
+                options.forEach(opt => voteData.votes[opt] = 0);
 
-            document.getElementById('voteSetup').style.display = 'none';
-            document.getElementById('voteResult').style.display = 'block';
-            
-            let baseUrl = window.location.href.split('#')[0].split('?')[0];
-            if (baseUrl.endsWith('/')) baseUrl = baseUrl.slice(0, -1);
-            if (!baseUrl.endsWith('index.html')) baseUrl += '/index.html';
-            
-            const studentLink = `${baseUrl}#mode=student&host=${user.uid}`;
-            const qrDiv = document.getElementById('qrCodeArea');
-            qrDiv.innerHTML = "";
-            new QRCode(qrDiv, { text: studentLink, width: 160, height: 160 });
+                const path = `users/${user.uid}/apps/classroom_adventure_tool`;
+                // [Critical Fix] This line was missing error handling
+                await setDoc(doc(db, path), voteData);
 
-            startTeacherListener(user.uid);
+                document.getElementById('voteSetup').style.display = 'none';
+                document.getElementById('voteResult').style.display = 'block';
+                
+                let baseUrl = window.location.href.split('#')[0].split('?')[0];
+                if (baseUrl.endsWith('/')) baseUrl = baseUrl.slice(0, -1);
+                if (!baseUrl.endsWith('index.html')) baseUrl += '/index.html';
+                
+                const studentLink = `${baseUrl}#mode=student&host=${user.uid}`;
+                const qrDiv = document.getElementById('qrCodeArea');
+                qrDiv.innerHTML = "";
+                new QRCode(qrDiv, { text: studentLink, width: 160, height: 160 });
+
+                startTeacherListener(user.uid);
+
+            } catch (e) {
+                console.error("Create Vote Error:", e);
+                alert("建立失敗：\n" + e.message + "\n\n(若為權限錯誤，請檢查 Firebase Rules)");
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "📜 生成任務卷軸 (QR Code)";
+            }
         };
 
         let currentVoteLogs = []; 
@@ -996,6 +1017,7 @@
 
         const authBtn = document.getElementById('authBtn');
         
+        // Main execution
         const p = getUniversalParams();
 
         if(p.mode === 'student' && p.host) { 
